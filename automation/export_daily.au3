@@ -43,16 +43,23 @@ For $i = 1 To $N_CIRCUITS
     ;    [TODO] 버튼 컨트롤 ID 또는 좌표 확정
     ; ControlClick($BTS_TITLE, "", "[TEXT:Export]")
 
-    ; 4) Export 대화상자 처리
-    ;    [TODO] === 여기가 핵심. Export 클릭 후 뜨는 창을 확인해야 함 ===
-    ;    - 출력 형식(ASCII/CSV) 선택
-    ;    - 파일명 입력 (권장: 회로번호로 = Circ00NN.csv 로 저장해 구분)
-    ;    - 저장 경로를 $OUT_DIR 로 지정
-    ;    - 확인/저장 클릭
-    ;    예시 골격:
-    ;    WinWaitActive("Export", "", 10)
-    ;    ControlSetText("Export", "", "Edit1", $OUT_DIR & "\Circ" & StringFormat("%04d", $i) & ".csv")
-    ;    ControlClick("Export", "", "[TEXT:OK]")
+    ; 4) Export 대화상자 처리 (매뉴얼 6.3 문서화 절차 반영)
+    ;    Battery - Data export 창:
+    ;    (a) Convert to: 형식 선택 — "ASCII" (또는 "EXCEL")
+    ;    (b) Type of conversion: File 버튼 클릭
+    ;    (c) Destination file: 저장 경로 입력 — DOS 8.3 파일명 (예: CIRC0024.CSV)
+    ;    (d) Copy 버튼으로 확정
+    ;    [TODO] 아래 컨트롤 ID/좌표는 실제 export 창 스크린샷으로 확정 필요
+    ; WinWaitActive("Battery - Data export", "", 10)
+    ; ; (a) 형식 드롭다운에서 ASCII 선택
+    ; ; ControlCommand(..., "SelectString", "ASCII")
+    ; ; (b) File 버튼
+    ; ; ControlClick("Battery - Data export", "", "[TEXT:File]")
+    ; ; (c) 저장 경로 (8.3 파일명: 회로번호)
+    ; Local $fname = $OUT_DIR & "\CIRC" & StringFormat("%04d", $i) & ".CSV"
+    ; ; ControlSetText(..., "", "Edit1", $fname)
+    ; ; (d) Copy 로 확정
+    ; ; ControlClick("Battery - Data export", "", "[TEXT:Copy]")
 
     Sleep(500)
 Next

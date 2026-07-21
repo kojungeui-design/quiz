@@ -27,20 +27,29 @@ Windows 7 · BTS-600 V1.600.395 · 40개 회로
 
 (2)는 이미 완성돼 있음(`prototype/daily_report.py`). 남은 건 (1) Export 자동화.
 
-## 경로 1 — Btsexp.exe 명령줄 (먼저 이걸 확인)
+## 매뉴얼 확인 결과 (풀 매뉴얼 6.3 Data Export)
 
-명령 프롬프트에서:
-```
-cd C:\BTS-600
-Btsexp.exe /?
-Btsexp.exe -?
-Btsexp.exe
-```
-→ 사용법(usage)이 뜨면 명령줄 지원. 인자로 배터리/회로/출력경로를 넘길 수 있으면
-   `run_daily.bat`이 40개를 반복 호출해 CSV를 뽑는다. **화면 자동화 불필요.**
-→ 아무 반응 없거나 GUI만 뜨면 경로 2로.
+- **Export는 GUI 전용.** 명령줄·배치·자동·예약 export 기능은 매뉴얼에 **없음**.
+- **"현재 선택된 test section 하나만" export** — 매뉴얼 명시(=하나씩만 됨 확정).
+- macro/DDE/OLE/스크립트 등 외부 자동화 인터페이스도 없음.
+- Export 형식: **ASCII / EXCEL / LOTUS / DIA-PC / BTS Tabelle** — EXCEL 직접 export 가능.
+- 저장경로 파일명은 **DOS 8.3 규칙**(이름 8자 + 확장자 3자, 예: `CIRC0024.CSV`).
 
-Digatron 대리점에 "Btsexp의 배치/명령줄 export 방법"을 문의하면 확실.
+문서화된 export 대화상자 절차:
+```
+Export 버튼  →  Convert to: 형식 선택(ASCII 또는 EXCEL)
+             →  Type of conversion: File 버튼 클릭
+             →  Destination file: 저장 경로 입력 (8.3 파일명)
+             →  (선택) 소수 자릿수 지정
+             →  Copy 버튼으로 확정
+```
+
+## 경로 1 — Btsexp.exe 명령줄  ❌ 매뉴얼상 근거 없음
+
+매뉴얼에 명령줄/배치 export가 없으므로 **기대하지 않는다.**
+`C:\BTS-600\Btsexp.exe`는 GUI가 내부적으로 호출하는 export 엔진으로 보이며,
+문서화된 명령줄 인터페이스가 없다. (혹시 몰라 `Btsexp.exe /?`를 한 번 쳐볼 수는
+있으나, 안 되는 것으로 가정하고 경로 2로 진행한다.)
 
 ## 경로 2 — AutoIt 화면 자동화
 
