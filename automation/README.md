@@ -35,14 +35,25 @@ Windows 7 · BTS-600 V1.600.395 · 40개 회로
 - Export 형식: **ASCII / EXCEL / LOTUS / DIA-PC / BTS Tabelle** — EXCEL 직접 export 가능.
 - 저장경로 파일명은 **DOS 8.3 규칙**(이름 8자 + 확장자 3자, 예: `CIRC0024.CSV`).
 
-문서화된 export 대화상자 절차:
+확인된 export 대화상자(실제 화면 "Battery - Data export"):
 ```
-Export 버튼  →  Convert to: 형식 선택(ASCII 또는 EXCEL)
-             →  Type of conversion: File 버튼 클릭
-             →  Destination file: 저장 경로 입력 (8.3 파일명)
-             →  (선택) 소수 자릿수 지정
-             →  Copy 버튼으로 확정
+Export 버튼  →  Convert to: 형식 선택 (Excel 또는 ASCII)
+             →  Type of conversion: ● File  (또는 ○ DDE)
+             →  Destination file: 저장 경로 입력 (예: E:\CIRC0011.csv)
+             →  Conversion of: 포함 항목 체크(기본값 유지)
+             →  Places behind decimal: -1
+             →  Ok 로 확정
 ```
+
+### 발견 1 — DDE 옵션 존재 (고급 자동화 가능성)
+export 대화상자의 "Type of conversion"에 **DDE** 라디오가 있음.
+DDE(동적 데이터 교환)는 외부 프로그램이 BTS-600에서 데이터를 직접 받아올 수 있는
+Windows 통신 방식. GUI 클릭 없이 데이터를 끌어오는 더 깨끗한 경로가 될 수 있으나,
+구형·까다로운 방식이라 우선은 File+AutoIt로 진행하고 DDE는 후보로 남겨둠.
+
+### 발견 2 — Excel 형식 + E: 드라이브 저장
+Convert to에서 **Excel** 선택 시 .csv로 저장돼 우리 파이프라인이 그대로 읽음.
+저장은 E: 드라이브 등 임의 경로 가능(예: `E:\bts_csv\`).
 
 ## 경로 1 — Btsexp.exe 명령줄  ❌ 매뉴얼상 근거 없음
 
