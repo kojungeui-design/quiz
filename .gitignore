@@ -5,3 +5,4 @@ prototype/out/report_data.json
 prototype/out/test_plan.json
 prototype/out/*.pdf
 prototype/__pycache__/
+prototype/out/grid_status.xlsx
