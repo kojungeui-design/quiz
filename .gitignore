@@ -1,0 +1,6 @@
+node_modules/
+package-lock.json
+prototype/samples/
+prototype/out/report_data.json
+prototype/out/*.pdf
+prototype/__pycache__/
