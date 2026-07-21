@@ -3,3 +3,6 @@ samples/*.csv
 samples/*.xlsx
 out/_preview.html
 __pycache__/
+node_modules/
+package-lock.json
+prototype/out/report_data.json
