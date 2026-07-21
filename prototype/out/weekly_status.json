@@ -1,0 +1,99 @@
+[
+  {
+    "file": "L6n1.csv",
+    "battery": "Batt0020",
+    "circuit": "Circ0020",
+    "section": "L6SOC#1",
+    "program": "GGH_SOC",
+    "running": true,
+    "duration_h": 191.8,
+    "logs": 68867,
+    "총방전용량": 100.675,
+    "안정화전압": [
+      12.883,
+      13.295
+    ],
+    "verdict": "PASS",
+    "judgments": [
+      {
+        "item": "총방전용량",
+        "value": 100.675,
+        "limit": "≥ 95.0 Ah",
+        "ok": true
+      },
+      {
+        "item": "방전 종지전압",
+        "value": 10.5,
+        "limit": "= 10.5±0.1 V",
+        "ok": true
+      },
+      {
+        "item": "안정화 전압(24h)",
+        "value": 13.295,
+        "limit": "≥ 13.0 V",
+        "ok": true
+      }
+    ],
+    "notable": [
+      "[WARN] 방전 중 전압이 513 로그 연속 불변 — 센서 스턱/측정 이상 가능성"
+    ]
+  },
+  {
+    "file": "L6n2.csv",
+    "battery": "Batt0024",
+    "circuit": "Circ0024",
+    "section": "L6SOC#2",
+    "program": "GGH_SOCS",
+    "running": false,
+    "duration_h": 97.0,
+    "logs": 599,
+    "총방전용량": 0.0,
+    "안정화전압": [
+      12.876
+    ],
+    "verdict": "N/A",
+    "judgments": [],
+    "notable": [
+      "[WARN] 온도센서 미연결/단선 — 전체 590개 로그가 물리적 불가값(-270.49°C). 온도 감시 없이 시험됨"
+    ]
+  },
+  {
+    "file": "L6n3.csv",
+    "battery": "Batt0016",
+    "circuit": "Circ0016",
+    "section": "L6SOC#3",
+    "program": "GGH_SOC",
+    "running": true,
+    "duration_h": 191.4,
+    "logs": 69634,
+    "총방전용량": 101.852,
+    "안정화전압": [
+      12.871,
+      13.328
+    ],
+    "verdict": "PASS",
+    "judgments": [
+      {
+        "item": "총방전용량",
+        "value": 101.852,
+        "limit": "≥ 95.0 Ah",
+        "ok": true
+      },
+      {
+        "item": "방전 종지전압",
+        "value": 10.5,
+        "limit": "= 10.5±0.1 V",
+        "ok": true
+      },
+      {
+        "item": "안정화 전압(24h)",
+        "value": 13.328,
+        "limit": "≥ 13.0 V",
+        "ok": true
+      }
+    ],
+    "notable": [
+      "[WARN] 방전 중 전압이 413 로그 연속 불변 — 센서 스턱/측정 이상 가능성"
+    ]
+  }
+]

@@ -1,0 +1,236 @@
+<title>업무 자동화는 어떻게 되는가 — 원리 1페이지</title>
+<style>
+  :root{
+    --ground:#f5f3ee; --surface:#fffefb; --surface-2:#efece4; --line:#e0dccf;
+    --ink:#1c1a15; --ink-2:#5c574c; --ink-3:#928b7b;
+    --accent:#a8482a; --accent-2:#c25a38; --accent-soft:#f2e4dd;
+    --blue:#004094; --blue-soft:#e4ecf6; --good:#2f7d4f; --good-soft:#e3f0e7;
+    --shadow:0 1px 2px rgba(28,26,21,.05),0 6px 22px rgba(28,26,21,.06);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#16130e; --surface:#1e1a14; --surface-2:#26221a; --line:#332d22;
+      --ink:#f2ede1; --ink-2:#b3ab99; --ink-3:#7d7563;
+      --accent:#e07a54; --accent-2:#e88b66; --accent-soft:#2e1d15;
+      --blue:#6ba3e8; --blue-soft:#15243a; --good:#5cb37e; --good-soft:#15271c;
+      --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 22px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#f5f3ee; --surface:#fffefb; --surface-2:#efece4; --line:#e0dccf;
+    --ink:#1c1a15; --ink-2:#5c574c; --ink-3:#928b7b; --accent:#a8482a; --accent-2:#c25a38;
+    --accent-soft:#f2e4dd; --blue:#004094; --blue-soft:#e4ecf6; --good:#2f7d4f; --good-soft:#e3f0e7;
+  }
+  :root[data-theme="dark"]{
+    --ground:#16130e; --surface:#1e1a14; --surface-2:#26221a; --line:#332d22;
+    --ink:#f2ede1; --ink-2:#b3ab99; --ink-3:#7d7563; --accent:#e07a54; --accent-2:#e88b66;
+    --accent-soft:#2e1d15; --blue:#6ba3e8; --blue-soft:#15243a; --good:#5cb37e; --good-soft:#15271c;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ground);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.65;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px;margin:0 auto;padding:56px 24px 72px;}
+  .mono{font-family:"SF Mono",ui-monospace,"Cascadia Mono","Consolas",monospace;font-variant-numeric:tabular-nums;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 14px;}
+  h1{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin:0 0 14px;text-wrap:balance;}
+  .lede{font-size:18px;color:var(--ink-2);margin:0;}
+  .lede b{color:var(--ink);font-weight:700;}
+  header{margin-bottom:8px;}
+  .rule{height:2px;background:var(--accent);width:44px;margin:26px 0 0;border-radius:2px;}
+  section{margin-top:44px;}
+  h2{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:0 0 6px;}
+  .stitle{font-size:23px;font-weight:800;letter-spacing:-.01em;margin:0 0 18px;text-wrap:balance;}
+
+  .principle{display:flex;gap:18px;background:var(--surface);border:1px solid var(--line);
+    border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);margin-bottom:14px;}
+  .principle .n{flex:none;width:38px;height:38px;border-radius:10px;background:var(--accent-soft);
+    color:var(--accent);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;}
+  .principle h3{margin:2px 0 6px;font-size:18px;font-weight:700;}
+  .principle p{margin:0;color:var(--ink-2);font-size:15px;}
+  .principle code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:13px;color:var(--ink);}
+
+  .trace{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px;box-shadow:var(--shadow);}
+  .trace-cols{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;}
+  .col-h{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px;}
+  .human ol{margin:0;padding-left:20px;}
+  .human li{font-size:14.5px;color:var(--ink-2);margin:8px 0;}
+  .human li b{color:var(--ink);}
+  .arrow-mid{color:var(--accent);font-size:26px;font-weight:800;text-align:center;}
+  .machine{background:var(--surface-2);border-radius:12px;padding:18px 20px;}
+  .machine .lbl{font-size:12px;color:var(--ink-3);margin:0 0 8px;}
+  .machine .cmd{font-size:15px;color:var(--ink);font-weight:600;line-height:1.5;}
+  .machine .cmd em{color:var(--accent);font-style:normal;font-weight:700;}
+  .result-chip{margin-top:16px;display:inline-flex;align-items:center;gap:8px;background:var(--good-soft);
+    color:var(--good);font-weight:700;font-size:14px;padding:8px 14px;border-radius:999px;}
+  .datacard{margin-top:20px;background:var(--surface-2);border-radius:12px;padding:16px 18px;overflow-x:auto;}
+  .datacard .cap{font-size:12px;color:var(--ink-3);margin:0 0 10px;}
+  table.raw{border-collapse:collapse;font-size:12.5px;min-width:420px;}
+  table.raw td,table.raw th{padding:5px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;}
+  table.raw th{color:var(--ink-3);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em;}
+  table.raw td:first-child,table.raw th:first-child{text-align:left;}
+  table.raw tr.hit td{background:var(--accent-soft);color:var(--ink);font-weight:700;}
+  table.raw tr.hit td:last-child{color:var(--accent);}
+
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .why .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow);}
+  .why .card.blue{border-top:3px solid var(--blue);}
+  .why .card.acc{border-top:3px solid var(--accent);}
+  .why h3{margin:0 0 10px;font-size:17px;font-weight:700;}
+  .why ul{margin:0;padding-left:18px;}
+  .why li{font-size:14px;color:var(--ink-2);margin:7px 0;}
+  .why li b{color:var(--ink);}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;
+    background:var(--blue-soft);color:var(--blue);margin-bottom:12px;letter-spacing:.02em;}
+  .tag.a{background:var(--accent-soft);color:var(--accent);}
+
+  .apply{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px 26px;box-shadow:var(--shadow);}
+  .apply p.intro{margin:0 0 16px;font-size:15px;color:var(--ink-2);}
+  .apply .item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .apply .item:last-child{border-bottom:none;}
+  .apply .item .k{flex:none;width:132px;font-weight:700;font-size:14.5px;}
+  .apply .item .v{font-size:14px;color:var(--ink-2);}
+  .kicker{margin-top:44px;padding:22px 24px;background:var(--accent);color:#fff;border-radius:14px;
+    font-size:16.5px;font-weight:600;line-height:1.55;}
+  .kicker b{font-weight:800;}
+  footer{margin-top:36px;font-size:12px;color:var(--ink-3);text-align:center;}
+  @media (max-width:640px){
+    .trace-cols{grid-template-columns:1fr;} .arrow-mid{transform:rotate(90deg);}
+    .why{grid-template-columns:1fr;} h1{font-size:28px;}
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">세방전지 · 업무 자동화의 원리</p>
+    <h1>“어떻게 자동으로 되는가”</h1>
+    <p class="lede">결론부터: <b>마법도, AI가 숫자를 알아맞히는 것도 아닙니다.</b>
+      담당자가 반복하던 규칙적인 눈–손 작업을, 글로 적어 컴퓨터에게 시킨 것뿐입니다.
+      원리는 세 가지면 끝납니다.</p>
+    <div class="rule"></div>
+  </header>
+
+  <section>
+    <h2>원리</h2>
+    <p class="stitle">규칙 세 가지</p>
+
+    <div class="principle">
+      <div class="n">1</div>
+      <div>
+        <h3>시험기 파일은 규칙이 있는 표다</h3>
+        <p>BTS-600이 뽑는 CSV는 맨 위에 시험 정보, 그 아래에 10분마다 찍힌 측정값
+          (전압·전류·누적용량)이 줄줄이 있는 표입니다. 사람은 스크롤로 찾지만,
+          컴퓨터는 <code>68,867줄</code>을 순식간에 훑습니다.</p>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="n">2</div>
+      <div>
+        <h3>시험은 정해진 레시피다</h3>
+        <p>GGH_SOC 시험은 늘 같은 순서 — 만충전 → 72h 휴지 → 10%씩 방전하며 휴지 →
+          완전방전 → 재충전 → 24h 휴지. 이 순서가 데이터의 상태 칸에 그대로 찍힙니다
+          (<code>CHA</code>충전 · <code>DCH</code>방전 · <code>PAU</code>휴지).</p>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="n">3</div>
+      <div>
+        <h3>관리대장의 각 칸 = 레시피의 특정 지점</h3>
+        <p>담당자가 적는 값은 사실 <b>정해진 위치의 숫자</b>입니다. “총 방전용량”은
+          방전이 끝난 순간의 누적값, “안정화 전압 72h”는 72시간 휴지가 끝나는 줄의 전압.
+          위치가 정해져 있으니 규칙으로 집어올 수 있습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>구체적인 예</h2>
+    <p class="stitle">‘총 방전용량 100.675’는 이렇게 나온다</p>
+    <div class="trace">
+      <div class="trace-cols">
+        <div class="human">
+          <p class="col-h">지금 · 사람이 하는 일</p>
+          <ol>
+            <li>로우데이터 파일을 <b>연다</b></li>
+            <li>방전이 다 끝난 <b>마지막 줄로 스크롤</b></li>
+            <li>누적 방전량 칸의 <b>100.675를 읽는다</b></li>
+            <li>관리대장에 <b>타이핑</b>한다</li>
+          </ol>
+        </div>
+        <div class="arrow-mid">→</div>
+        <div class="machine-wrap">
+          <p class="col-h">자동 · 컴퓨터에게 시킨 규칙</p>
+          <div class="machine">
+            <p class="lbl">단 한 줄의 규칙</p>
+            <p class="cmd">“방전 누적값 중 <em>제일 큰 값</em>을 가져와라.”</p>
+          </div>
+          <div class="result-chip">→ 결과 100.675 · 손입력값과 정확히 일치</div>
+        </div>
+      </div>
+
+      <div class="datacard">
+        <p class="cap">실제 데이터 마지막 부분 (컴퓨터가 읽는 그대로)</p>
+        <table class="raw mono">
+          <thead><tr><th>상태</th><th>경과</th><th>전압(V)</th><th>누적방전(Ah)</th></tr></thead>
+          <tbody>
+            <tr><td>DCH</td><td>151.3h</td><td>10.508</td><td>100.671</td></tr>
+            <tr><td>DCH</td><td>151.3h</td><td>10.503</td><td>100.674</td></tr>
+            <tr class="hit"><td>DCH</td><td>151.3h</td><td>10.500</td><td>100.675 ←</td></tr>
+            <tr><td>CHA</td><td>154.0h</td><td>16.000</td><td>100.675</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>신뢰성 · AI의 자리</h2>
+    <p class="stitle">왜 믿을 수 있고, AI는 어디에 쓰나</p>
+    <div class="why">
+      <div class="card acc">
+        <span class="tag a">규칙 기반이라</span>
+        <h3>믿을 수 있다</h3>
+        <ul>
+          <li><b>지어내지 않는다.</b> 데이터에 실제로 있는 값을 규칙대로 집어올 뿐 — 그래서 28개 값 전부 일치를 증명했습니다.</li>
+          <li><b>추적된다.</b> “몇 번째 휴지의 전압”처럼 규칙이 명확해 틀리면 왜 틀렸는지 알 수 있습니다.</li>
+          <li><b>지치지 않는다.</b> 13만 줄에도 실수 없이 몇 초.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <span class="tag">그럼 AI는</span>
+        <h3>판단·설명에 얹는다</h3>
+        <ul>
+          <li>값 추출은 <b>규칙만으로</b> 됩니다 — AI 없이도.</li>
+          <li>온도센서 미연결 감지도 규칙입니다 (<b>−270°C면 물리적으로 불가</b> → 센서 문제).</li>
+          <li>AI는 그 위에 — <b>“왜 이런 패턴인지 설명”</b>, 규칙으로 딱 정하기 애매한 판단에 씁니다.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>확장</h2>
+    <p class="stitle">같은 원리가 통하는 다른 업무</p>
+    <div class="apply">
+      <p class="intro">“사람이 규칙적으로 하던 문서 작업”은 대부분 이 세 가지 규칙으로 자동화됩니다.
+        시험 관리대장은 그 첫 사례일 뿐입니다.</p>
+      <div class="item"><div class="k">시험성적서</div>
+        <div class="v">로우데이터 → 규격 대조 → 회사 양식 성적서 초안. 담당자는 검토·서명만.</div></div>
+      <div class="item"><div class="k">고객 요구사양(SOR)</div>
+        <div class="v">OEM 요구서 → 항목 추출 → 우리 사양과 자동 대조 → 대응표(합/부).</div></div>
+      <div class="item"><div class="k">품질 클레임</div>
+        <div class="v">접수 내용 → 과거 유사사례 검색 → 8D 보고서 초안.</div></div>
+      <div class="item"><div class="k">주간 시험현황</div>
+        <div class="v">35개 채널 데이터 → 합부 판정 → 현황 리포트 자동 집계.</div></div>
+    </div>
+  </section>
+
+  <div class="kicker">
+    한 줄 요약 — 자동화는 <b>사람의 규칙을 글로 옮겨 컴퓨터에 맡기는 일</b>입니다.
+    컴퓨터는 그 규칙을 지치지 않고, 실수 없이, 몇 초 만에 반복할 뿐입니다.
+  </div>
+
+  <footer>세방전지 업무 자동화 · 원리 설명 자료 · 실제 BTS-600 데이터 기반</footer>
+</div>

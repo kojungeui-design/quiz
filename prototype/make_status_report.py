@@ -1,0 +1,216 @@
+#!/usr/bin/env python3
+"""주간 시험현황 리포트 HTML 생성 (pipeline.py 결과 JSON → 리포트)."""
+
+import json
+from pathlib import Path
+
+OUT = Path("prototype/out")
+DATA = OUT / "weekly_status.json"
+
+VBADGE = {
+    "PASS": ("합격", "pass"), "FAIL": ("불합격", "fail"),
+    "HOLD": ("판정보류", "hold"), "N/A": ("해당없음", "na"),
+}
+
+
+def main():
+    results = json.loads(DATA.read_text(encoding="utf-8"))
+    n = len(results)
+    n_pass = sum(1 for r in results if r["verdict"] == "PASS")
+    n_fail = sum(1 for r in results if r["verdict"] == "FAIL")
+    n_warn = sum(len(r["notable"]) for r in results)
+    n_logs = sum(r["logs"] for r in results)
+
+    # 상태표
+    rows = ""
+    for r in results:
+        tag, cls = VBADGE[r["verdict"]]
+        state = "진행 중" if r["running"] else "종료"
+        state_cls = "run" if r["running"] else "done"
+        cap = f"{r['총방전용량']:.3f}" if r["총방전용량"] else "—"
+        rows += f'''<tr>
+          <td class="mono">{r['battery']}</td>
+          <td>{r['section']}</td>
+          <td>{r['program']}</td>
+          <td><span class="state {state_cls}">{state}</span></td>
+          <td class="num">{r['duration_h']:.1f}</td>
+          <td class="num">{cap}</td>
+          <td><span class="verdict {cls}">{tag}</span></td>
+        </tr>'''
+
+    # 시료별 판정 상세 카드
+    cards = ""
+    for r in results:
+        tag, cls = VBADGE[r["verdict"]]
+        jrows = ""
+        for j in r["judgments"]:
+            ok = "pass" if j["ok"] else "fail"
+            mark = "합격" if j["ok"] else "불합격"
+            jrows += f'''<div class="jrow">
+              <span class="ji">{j['item']}</span>
+              <span class="jv mono">{j['value']}</span>
+              <span class="jl mono">{j['limit']}</span>
+              <span class="jm {ok}">{mark}</span></div>'''
+        if not jrows:
+            jrows = '<div class="jrow empty">C20 용량시험 판정 항목 없음 (다른 시험 경로)</div>'
+        notes = "".join(f'<li>{x}</li>' for x in r["notable"]) or "<li class='none'>특이사항 없음</li>"
+        cards += f'''<div class="card">
+          <div class="card-h">
+            <div><div class="cb">{r['battery']}</div><div class="cs">{r['section']} · {r['program']}</div></div>
+            <span class="verdict {cls}">{tag}</span>
+          </div>
+          <div class="jbox">{jrows}</div>
+          <div class="notes"><div class="nl">이상·특이사항</div><ul>{notes}</ul></div>
+        </div>'''
+
+    html = TEMPLATE.format(
+        n=n, n_pass=n_pass, n_fail=n_fail, n_warn=n_warn, n_logs=f"{n_logs:,}",
+        rows=rows, cards=cards,
+    )
+    dest = OUT / "weekly_status.html"
+    dest.write_text(html, encoding="utf-8")
+    print("saved", dest)
+
+
+TEMPLATE = r"""<title>주간 시험현황 리포트 — 자동 생성</title>
+<style>
+  :root{{
+    --ground:#f4f6f9;--surface:#fff;--surface-2:#eef2f7;--line:#dce2ea;
+    --ink:#141a22;--ink-2:#5a6472;--ink-3:#8a94a3;--accent:#004094;--accent-2:#2a78d6;
+    --pass:#1a8f5c;--pass-bg:#e7f4ee;--fail:#d6453d;--fail-bg:#fbe6e4;
+    --hold:#c67f06;--hold-bg:#fbf1dd;--na:#8a94a3;--na-bg:#eef2f7;
+    --shadow:0 1px 2px rgba(20,26,34,.04),0 4px 16px rgba(20,26,34,.05);
+  }}
+  @media (prefers-color-scheme:dark){{:root{{
+    --ground:#0f141b;--surface:#161d27;--surface-2:#1d2532;--line:#293341;
+    --ink:#eef1f6;--ink-2:#9aa5b4;--ink-3:#6b7686;--accent:#4a90e2;--accent-2:#63a4ea;
+    --pass:#3fb884;--pass-bg:#12271f;--fail:#e5675f;--fail-bg:#2a1615;
+    --hold:#e0a53a;--hold-bg:#2a2113;--na:#6b7686;--na-bg:#1d2532;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 18px rgba(0,0,0,.35);
+  }}}}
+  :root[data-theme="light"]{{--ground:#f4f6f9;--surface:#fff;--surface-2:#eef2f7;--line:#dce2ea;
+    --ink:#141a22;--ink-2:#5a6472;--ink-3:#8a94a3;--accent:#004094;--accent-2:#2a78d6;
+    --pass:#1a8f5c;--pass-bg:#e7f4ee;--fail:#d6453d;--fail-bg:#fbe6e4;--hold:#c67f06;--hold-bg:#fbf1dd;--na:#8a94a3;--na-bg:#eef2f7;}}
+  :root[data-theme="dark"]{{--ground:#0f141b;--surface:#161d27;--surface-2:#1d2532;--line:#293341;
+    --ink:#eef1f6;--ink-2:#9aa5b4;--ink-3:#6b7686;--accent:#4a90e2;--accent-2:#63a4ea;
+    --pass:#3fb884;--pass-bg:#12271f;--fail:#e5675f;--fail-bg:#2a1615;--hold:#e0a53a;--hold-bg:#2a2113;--na:#6b7686;--na-bg:#1d2532;}}
+  *{{box-sizing:border-box;}}
+  body{{margin:0;background:var(--ground);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;}}
+  .wrap{{max-width:1000px;margin:0 auto;padding:40px 24px 64px;}}
+  .mono,.num{{font-variant-numeric:tabular-nums;}}
+  .eyebrow{{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-2);margin:0 0 10px;}}
+  h1{{font-size:28px;font-weight:800;letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance;}}
+  .lede{{font-size:15.5px;color:var(--ink-2);margin:0;max-width:66ch;}}
+  .cmd-hint{{margin-top:14px;display:inline-block;font-size:13px;background:var(--surface-2);
+    border:1px solid var(--line);border-radius:8px;padding:8px 13px;color:var(--ink-2);}}
+  .cmd-hint code{{color:var(--accent-2);font-weight:700;}}
+  header{{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:26px;}}
+  section{{margin-top:32px;}}
+  h2{{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
+    margin:0 0 16px;display:flex;align-items:center;gap:10px;}}
+  h2::after{{content:"";flex:1;height:1px;background:var(--line);}}
+
+  .kpis{{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}}
+  .kpi{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow);}}
+  .kpi .v{{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1;}}
+  .kpi .v small{{font-size:14px;font-weight:700;color:var(--ink-2);}}
+  .kpi .l{{font-size:12.5px;color:var(--ink-2);margin-top:8px;}}
+  .kpi.good .v{{color:var(--pass);}}
+
+  .tablewrap{{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);}}
+  table{{border-collapse:collapse;width:100%;font-size:13.5px;min-width:680px;}}
+  th,td{{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);}}
+  thead th{{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);font-weight:700;}}
+  td.num{{text-align:right;}}
+  tbody tr:last-child td{{border-bottom:none;}}
+  .state{{font-size:12px;font-weight:700;padding:2px 9px;border-radius:6px;}}
+  .state.run{{background:var(--hold-bg);color:var(--hold);}}
+  .state.done{{background:var(--surface-2);color:var(--ink-2);}}
+  .verdict{{font-size:12px;font-weight:800;padding:3px 11px;border-radius:7px;letter-spacing:.02em;}}
+  .verdict.pass{{background:var(--pass-bg);color:var(--pass);}}
+  .verdict.fail{{background:var(--fail-bg);color:var(--fail);}}
+  .verdict.hold{{background:var(--hold-bg);color:var(--hold);}}
+  .verdict.na{{background:var(--na-bg);color:var(--na);}}
+
+  .cards{{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}}
+  .card{{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);}}
+  .card-h{{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px;}}
+  .cb{{font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;}}
+  .cs{{font-size:12px;color:var(--ink-3);margin-top:2px;}}
+  .jbox{{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}}
+  .jrow{{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;font-size:12.5px;
+    padding:7px 10px;background:var(--surface-2);border-radius:7px;}}
+  .jrow.empty{{grid-template-columns:1fr;color:var(--ink-3);font-size:12px;text-align:center;}}
+  .ji{{color:var(--ink-2);}}
+  .jv{{font-weight:700;}}
+  .jl{{color:var(--ink-3);font-size:11px;}}
+  .jm{{font-size:11px;font-weight:800;padding:1px 7px;border-radius:5px;grid-column:1/-1;justify-self:end;margin-top:-2px;}}
+  .jm.pass{{background:var(--pass-bg);color:var(--pass);}}
+  .jm.fail{{background:var(--fail-bg);color:var(--fail);}}
+  .notes .nl{{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px;}}
+  .notes ul{{margin:0;padding-left:16px;}}
+  .notes li{{font-size:12px;color:var(--ink-2);margin:3px 0;}}
+  .notes li.none{{color:var(--ink-3);list-style:none;margin-left:-16px;}}
+
+  .note{{margin-top:26px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent-2);
+    border-radius:10px;padding:14px 18px;font-size:13px;color:var(--ink-2);}}
+  .note b{{color:var(--ink);}}
+  footer{{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}}
+  @media (max-width:760px){{.kpis{{grid-template-columns:repeat(2,1fr);}}.cards{{grid-template-columns:1fr;}}}}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">세방전지 · 시험데이터 자동화</p>
+    <h1>주간 시험현황 리포트 <span style="color:var(--ink-3);font-weight:600;font-size:18px;">· 자동 생성</span></h1>
+    <p class="lede">폴더에 쌓인 BTS-600 로우데이터를 <b>명령 한 번으로 전부</b> 처리 —
+      값 추출 · 이상 감지 · 합부 판정 · 현황 집계를 자동으로. 35개 채널로 그대로 확장됩니다.</p>
+    <div class="cmd-hint">실행: <code>python3 pipeline.py &lt;CSV폴더&gt; &lt;모델&gt;</code> → 이 리포트가 자동 생성</div>
+  </header>
+
+  <section>
+    <div class="kpis">
+      <div class="kpi"><div class="v">{n}</div><div class="l">자동 처리한 시험</div></div>
+      <div class="kpi good"><div class="v">{n_pass}<small> 합격</small></div><div class="l">규격 기준 자동 판정</div></div>
+      <div class="kpi"><div class="v">{n_warn}<small> 건</small></div><div class="l">이상·특이사항 감지</div></div>
+      <div class="kpi"><div class="v">{n_logs}</div><div class="l">처리 로그 행</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>시험 현황</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr>
+          <th>시료</th><th>시험구간</th><th>프로그램</th><th>상태</th>
+          <th style="text-align:right">경과(h)</th><th style="text-align:right">총방전용량(Ah)</th><th>판정</th>
+        </tr></thead>
+        <tbody>{rows}</tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>시료별 판정 상세</h2>
+    <div class="cards">{cards}</div>
+  </section>
+
+  <div class="note">
+    ※ 판정 기준은 <b>예시값</b>입니다 (총방전용량 ≥ 95Ah, 안정화 24h ≥ 13.0V, 종지 10.5±0.1V).
+    실제 사내 규격을 입력하면 판정 로직은 그대로 재사용됩니다. 비중평가 등 C20 용량시험이 아닌 경로는
+    C20 기준으로 판정하지 않습니다(해당없음).
+  </div>
+
+  <footer>
+    <span>세방전지 시험데이터 자동화 · 주간현황 자동 생성 리포트</span>
+    <span>모델 GB L6 · 실제 BTS-600 데이터 기반</span>
+  </footer>
+</div>
+"""
+
+
+if __name__ == "__main__":
+    main()
