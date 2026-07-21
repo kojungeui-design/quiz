@@ -108,6 +108,7 @@ def extract_tracking(meta, steps):
            "프로그램": meta["program"], "시험구간": meta["section"]}
 
     rests = [s for s in steps if s.status == "PAU"]
+    dch = [s for s in steps if s.status == "DCH"]
 
     # 총 방전용량 = 최종 누적 AhDch
     all_dch = [s.ah_dch for s in steps if s.ah_dch]
@@ -121,16 +122,19 @@ def extract_tracking(meta, steps):
             base = s.ah_cha
     out["충전용량(Ah)"] = charge_caps
 
-    # 안정화 전압 = 12h 이상 장기 휴지의 종료 전압
+    # 안정화 전압 = 12h 이상 장기 휴지의 종료 전압 (72h 만충전 후, 24h 재충전 후)
     long_rests = [r for r in rests if r.dur_h >= 12]
     out["안정화전압(휴지종료V)"] = [round(r.end_voltage, 3) for r in long_rests]
 
-    # C20 SOC-OCV 곡선 = 방전 사이 6h 휴지들의 종료 전압 + 최종 방전 종지전압
+    # C20 SOC-OCV 곡선 (8포인트):
+    #   SOC 1.0 = 72h 만충전 안정화 전압, 중간 = 6h 휴지 OCV, SOC 0 = 방전 종지전압
     soc_rests = [r for r in rests if 3 <= r.dur_h <= 12]
-    dch = [s for s in steps if s.status == "DCH"]
-    curve = [round(r.end_voltage, 3) for r in soc_rests]
+    curve = []
+    if long_rests:
+        curve.append(round(long_rests[0].end_voltage, 3))   # SOC 1.0
+    curve += [round(r.end_voltage, 3) for r in soc_rests]     # SOC 0.9 ~ 0.2
     if dch:
-        curve.append(round(dch[-1].end_voltage, 3))  # SOC 0 = 방전 종지전압
+        curve.append(round(dch[-1].end_voltage, 3))          # SOC 0
     out["SOC구간 OCV(V)"] = curve
 
     return out
