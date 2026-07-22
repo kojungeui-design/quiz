@@ -310,6 +310,7 @@ function addBuyer(){const name=prompt('바이어명');if(!name)return;const type
 
 /* ---- 제품 탭 ---- */
 let pFilter={q:'',buyer:'',chem:'',plant:'',ob:'',st:'',page:1};
+let openProductId=null;
 const PAGE=40;
 function filteredProducts(){
   const q=pFilter.q.toLowerCase();
@@ -330,7 +331,7 @@ function renderProducts(){
   if(pFilter.page>pages)pFilter.page=pages;
   const slice=all.slice((pFilter.page-1)*PAGE,pFilter.page*PAGE);
   $('products').innerHTML=`
-  <div class="sh"><div><h2>제품(SKU) 준수 현황</h2><p>제품별 의무 상태를 직접 변경하면 저장됩니다. 검색·필터·페이지로 대량(5,000+) 관리.</p></div>
+  <div class="sh"><div><h2>제품(SKU) 준수 현황</h2><p><b>제품 코드(모델·SKU)로 검색</b>하거나 행을 클릭하면 아래에 상세 상태 카드가 표시됩니다. 상태 변경은 자동 저장.</p></div>
     <button class="btn" onclick="exportProductCSV()">제품 상태 CSV</button></div>
   <div class="toolbar">
     <input class="search" placeholder="모델·SKU 검색" value="${esc(pFilter.q)}" oninput="pFilter.q=this.value;pFilter.page=1;renderProducts()">
@@ -344,17 +345,40 @@ function renderProducts(){
   </div>
   <div class="tablewrap"><table class="data"><thead><tr><th>모델</th><th>SKU</th><th>화학계</th><th>공장</th><th>바이어</th>${POBS.map(o=>`<th title="${o.reg}">${o.n}</th>`).join('')}<th>준비도</th></tr></thead><tbody>
     ${slice.map(p=>{const pr=productReadiness(p);return `<tr>
-      <td><b>${esc(p.model)}</b></td><td class="small">${esc(p.sku)}</td><td>${esc(p.chemistry)}</td><td>${esc(p.plant)}</td>
+      <td><a class="link" onclick="openProduct('${p.id}')">${esc(p.model)}</a></td><td class="small"><a class="link" onclick="openProduct('${p.id}')">${esc(p.sku)}</a></td><td>${esc(p.chemistry)}</td><td>${esc(p.plant)}</td>
       <td class="small">${p.buyerIds.map(id=>esc(bmap[id]||id)).join(', ')}</td>
       ${POBS.map(o=>{const s=p.status[o.k]||'todo';return `<td>${selHTML(s,`setProduct('${p.id}','${o.k}',this.value)`)}</td>`;}).join('')}
       <td class="mini">${pr.pct}%</td></tr>`;}).join('')||`<tr><td colspan="${5+POBS.length+1}" style="text-align:center;padding:26px" class="muted">조건에 맞는 제품이 없습니다.</td></tr>`}
   </tbody></table></div>
   <div class="pager"><button class="btn" ${pFilter.page<=1?'disabled':''} onclick="pFilter.page--;renderProducts()">‹ 이전</button>
     <span>${pFilter.page} / ${pages} 페이지</span>
-    <button class="btn" ${pFilter.page>=pages?'disabled':''} onclick="pFilter.page++;renderProducts()">다음 ›</button></div>`;
+    <button class="btn" ${pFilter.page>=pages?'disabled':''} onclick="pFilter.page++;renderProducts()">다음 ›</button></div>
+  <div id="productDetail"></div>`;
+  if(pFilter.q.trim() && all.length===1) openProductId=all[0].id;
+  renderProductDetail(openProductId);
+}
+function openProduct(id){openProductId=id;renderProductDetail(id);setTimeout(()=>{const el=$('productDetail');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},30);}
+function renderProductDetail(id){
+  const el=$('productDetail');if(!el)return;
+  const p=id&&state.products.find(x=>x.id===id);
+  if(!p){el.innerHTML='';return;}
+  const pr=productReadiness(p);
+  const buyers=p.buyerIds.map(bid=>state.buyers.find(b=>b.id===bid)).filter(Boolean);
+  el.innerHTML=`<div class="detail">
+    <div class="sh"><div><h3>🔎 ${esc(p.model)} <span class="muted small">${esc(p.sku)}</span></h3>
+      <p>${esc(p.chemistry)} · ${esc(p.plant)} · ${esc(p.capacity)} · 준비도 <b>${pr.pct}%</b> (${pr.ok}/${pr.app})</p></div>
+      <button class="btn sm" onclick="openProductId=null;renderProductDetail(null)">닫기 ✕</button></div>
+    <h3 style="margin-top:6px">제품 의무 상태</h3>
+    <div class="obg">${POBS.map(o=>{const s=p.status[o.k]||'todo';return `<div class="obcell"><div class="t">${esc(o.n)}</div><div class="r">규제/시행: ${esc(o.reg)}</div>${selHTML(s,`setProduct('${p.id}','${o.k}',this.value)`)}</div>`;}).join('')}</div>
+    <h3 style="margin-top:14px">납품 바이어 (${buyers.length}) <span class="muted small">클릭 시 바이어 상세</span></h3>
+    ${buyers.length?`<div>${buyers.map(b=>{const r=buyerReadiness(b);return `<span class="tag ${b.type==='OE'?'oe':b.type==='big'?'big':'sme'}" style="cursor:pointer;font-size:12px;padding:5px 11px;margin:2px 4px 2px 0;display:inline-block" onclick="openBuyer('${b.id}')">${esc(b.name)} · ${TYPELABEL[b.type]} · ${r.pct}%</span>`;}).join('')}</div>`:'<p class="muted">연결된 바이어 없음</p>'}
+  </div>`;
 }
 function setProduct(pid,k,v){const p=state.products.find(x=>x.id===pid);if(!p)return;p.status[k]=v;save();
-  const sel=event.target;sel.className='sel-'+v;const row=sel.closest('tr');const pr=productReadiness(p);row.querySelector('.mini').textContent=pr.pct+'%';dashDirty=true;}
+  const sel=(typeof event!=='undefined')&&event.target;
+  if(sel){sel.className='sel-'+v;const row=sel.closest('tr');if(row){const pr=productReadiness(p);const m=row.querySelector('.mini');if(m)m.textContent=pr.pct+'%';}}
+  if(openProductId===pid)renderProductDetail(pid);
+  dashDirty=true;}
 let dashDirty=false;
 
 /* ---- 가져오기/내보내기 ---- */
