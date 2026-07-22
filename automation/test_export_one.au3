@@ -27,6 +27,13 @@ Global $CANCEL[2]   = [810, 644]    ; Test sections Cancel
 Func note($m)
     ToolTip($m, 10, 10)
 EndFunc
+
+; 버튼 이름으로 클릭(우선), 실패 시 좌표로 클릭 (좌표 부정확해도 동작)
+Func clickBtn($win, $text, $x, $y)
+    Local $r = ControlClick($win, "", "[TEXT:" & $text & "]")
+    If $r = 0 Then MouseClick("left", $x, $y, 1, 15)
+    Return $r
+EndFunc
 Func stop_($m)
     note("[중단] " & $m)
     Sleep(3000)
