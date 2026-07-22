@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EU 배터리법 규제 대응 관리 도구</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#ffffff; --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
+    --brand:#0e7490; --brand-d:#155e75; --accent:#0891b2;
+    --ok:#16a34a; --okbg:#dcfce7; --prog:#2563eb; --progbg:#dbeafe;
+    --todo:#dc2626; --todobg:#fee2e2; --na:#6b7280; --nabg:#f1f5f9;
+    --warn:#b45309; --warnbg:#fef3c7; --soft:#f8fafc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Malgun Gothic','Apple SD Gothic Neo',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:#eef2f6;color:var(--ink);line-height:1.55;font-size:14px}
+  header{background:linear-gradient(135deg,var(--brand-d),var(--accent));color:#fff;padding:20px 28px;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  header h1{font-size:20px;font-weight:800;letter-spacing:-.3px}
+  header .sub{font-size:12.5px;opacity:.9;margin-top:2px}
+  header .company{font-size:12.5px;background:rgba(255,255,255,.15);padding:6px 12px;border-radius:8px}
+  nav{background:var(--panel);border-bottom:1px solid var(--line);padding:0 20px;display:flex;gap:4px;
+    position:sticky;top:0;z-index:20;overflow-x:auto}
+  nav button{background:none;border:none;padding:14px 18px;font-size:14px;font-weight:600;color:var(--muted);
+    cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;font-family:inherit}
+  nav button:hover{color:var(--brand)}
+  nav button.active{color:var(--brand);border-bottom-color:var(--brand)}
+  main{max-width:1180px;margin:0 auto;padding:24px 20px 60px}
+  .tab{display:none}.tab.active{display:block}
+  h2.section{font-size:17px;font-weight:800;margin:6px 0 14px;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .disclaimer{background:var(--warnbg);border:1px solid #fcd34d;color:#7c4a03;border-radius:10px;
+    padding:12px 16px;font-size:12.5px;margin-bottom:20px;line-height:1.6}
+  .disclaimer b{color:#92400e}
+  /* cards / stats */
+  .grid{display:grid;gap:14px}
+  .stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:22px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .stat .n{font-size:28px;font-weight:800;line-height:1.1}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .stat.ok .n{color:var(--ok)} .stat.prog .n{color:var(--prog)}
+  .stat.todo .n{color:var(--todo)} .stat.warn .n{color:var(--warn)}
+  .barwrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:22px}
+  .barwrap h3{font-size:14px;margin-bottom:12px}
+  .progbar{height:26px;border-radius:8px;overflow:hidden;display:flex;background:var(--nabg)}
+  .progbar span{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11.5px;font-weight:700}
+  .legend{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:middle}
+  /* profile */
+  .profile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:22px}
+  .profile h3{font-size:14px;margin-bottom:6px}
+  .profile p{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+  .chips{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{border:1.5px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer;font-size:13px;
+    font-weight:600;color:var(--muted);user-select:none;transition:.12s}
+  .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .prof-row{display:flex;gap:22px;flex-wrap:wrap;align-items:center;margin-top:14px;font-size:13px}
+  .prof-row label{display:flex;align-items:center;gap:7px;cursor:pointer}
+  /* deadlines list */
+  .dl{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .dl-row{display:flex;align-items:center;gap:14px;padding:12px 18px;border-top:1px solid var(--line);font-size:13px}
+  .dl-row:first-child{border-top:none}
+  .dl-date{font-weight:800;min-width:96px;font-variant-numeric:tabular-nums}
+  .dl-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;white-space:nowrap}
+  .dl-d{color:var(--muted);font-size:12px;margin-left:auto;white-space:nowrap}
+  .overdue .dl-date{color:var(--todo)} .soon .dl-date{color:var(--warn)}
+  /* checklist */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .toolbar select,.toolbar input{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit}
+  .ob{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
+  .ob-head{padding:15px 18px;display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+  .ob-head:hover{background:var(--soft)}
+  .ob-code{background:var(--brand);color:#fff;font-weight:800;font-size:13px;width:30px;height:30px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ob-title{font-weight:700;font-size:14.5px}
+  .ob-meta{font-size:12px;color:var(--muted);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .ob-art{font-weight:600;color:var(--accent)}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px}
+  .b-cat{background:#e0f2fe;color:#075985}
+  .b-verify{background:var(--warnbg);color:var(--warn)}
+  .b-float{background:#ede9fe;color:#6d28d9}
+  .b-na{background:var(--nabg);color:var(--na)}
+  .st-pill{margin-left:auto;flex-shrink:0;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:999px}
+  .st-todo{background:var(--todobg);color:var(--todo)} .st-prog{background:var(--progbg);color:var(--prog)}
+  .st-ok{background:var(--okbg);color:var(--ok)} .st-na{background:var(--nabg);color:var(--na)}
+  .ob-body{display:none;padding:0 18px 18px;border-top:1px solid var(--line)}
+  .ob.open .ob-body{display:block}
+  .ob-desc{font-size:13px;color:#334155;margin:14px 0;padding:12px 14px;background:var(--soft);border-radius:8px;border-left:3px solid var(--accent)}
+  .ob-annex{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .ob-mile{margin:12px 0}
+  .ob-mile h4{font-size:12.5px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+  .mile{display:flex;gap:10px;align-items:baseline;font-size:12.5px;padding:4px 0;border-top:1px dashed var(--line)}
+  .mile:first-of-type{border-top:none}
+  .mile b{min-width:92px;font-variant-numeric:tabular-nums}
+  .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
+  .field label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:4px}
+  .field select,.field input,.field textarea{width:100%;padding:8px 10px;border:1px solid var(--line);
+    border-radius:8px;font-size:13px;font-family:inherit}
+  .field textarea{resize:vertical;min-height:38px}
+  /* timeline */
+  .tl{position:relative;padding-left:26px}
+  .tl::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .tl-item{position:relative;padding:0 0 20px 18px}
+  .tl-item::before{content:'';position:absolute;left:-23px;top:5px;width:12px;height:12px;border-radius:50%;
+    background:#fff;border:3px solid var(--brand)}
+  .tl-item.past::before{background:var(--muted);border-color:var(--muted)}
+  .tl-item.soon::before{background:var(--warn);border-color:var(--warn)}
+  .tl-date{font-weight:800;font-size:13.5px;font-variant-numeric:tabular-nums}
+  .tl-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin-top:6px}
+  .tl-card .t{font-weight:700;font-size:13.5px}
+  .tl-card .m{font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  /* export */
+  .exp-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .exp{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center}
+  .exp .ico{font-size:34px;margin-bottom:8px}
+  .exp h3{font-size:15px;margin-bottom:6px}
+  .exp p{font-size:12.5px;color:var(--muted);margin-bottom:14px;min-height:52px}
+  .btn{background:var(--brand);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13.5px;
+    font-weight:700;cursor:pointer;font-family:inherit;transition:.12s}
+  .btn:hover{background:var(--brand-d)}
+  .btn.ghost{background:#fff;color:var(--brand);border:1.5px solid var(--brand)}
+  .cat-tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:#e0f2fe;color:#075985}
+  footer{text-align:center;font-size:11.5px;color:var(--muted);padding:24px;border-top:1px solid var(--line)}
+  .muted{color:var(--muted)}
+  @media print{nav,header .company,.no-print,.toolbar,.profile{display:none!important}
+    .ob-body{display:block!important}.tab{display:block!important}body{background:#fff}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>⚡ EU 배터리법 규제 대응 관리 도구</h1>
+    <div class="sub">Regulation (EU) 2023/1542 · 의무 이행 체크리스트 · 마감 추적 · 보고서 자동 생성</div>
+  </div>
+  <div class="company" id="companyName">회사: gbattery · SLI(자동차 시동용) 배터리</div>
+</header>
+
+<nav>
+  <button class="active" data-tab="dash">📊 대시보드</button>
+  <button data-tab="check">✅ 요건 체크리스트</button>
+  <button data-tab="time">🗓️ 이행 일정</button>
+  <button data-tab="export">📤 내보내기·보고서</button>
+</nav>
+
+<main>
+  <div class="disclaimer">
+    ⚠️ <b>정확성 안내:</b> 본 도구의 조항·시행일은 Regulation (EU) 2023/1542 및 공개 자료를 근거로 정리했습니다.
+    <b>탄소발자국(CFP) 등 일부 시행일은 EU 집행위 위임법(delegated act) 채택 시점에 연동되어 유동적</b>이며(2026.7 현재 미채택),
+    <span class="badge b-verify">확인필요</span> 표시 항목은 1차 원문(EUR-Lex, CELEX 32023R1542 제96조·부속서)과 사내 법무를 통해 반드시 확인 후 확정하시기 바랍니다.
+  </div>
+
+  <!-- DASHBOARD -->
+  <section class="tab active" id="tab-dash">
+    <div class="profile no-print">
+      <h3>🏭 우리 회사 배터리 카테고리</h3>
+      <p>생산·판매하는 배터리 유형을 선택하면 해당되는 의무만 필터링됩니다. (EU 역외 제조사이므로 수입자/EU대리인 의무도 함께 표시)</p>
+      <div class="chips" id="catChips"></div>
+      <div class="prof-row">
+        <label><input type="checkbox" id="optTurnover"> 연 순매출 €40M 초과 (공급망 실사 의무 대상)</label>
+        <label><input type="checkbox" id="optNonEU" checked> EU 역외 제조사 (한국 소재)</label>
+      </div>
+    </div>
+
+    <div class="grid stats" id="statCards"></div>
+
+    <div class="barwrap">
+      <h3>전체 이행 진척도</h3>
+      <div class="progbar" id="progBar"></div>
+      <div class="legend">
+        <span><i style="background:var(--ok)"></i>완료</span>
+        <span><i style="background:var(--prog)"></i>진행중</span>
+        <span><i style="background:var(--todo)"></i>미착수</span>
+        <span><i style="background:var(--na)"></i>해당없음</span>
+      </div>
+    </div>
+
+    <h2 class="section">⏰ 다가오는 마감 (해당 카테고리 기준)</h2>
+    <div class="dl" id="upcoming"></div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section class="tab" id="tab-check">
+    <h2 class="section">✅ 의무별 이행 체크리스트</h2>
+    <div class="toolbar no-print">
+      <select id="fCat"><option value="">전체 카테고리</option></select>
+      <select id="fStatus">
+        <option value="">전체 상태</option>
+        <option value="todo">미착수</option>
+        <option value="prog">진행중</option>
+        <option value="ok">완료</option>
+        <option value="na">해당없음</option>
+      </select>
+      <label style="font-size:13px;display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="fApplicable" checked> 우리 회사 해당 의무만
+      </label>
+      <button class="btn ghost" id="expandAll">모두 펼치기</button>
+    </div>
+    <div id="obList"></div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="tab" id="tab-time">
+    <h2 class="section">🗓️ 규제 이행 일정 (Article 96 · 부속서 기준)</h2>
+    <div class="toolbar no-print">
+      <select id="tlCat"><option value="">전체 카테고리</option></select>
+      <label style="font-size:13px;display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="tlHidePast"> 지난 마감 숨기기
+      </label>
+    </div>
+    <div class="tl" id="timeline"></div>
+  </section>
+
+  <!-- EXPORT -->
+  <section class="tab" id="tab-export">
+    <h2 class="section">📤 내보내기 · 보고서 자동 생성</h2>
+    <div class="grid exp-grid">
+      <div class="exp">
+        <div class="ico">📊</div><h3>Excel (CSV)</h3>
+        <p>전체 의무 체크리스트를 상태·담당자·마감일 포함하여 Excel에서 열 수 있는 CSV로 내보냅니다.</p>
+        <button class="btn" onclick="exportCSV()">CSV 다운로드</button>
+      </div>
+      <div class="exp">
+        <div class="ico">📝</div><h3>Word 보고서</h3>
+        <p>경영진·감사 보고용 규제 대응 현황 보고서를 Word(.doc) 문서로 생성합니다.</p>
+        <button class="btn" onclick="exportWord()">Word 다운로드</button>
+      </div>
+      <div class="exp">
+        <div class="ico">🖨️</div><h3>PDF / 인쇄</h3>
+        <p>현재 화면을 인쇄용 레이아웃으로 정리하여 PDF로 저장하거나 인쇄합니다.</p>
+        <button class="btn" onclick="window.print()">인쇄 / PDF 저장</button>
+      </div>
+      <div class="exp">
+        <div class="ico">💾</div><h3>데이터 백업</h3>
+        <p>입력한 진척 상황을 JSON 파일로 백업하거나 다른 PC에서 복원합니다.</p>
+        <button class="btn ghost" onclick="backupJSON()">백업</button>
+        <button class="btn ghost" onclick="document.getElementById('restoreFile').click()">복원</button>
+        <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreJSON(event)">
+      </div>
+    </div>
+    <p class="muted" style="margin-top:18px;font-size:12.5px">
+      ※ 입력한 진척 데이터는 이 브라우저에 자동 저장(localStorage)됩니다. PC 교체·초기화 시를 대비해 정기적으로 JSON 백업을 권장합니다.
+    </p>
+  </section>
+</main>
+
+<footer>
+  EU 배터리법 규제 대응 관리 도구 · Regulation (EU) 2023/1542 기준 ·
+  1차 출처: EUR-Lex CELEX 32023R1542 (OJ L 191, 2023.7.28), Reg (EU) 2025/1561 (실사 유예)<br>
+  본 도구는 사내 관리 보조용이며 법적 조언을 대체하지 않습니다. 확정 전 원문·법무 검토 필수.
+</footer>
+
+<script>
+/* ---------- Battery categories ---------- */
+const CATS = [
+  {id:'portable', name:'휴대용', full:'Portable (휴대용)'},
+  {id:'lmt',      name:'LMT',   full:'LMT (경량 이동수단)'},
+  {id:'ev',       name:'EV',    full:'EV (전기차)'},
+  {id:'ind',      name:'산업용', full:'Industrial >2kWh (산업용/BESS)'},
+  {id:'sli',      name:'SLI',   full:'SLI (자동차 시동용)'},
+];
+const CATNAME = Object.fromEntries(CATS.map(c=>[c.id,c.name]));
+
+/* ---------- Obligations (Regulation (EU) 2023/1542) ----------
+   floating: 시행일이 위임법 채택에 연동되어 유동적
+   verify:   1차 원문 확인 필요 항목 */
+const OBLIGATIONS = [
+ {code:'A', title:'탄소발자국 선언 (CFP)', art:'제7조 · 부속서 II', cats:['ev','ind','lmt'], floating:true,
+  desc:'모델·공장별 탄소발자국(CFP)을 선언 → 성능등급(class) 라벨 → 생애주기 CFP 최대 한계값 순으로 3단계 도입. 인증기관(notified body) 검증 필요. 위임법(방법론) 채택 시점에 시행일 연동.',
+  annex:'CFP 산정 방법론: 부속서 II · EV용 위임법 초안 2024.4.30 공표(2026.7 현재 미채택)',
+  miles:[
+    {d:'2025-02-18', t:'EV 배터리 CFP 선언 (법정일, 위임법 미채택으로 실질 연기)', cats:['ev'], floating:true},
+    {d:'2026-02-18', t:'산업용>2kWh CFP 선언 (법정일, 위임법에 연동)', cats:['ind'], floating:true},
+    {d:'2026-08-18', t:'EV CFP 성능등급(class) 단계', cats:['ev'], floating:true},
+    {d:'2027-08-18', t:'산업용 CFP 성능등급 단계', cats:['ind'], floating:true},
+    {d:'2028-02-18', t:'EV CFP 최대 한계값(threshold) 단계', cats:['ev'], floating:true},
+    {d:'2028-08-18', t:'LMT CFP 선언 단계', cats:['lmt'], floating:true, verify:true},
+  ]},
+ {code:'B', title:'재활용 원료 함량 (Recycled content)', art:'제8조', cats:['ind','ev','sli','lmt'],
+  desc:'활물질 내 회수 코발트·납·리튬·니켈 함량 % 선언 → 이후 최소 함량 기준 단계적 의무화(2031년 1단계, 2036년 2단계 상향).',
+  annex:'대상 금속: 코발트·납·리튬·니켈',
+  miles:[
+    {d:'2028-08-18', t:'재활용 원료 함량 선언 시작 (Co/Pb/Li/Ni 실측 %)', cats:['ind','ev','sli']},
+    {d:'2031-08-18', t:'최소 함량 1단계: Co 16%·Pb 85%·Li 6%·Ni 6%', cats:['ind','ev','sli','lmt']},
+    {d:'2033-08-18', t:'LMT 재활용 원료 함량 선언 시작', cats:['lmt'], verify:true},
+    {d:'2036-08-18', t:'최소 함량 2단계: Co 26%·Pb 85%·Li 12%·Ni 15%', cats:['ind','ev','sli','lmt']},
+  ]},
+ {code:'C', title:'성능 및 내구성 (Performance & durability)', art:'제9조(휴대용 범용)·제10조(산업/LMT/EV)', cats:['portable','lmt','ev','ind'],
+  desc:'전기화학적 성능·내구성 파라미터의 공개 의무 → 이후 최소값 의무화. 휴대용 범용은 제9조, 충전식 산업용>2kWh·LMT·EV는 제10조 적용.',
+  annex:'성능·내구성 파라미터: 부속서 IV',
+  miles:[
+    {d:'2024-08-18', t:'휴대용 범용 배터리 성능·내구성 요건 적용', cats:['portable'], verify:true},
+  ]},
+ {code:'D', title:'탈거·교체 용이성 (Removability & replaceability)', art:'제11조', cats:['portable','lmt'],
+  desc:'기기 내장 휴대용 배터리는 최종 사용자가 쉽게 탈거·교체 가능해야 하며, LMT 배터리는 독립 전문가가 교체 가능해야 함. 예비 부품 공급 규정 포함.',
+  annex:'',
+  miles:[
+    {d:'2027-02-18', t:'휴대용 배터리 탈거·교체 용이성 의무 적용', cats:['portable','lmt']},
+  ]},
+ {code:'E', title:'라벨링 및 CE 마킹 (Labelling & CE)', art:'제13조·제18~20조 · 부속서 VI', cats:['portable','lmt','ev','ind','sli'],
+  desc:'제조사·카테고리·화학조성·용량·유해물질·분리수거 기호·Cd/Pb 기호 등 일반 라벨 정보 표기(부속서 VI). 적합성 평가 후 CE 마킹 부착.',
+  annex:'라벨 항목: 부속서 VI',
+  miles:[
+    {d:'2026-08-18', t:'일반 라벨링 요건(부속서 VI) 적용', cats:['portable','lmt','ev','ind','sli']},
+  ]},
+ {code:'F', title:'QR 코드 / 디지털 라벨링', art:'제13조(6)', cats:['portable','lmt','ev','ind','sli'],
+  desc:'모든 배터리에 QR 코드를 부착하여 라벨 정보에 접근. LMT·산업용>2kWh·EV는 QR을 통해 배터리 여권으로 연결.',
+  annex:'',
+  miles:[
+    {d:'2027-02-18', t:'QR 코드 부착 의무 적용', cats:['portable','lmt','ev','ind','sli']},
+  ]},
+ {code:'G', title:'배터리 여권 (Battery Passport)', art:'제77조 · 부속서 XIII', cats:['lmt','ev','ind'],
+  desc:'배터리별 고유 전자 기록(QR로 접근). 구성·CFP·재활용 함량·실사 정보·건강상태(SoH) 등 포함. 접근 권한 3단계(공개/제한/인증기관·집행위).',
+  annex:'여권 데이터 항목: 부속서 XIII · 위임법으로 세부 규정',
+  miles:[
+    {d:'2027-02-18', t:'배터리 여권 시행 (LMT·산업용>2kWh·EV)', cats:['lmt','ev','ind']},
+  ]},
+ {code:'H', title:'공급망 실사 (Supply-chain due diligence)', art:'제48~53조', cats:['lmt','ev','ind','sli'], floating:true,
+  desc:'코발트·천연흑연·리튬·니켈 원료에 대한 위험기반 실사 정책 수립(OECD 지침 정합), 제3자 검증, 연례 보고. 소·영세기업 및 순매출 €40M 이하 면제. Reg(EU) 2025/1561로 시행 유예됨.',
+  annex:'대상 원료: 코발트·천연흑연·리튬·니켈',
+  miles:[
+    {d:'2027-08-18', t:'공급망 실사 의무 적용 (Reg 2025/1561로 2025.8→2027.8 유예)', cats:['lmt','ev','ind','sli']},
+  ]},
+ {code:'I', title:'수거·재활용 효율·물질 회수 목표', art:'제59~61조·제71조 · 부속서 XII', cats:['portable','lmt','ev','ind','sli'],
+  desc:'생산자 재원의 수거 목표, 화학별 재활용 효율 최소치, Co/Cu/Pb/Ni/Li 물질 회수 최소치. 생산자책임(EPR) 재원으로 이행.',
+  annex:'효율·회수율: 부속서 XII',
+  miles:[
+    {d:'2025-08-18', t:'재활용 효율 기준 (납축 75%·리튬 65%·Ni-Cd 80%)', cats:['portable','lmt','ev','ind','sli']},
+    {d:'2027-12-31', t:'휴대용 수거율 63% · 물질회수 Co/Cu/Pb/Ni 90%·Li 50%', cats:['portable']},
+    {d:'2028-12-31', t:'LMT 수거율 51%', cats:['lmt'], verify:true},
+    {d:'2030-12-31', t:'휴대용 수거율 73% · 재활용 효율 납축 80%·리튬 70%', cats:['portable']},
+    {d:'2031-12-31', t:'LMT 수거율 61% · 물질회수 Co/Cu/Pb/Ni 95%·Li 80%', cats:['lmt']},
+  ]},
+ {code:'J', title:'유해물질 제한 (Hazardous substances)', art:'제6조 · 부속서 I', cats:['portable','lmt','ev','ind','sli'],
+  desc:'수은·카드뮴(및 휴대용 내 납) 제한. 향후 물질 제한 추가 메커니즘 포함.',
+  annex:'제한 물질: 부속서 I',
+  miles:[
+    {d:'2024-02-18', t:'유해물질 제한 적용 (일반 적용일)', cats:['portable','lmt','ev','ind','sli']},
+  ]},
+ {code:'K', title:'생산자책임(EPR) 및 등록', art:'제44~52조', cats:['portable','lmt','ev','ind','sli'], verify:true,
+  desc:'시장 출시 전 각 회원국에 생산자 등록, 수거·처리·재활용 EPR 재원 부담. 생산자책임기구(PRO)를 통한 이행 가능. (조항 범위 확인필요)',
+  annex:'',
+  miles:[
+    {d:'2024-02-18', t:'생산자 등록·EPR 체계 적용 (일반 적용일)', cats:['portable','lmt','ev','ind','sli']},
+  ]},
+ {code:'L', title:'적합성 평가 / 적합성 선언(DoC)', art:'제17~20조', cats:['portable','lmt','ev','ind','sli'], verify:true,
+  desc:'적합성 평가 절차(모듈), EU 적합성 선언(DoC), 기술문서 10년 보관, CE 마킹. (조항 번호 확인필요)',
+  annex:'',
+  miles:[
+    {d:'2024-02-18', t:'적합성 평가·DoC 체계 적용 (일반 적용일)', cats:['portable','lmt','ev','ind','sli']},
+  ]},
+ {code:'M', title:'[역외 제조사] 수입자·EU 대리인 지정', art:'제38~41조', cats:['portable','lmt','ev','ind','sli'], verify:true,
+  desc:'한국 등 EU 역외 제조사는 EU 내 수입자 또는 공인 대리인(authorised representative) 구조를 갖추고 경제운영자 의무를 이행해야 시장 출시 가능. 각 회원국 생산자 등록의 전제.',
+  annex:'경제운영자 의무: 제38~41조 (조항 확인필요)',
+  miles:[
+    {d:'2024-02-18', t:'경제운영자 의무·시장출시 전제 조건 적용', cats:['portable','lmt','ev','ind','sli']},
+  ]},
+];
+
+/* ---------- State ---------- */
+const STORAGE_KEY='eu_battery_compliance_v1';
+const STATUSES={todo:'미착수',prog:'진행중',ok:'완료',na:'해당없음'};
+const TODAY=new Date('2026-07-22');
+let state=loadState();
+
+function loadState(){
+  try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY));if(s)return s;}catch(e){}
+  return {myCats:['sli'], turnover:false, nonEU:true, items:{}};
+}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+function item(code){return state.items[code]||(state.items[code]={status:'todo',owner:'',due:'',notes:''});}
+
+/* auto-mark N/A obligations not applying to my categories */
+function isApplicable(ob){return ob.cats.some(c=>state.myCats.includes(c));}
+function effStatus(ob){
+  const it=item(ob.code);
+  if(!isApplicable(ob) && it.status==='todo') return 'na';
+  return it.status;
+}
+
+/* ---------- Rendering ---------- */
+function fmtDate(d){return d.replace(/-/g,'.');}
+function dDay(d){const t=new Date(d);const diff=Math.round((t-TODAY)/86400000);
+  if(diff<0)return {txt:`${-diff}일 경과`,cls:'overdue'};
+  if(diff===0)return {txt:'오늘',cls:'soon'};
+  if(diff<=180)return {txt:`D-${diff}`,cls:'soon'};
+  return {txt:`D-${diff}`,cls:''};}
+
+function renderChips(){
+  document.getElementById('catChips').innerHTML=CATS.map(c=>
+    `<span class="chip ${state.myCats.includes(c.id)?'on':''}" data-c="${c.id}">${c.full}</span>`).join('');
+  document.querySelectorAll('#catChips .chip').forEach(el=>el.onclick=()=>{
+    const c=el.dataset.c;const i=state.myCats.indexOf(c);
+    if(i<0)state.myCats.push(c);else state.myCats.splice(i,1);
+    saveState();renderAll();
+  });
+  document.getElementById('optTurnover').checked=state.turnover;
+  document.getElementById('optNonEU').checked=state.nonEU;
+}
+
+function renderStats(){
+  const apps=OBLIGATIONS.filter(isApplicable);
+  const cnt={todo:0,prog:0,ok:0,na:0};
+  OBLIGATIONS.forEach(ob=>cnt[effStatus(ob)]++);
+  const upc=allMiles().filter(m=>{const dd=dDay(m.d);return dd.cls==='soon'||dd.cls==='overdue';}).length;
+  document.getElementById('statCards').innerHTML=`
+    <div class="stat"><div class="n">${apps.length}<span style="font-size:15px;color:var(--muted)"> / ${OBLIGATIONS.length}</span></div><div class="l">해당 의무 (전체 대비)</div></div>
+    <div class="stat ok"><div class="n">${cnt.ok}</div><div class="l">완료</div></div>
+    <div class="stat prog"><div class="n">${cnt.prog}</div><div class="l">진행중</div></div>
+    <div class="stat todo"><div class="n">${cnt.todo}</div><div class="l">미착수</div></div>
+    <div class="stat warn"><div class="n">${upc}</div><div class="l">임박·경과 마감 (180일 내)</div></div>`;
+  // progress bar
+  const total=OBLIGATIONS.length;
+  const seg=[['ok',cnt.ok,'var(--ok)'],['prog',cnt.prog,'var(--prog)'],['todo',cnt.todo,'var(--todo)'],['na',cnt.na,'var(--na)']];
+  document.getElementById('progBar').innerHTML=seg.filter(s=>s[1]>0).map(s=>{
+    const pct=(s[1]/total*100).toFixed(1);
+    return `<span style="width:${pct}%;background:${s[2]}">${s[1]}</span>`;}).join('');
+}
+
+function allMiles(){
+  const out=[];
+  OBLIGATIONS.forEach(ob=>ob.miles.forEach(m=>out.push({...m,code:ob.code,ob:ob.title})));
+  return out.sort((a,b)=>a.d<b.d?-1:1);
+}
+
+function renderUpcoming(){
+  const rows=allMiles().filter(m=>{
+    if(!m.cats.some(c=>state.myCats.includes(c)))return false;
+    const dd=dDay(m.d);return dd.cls==='soon'||dd.cls==='overdue';
+  }).slice(0,12);
+  const el=document.getElementById('upcoming');
+  if(!rows.length){el.innerHTML='<div class="dl-row"><span class="muted">180일 내 임박하거나 경과한 마감이 없습니다. (선택한 카테고리 기준)</span></div>';return;}
+  el.innerHTML=rows.map(m=>{const dd=dDay(m.d);
+    return `<div class="dl-row ${dd.cls}">
+      <span class="dl-date">${fmtDate(m.d)}</span>
+      <span class="dl-tag" style="background:var(--brand);color:#fff">${m.code}</span>
+      <span>${m.t} ${m.floating?'<span class="badge b-float">유동</span>':''} ${m.verify?'<span class="badge b-verify">확인필요</span>':''}
+        <span class="muted">· ${m.cats.map(c=>CATNAME[c]).join(', ')}</span></span>
+      <span class="dl-d">${dd.txt}</span></div>`;}).join('');
+}
+
+function renderChecklist(){
+  const fc=document.getElementById('fCat').value;
+  const fs=document.getElementById('fStatus').value;
+  const onlyApp=document.getElementById('fApplicable').checked;
+  const list=OBLIGATIONS.filter(ob=>{
+    if(onlyApp && !isApplicable(ob))return false;
+    if(fc && !ob.cats.includes(fc))return false;
+    if(fs && effStatus(ob)!==fs)return false;
+    return true;
+  });
+  const el=document.getElementById('obList');
+  if(!list.length){el.innerHTML='<p class="muted" style="padding:20px 0">조건에 맞는 의무가 없습니다.</p>';return;}
+  el.innerHTML=list.map(ob=>{
+    const it=item(ob.code);const st=effStatus(ob);const app=isApplicable(ob);
+    return `<div class="ob" data-code="${ob.code}">
+      <div class="ob-head" onclick="this.parentNode.classList.toggle('open')">
+        <span class="ob-code">${ob.code}</span>
+        <div style="flex:1">
+          <div class="ob-title">${ob.title}</div>
+          <div class="ob-meta">
+            <span class="ob-art">${ob.art}</span>
+            ${ob.cats.map(c=>`<span class="badge b-cat">${CATNAME[c]}</span>`).join('')}
+            ${ob.floating?'<span class="badge b-float">시행일 유동</span>':''}
+            ${ob.verify?'<span class="badge b-verify">확인필요</span>':''}
+            ${!app?'<span class="badge b-na">우리 회사 비해당</span>':''}
+          </div>
+        </div>
+        <span class="st-pill st-${st}">${STATUSES[st]}</span>
+      </div>
+      <div class="ob-body">
+        <div class="ob-desc">${ob.desc}</div>
+        ${ob.annex?`<div class="ob-annex">📎 ${ob.annex}</div>`:''}
+        <div class="ob-mile">
+          <h4>주요 시행 시점</h4>
+          ${ob.miles.map(m=>`<div class="mile"><b>${fmtDate(m.d)}</b>
+            <span>${m.t} ${m.floating?'<span class="badge b-float">유동</span>':''} ${m.verify?'<span class="badge b-verify">확인필요</span>':''}
+            <span class="muted">· ${m.cats.map(c=>CATNAME[c]).join(', ')}</span></span></div>`).join('')}
+        </div>
+        <div class="fields">
+          <div class="field"><label>이행 상태</label>
+            <select onchange="setField('${ob.code}','status',this.value)">
+              ${Object.entries(STATUSES).map(([k,v])=>`<option value="${k}" ${it.status===k?'selected':''}>${v}</option>`).join('')}
+            </select></div>
+          <div class="field"><label>담당자</label>
+            <input value="${esc(it.owner)}" placeholder="담당자/팀" onchange="setField('${ob.code}','owner',this.value)"></div>
+          <div class="field"><label>목표 완료일</label>
+            <input type="date" value="${it.due}" onchange="setField('${ob.code}','due',this.value)"></div>
+          <div class="field" style="grid-column:1/-1"><label>메모 / 근거자료</label>
+            <textarea placeholder="진행 내용, 증빙, 이슈 등" onchange="setField('${ob.code}','notes',this.value)">${esc(it.notes)}</textarea></div>
+        </div>
+      </div></div>`;
+  }).join('');
+}
+
+function renderTimeline(){
+  const fc=document.getElementById('tlCat').value;
+  const hidePast=document.getElementById('tlHidePast').checked;
+  let rows=allMiles().filter(m=>{
+    if(fc && !m.cats.includes(fc))return false;
+    if(hidePast && dDay(m.d).cls==='overdue')return false;
+    return true;
+  });
+  document.getElementById('timeline').innerHTML=rows.map(m=>{
+    const dd=dDay(m.d);const cls=dd.cls==='overdue'?'past':(dd.cls==='soon'?'soon':'');
+    return `<div class="tl-item ${cls}">
+      <div class="tl-date">${fmtDate(m.d)} <span class="muted" style="font-size:11.5px;font-weight:600">${dd.txt}</span></div>
+      <div class="tl-card">
+        <div class="t"><span class="badge b-cat" style="margin-right:6px">${m.code}</span>${m.t}</div>
+        <div class="m">
+          ${m.cats.map(c=>`<span class="cat-tag">${CATNAME[c]}</span>`).join('')}
+          ${m.floating?'<span class="badge b-float">시행일 유동</span>':''}
+          ${m.verify?'<span class="badge b-verify">확인필요</span>':''}
+          <span class="muted">· ${m.ob}</span>
+        </div>
+      </div></div>`;
+  }).join('');
+}
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setField(code,f,v){item(code)[f]=v;saveState();renderStats();renderUpcoming();
+  if(f==='status'){renderChecklist();}}
+
+/* ---------- Filters populate ---------- */
+function populateFilters(){
+  const opts=CATS.map(c=>`<option value="${c.id}">${c.full}</option>`).join('');
+  document.getElementById('fCat').innerHTML='<option value="">전체 카테고리</option>'+opts;
+  document.getElementById('tlCat').innerHTML='<option value="">전체 카테고리</option>'+opts;
+}
+
+function renderAll(){renderChips();renderStats();renderUpcoming();renderChecklist();renderTimeline();}
+
+/* ---------- Exports ---------- */
+function download(name,content,type){
+  const blob=new Blob([type.includes('csv')?'﻿'+content:content],{type});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function exportCSV(){
+  const head=['코드','의무','조항','해당 카테고리','이행상태','담당자','목표완료일','다음 시행일','메모','비고'];
+  const rows=OBLIGATIONS.map(ob=>{
+    const it=item(ob.code);
+    const next=ob.miles.map(m=>m.d).sort().find(d=>new Date(d)>=TODAY)||ob.miles[0]?.d||'';
+    const note=[ob.floating?'시행일 유동':'',ob.verify?'확인필요':''].filter(Boolean).join('; ');
+    return [ob.code,ob.title,ob.art,ob.cats.map(c=>CATNAME[c]).join('/'),
+      STATUSES[effStatus(ob)],it.owner,it.due,next,it.notes.replace(/\n/g,' '),note];
+  });
+  const csv=[head,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  download('EU배터리법_체크리스트_2026-07-22.csv',csv,'text/csv;charset=utf-8');
+}
+function exportWord(){
+  const cnt={todo:0,prog:0,ok:0,na:0};OBLIGATIONS.forEach(ob=>cnt[effStatus(ob)]++);
+  const rows=OBLIGATIONS.map(ob=>{const it=item(ob.code);
+    return `<tr>
+      <td style="text-align:center;font-weight:bold">${ob.code}</td>
+      <td>${ob.title}${ob.floating?' (시행일 유동)':''}${ob.verify?' [확인필요]':''}<br><span style="color:#666;font-size:10pt">${ob.art} · ${ob.cats.map(c=>CATNAME[c]).join(', ')}</span></td>
+      <td style="text-align:center">${STATUSES[effStatus(ob)]}</td>
+      <td>${esc(it.owner)||'-'}</td>
+      <td style="text-align:center">${it.due||'-'}</td>
+      <td>${esc(it.notes)||'-'}</td></tr>`;}).join('');
+  const html=`<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8">
+    <style>body{font-family:'Malgun Gothic',sans-serif;font-size:11pt}
+    h1{color:#155e75;font-size:18pt}h2{color:#0e7490;font-size:13pt;border-bottom:2px solid #0e7490;padding-bottom:3px}
+    table{border-collapse:collapse;width:100%}td,th{border:1px solid #999;padding:6px 8px;font-size:10.5pt;vertical-align:top}
+    th{background:#0e7490;color:#fff}.sum{color:#555}</style></head><body>
+    <h1>EU 배터리법 규제 대응 현황 보고서</h1>
+    <p class="sum">회사: gbattery · 기준일: 2026-07-22 · 근거: Regulation (EU) 2023/1542</p>
+    <h2>1. 요약</h2>
+    <p>전체 의무 ${OBLIGATIONS.length}건 중 완료 ${cnt.ok}건 · 진행중 ${cnt.prog}건 · 미착수 ${cnt.todo}건 · 해당없음 ${cnt.na}건.
+    대상 배터리 카테고리: ${state.myCats.map(c=>CATNAME[c]).join(', ')||'미선택'}.</p>
+    <h2>2. 의무별 이행 현황</h2>
+    <table><tr><th>코드</th><th>의무 / 조항 · 카테고리</th><th>상태</th><th>담당자</th><th>목표완료일</th><th>메모</th></tr>${rows}</table>
+    <h2>3. 유의사항</h2>
+    <p>· 탄소발자국(CFP) 등 '시행일 유동' 항목은 EU 집행위 위임법 채택 시점에 따라 시행일이 변동됩니다.<br>
+    · '[확인필요]' 항목은 EUR-Lex 원문(CELEX 32023R1542) 및 사내 법무 검토를 통해 확정하시기 바랍니다.<br>
+    · 본 보고서는 사내 관리 보조 자료이며 법적 조언을 대체하지 않습니다.</p>
+    </body></html>`;
+  download('EU배터리법_대응보고서_2026-07-22.doc',html,'application/msword');
+}
+function backupJSON(){download('EU배터리법_백업_2026-07-22.json',JSON.stringify(state,null,2),'application/json');}
+function restoreJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{state=JSON.parse(r.result);saveState();renderAll();alert('복원 완료');}catch(err){alert('파일 형식 오류');}};
+  r.readAsText(f);}
+
+/* ---------- Wire up ---------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+});
+document.getElementById('optTurnover').onchange=e=>{state.turnover=e.target.checked;saveState();renderStats();};
+document.getElementById('optNonEU').onchange=e=>{state.nonEU=e.target.checked;saveState();};
+document.getElementById('fCat').onchange=renderChecklist;
+document.getElementById('fStatus').onchange=renderChecklist;
+document.getElementById('fApplicable').onchange=renderChecklist;
+document.getElementById('tlCat').onchange=renderTimeline;
+document.getElementById('tlHidePast').onchange=renderTimeline;
+document.getElementById('expandAll').onclick=function(){
+  const opening=document.querySelector('.ob:not(.open)');
+  document.querySelectorAll('.ob').forEach(o=>opening?o.classList.add('open'):o.classList.remove('open'));
+  this.textContent=opening?'모두 접기':'모두 펼치기';
+};
+
+populateFilters();
+if(state.myCats.length===1){document.getElementById('tlCat').value=state.myCats[0];}
+renderAll();
+</script>
+</body>
+</html>
