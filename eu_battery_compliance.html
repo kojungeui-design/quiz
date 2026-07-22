@@ -122,6 +122,43 @@
   .cat-tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:#e0f2fe;color:#075985}
   footer{text-align:center;font-size:11.5px;color:var(--muted);padding:24px;border-top:1px solid var(--line)}
   .muted{color:var(--muted)}
+  /* department */
+  .dept-grp{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
+  .dept-hd{padding:13px 18px;display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:14.5px}
+  .dept-hd .cnt{margin-left:auto;font-size:12px;font-weight:600;background:rgba(255,255,255,.22);padding:3px 10px;border-radius:999px}
+  .task{display:flex;gap:12px;align-items:flex-start;padding:12px 18px;border-top:1px solid var(--line)}
+  .task-main{flex:1;min-width:0}
+  .task-t{font-size:13.5px;font-weight:600}
+  .task-m{font-size:11.5px;color:var(--muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .task-reg{font-weight:700;color:var(--accent)}
+  .task-r{display:flex;gap:8px;align-items:center;flex-shrink:0}
+  .task-r select,.task-r input{padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-size:12px;font-family:inherit}
+  .due-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;background:var(--nabg);color:var(--na)}
+  .due-pill.overdue{background:var(--todobg);color:var(--todo)}
+  .due-pill.soon{background:var(--warnbg);color:var(--warn)}
+  /* SOP */
+  .sop{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
+  .sop-hd{padding:14px 18px;display:flex;gap:12px;align-items:center;cursor:pointer}
+  .sop-hd:hover{background:var(--soft)}
+  .sop-hd .ob-code{flex-shrink:0}
+  .sop-body{display:none;padding:4px 18px 18px}
+  .sop.open .sop-body{display:block}
+  .sop-meta{font-size:12px;color:#334155;margin:10px 0;line-height:1.7}
+  .sop-meta b{color:var(--ink)}
+  table.sop-tbl{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  table.sop-tbl th,table.sop-tbl td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  table.sop-tbl th{background:var(--soft);font-weight:700;font-size:12px}
+  table.sop-tbl td.no{text-align:center;width:34px;font-weight:700;color:var(--accent)}
+  .dept-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;color:#fff;white-space:nowrap;display:inline-block}
+  /* QR/label */
+  .qr-sec{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+  .qr-sec-hd{padding:13px 18px;background:var(--brand-d);color:#fff;font-weight:700;font-size:14.5px}
+  .qr-sec-bd{padding:6px 18px 14px}
+  .qr-item{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13px}
+  .qr-item:first-child{border-top:none}
+  .qr-item .k{font-weight:700;min-width:170px;flex-shrink:0}
+  .qr-item .v{color:#334155}
+  .qr-note{font-size:12px;color:var(--muted);margin-top:8px;padding:10px 12px;background:var(--soft);border-radius:8px}
   @media print{nav,header .company,.no-print,.toolbar,.profile{display:none!important}
     .ob-body{display:block!important}.tab{display:block!important}body{background:#fff}}
 </style>
@@ -138,6 +175,9 @@
 <nav>
   <button class="active" data-tab="dash">📊 대시보드</button>
   <button data-tab="check">✅ 요건 체크리스트</button>
+  <button data-tab="dept">🏢 부서별 준비사항</button>
+  <button data-tab="qr">🏷️ QR·라벨 기재사항</button>
+  <button data-tab="sop">📋 업무절차서(SOP)</button>
   <button data-tab="time">🗓️ 이행 일정</button>
   <button data-tab="export">📤 내보내기·보고서</button>
 </nav>
@@ -196,6 +236,43 @@
       <button class="btn ghost" id="expandAll">모두 펼치기</button>
     </div>
     <div id="obList"></div>
+  </section>
+
+  <!-- DEPARTMENT -->
+  <section class="tab" id="tab-dept">
+    <h2 class="section">🏢 부서별 준비사항 — 누가 · 무엇을 · 언제까지</h2>
+    <p class="muted" style="margin:-6px 0 16px;font-size:12.5px">
+      SLI 배터리 기준 부서별 실행 과제입니다. <b>완료 목표일</b>은 규제 마감보다 앞선 사내 권장일이며, 각 과제의 규제 근거 마감은 별도 표시됩니다.
+      상태·담당자는 저장됩니다.</p>
+    <div class="toolbar no-print">
+      <select id="fDept"><option value="">전체 부서</option></select>
+      <select id="fTaskStatus">
+        <option value="">전체 상태</option>
+        <option value="todo">미착수</option><option value="prog">진행중</option>
+        <option value="ok">완료</option><option value="na">해당없음</option>
+      </select>
+      <label style="font-size:13px;display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="fTaskSort" checked> 마감 임박순 정렬
+      </label>
+    </div>
+    <div id="deptList"></div>
+  </section>
+
+  <!-- QR / LABEL -->
+  <section class="tab" id="tab-qr">
+    <h2 class="section">🏷️ QR 코드 · 라벨 필수 기재사항 (부속서 VI · 제13조)</h2>
+    <div id="qrContent"><p class="muted" style="padding:20px 0">준비 중… (부속서 VI 기준 정리 반영 예정)</p></div>
+  </section>
+
+  <!-- SOP -->
+  <section class="tab" id="tab-sop">
+    <h2 class="section">📋 업무절차서 (SOP) — 의무별 표준 이행 절차</h2>
+    <p class="muted" style="margin:-6px 0 16px;font-size:12.5px">
+      각 의무를 어떤 순서로, 어느 부서가 무엇을 산출하며 이행하는지 정리한 표준 절차입니다. 하단에서 전체 절차서를 Word로 내보낼 수 있습니다.</p>
+    <div class="toolbar no-print">
+      <button class="btn" onclick="exportSOP()">📝 업무절차서 전체 Word 다운로드</button>
+    </div>
+    <div id="sopList"></div>
   </section>
 
   <!-- TIMELINE -->
@@ -354,6 +431,101 @@ const OBLIGATIONS = [
   miles:[
     {d:'2024-02-18', t:'경제운영자 의무·시장출시 전제 조건 적용', cats:['portable','lmt','ev','ind','sli']},
   ]},
+];
+
+/* ---------- Departments ---------- */
+const DEPTS=[
+  {id:'RA',name:'규제·법무',color:'#155e75'},
+  {id:'SA',name:'해외영업',color:'#dc2626'},
+  {id:'QA',name:'품질보증',color:'#0e7490'},
+  {id:'RD',name:'기술연구소(R&D)',color:'#7c3aed'},
+  {id:'PU',name:'구매·SCM',color:'#b45309'},
+  {id:'PR',name:'생산·제조',color:'#0891b2'},
+  {id:'ES',name:'환경안전·ESG',color:'#16a34a'},
+  {id:'IT',name:'IT·디지털',color:'#2563eb'},
+  {id:'MG',name:'경영지원·전략',color:'#475569'},
+];
+const DEPTNAME=Object.fromEntries(DEPTS.map(d=>[d.id,d.name]));
+const DEPTCOLOR=Object.fromEntries(DEPTS.map(d=>[d.id,d.color]));
+
+/* ---------- Department tasks (SLI 기준) ----------
+   ob: 관련 의무코드, due: 사내 권장 완료일, reg: 규제 근거 마감 */
+const TASKS=[
+ {id:'t1',dept:'RA',ob:'M',task:'EU 수입자·공인대리인(authorised representative) 지정 및 위임계약 체결',due:'2026-09-30',reg:'시장출시 전(시행 중)',note:'최우선 — 미지정 시 EU 시장 출시 불가'},
+ {id:'t2',dept:'RA',ob:'H',task:'공급망 실사 정책 수립·문서화 및 연례 보고 체계 구축(OECD 지침 정합)',due:'2027-05-31',reg:'2027-08-18'},
+ {id:'t3',dept:'RA',ob:'K',task:'EU 회원국별 생산자 등록 요건 조사·법적 검토',due:'2026-10-31',reg:'시장출시 전'},
+ {id:'t4',dept:'RA',ob:'-',task:'위임법(CFP 방법론 등) 채택 동향 모니터링 및 사내 전파',due:'상시',reg:'상시'},
+ {id:'t5',dept:'QA',ob:'L',task:'적합성 평가(모듈) 수행 및 EU 적합성선언(DoC) 작성',due:'2026-08-31',reg:'시장출시 전'},
+ {id:'t6',dept:'QA',ob:'L',task:'기술문서(Technical Documentation) 작성 및 10년 보관 체계 구축',due:'2026-08-31',reg:'시장출시 전'},
+ {id:'t7',dept:'QA',ob:'E',task:'CE 마킹 절차 수립 및 라벨 항목(부속서 VI) 검증',due:'2026-06-30',reg:'2026-08-18'},
+ {id:'t8',dept:'QA',ob:'J',task:'수은·카드뮴 제한 적합성 시험·확인 및 성적서 관리',due:'상시',reg:'시행 중'},
+ {id:'t9',dept:'RD',ob:'E',task:'부속서 VI 라벨 데이터(용량·정격전압·화학조성·중량·제조정보 등) 확정',due:'2026-05-31',reg:'2026-08-18'},
+ {id:'t10',dept:'RD',ob:'B',task:'재활용 납(Pb) 함량 설계 반영 — 최소 85% 달성 로드맵',due:'2030-12-31',reg:'2031-08-18'},
+ {id:'t11',dept:'RD',ob:'J',task:'원자재 물질구성(SDS) 데이터베이스 구축·관리',due:'상시',reg:'시행 중'},
+ {id:'t12',dept:'RD',ob:'L',task:'기술문서용 성능·안전·시험 데이터 산출',due:'2026-07-31',reg:'시장출시 전'},
+ {id:'t13',dept:'PU',ob:'B',task:'협력사 재활용 원료(납 등) 함량 데이터 수집 양식·프로세스 구축',due:'2027-12-31',reg:'선언 2028-08-18'},
+ {id:'t14',dept:'PU',ob:'H',task:'원료(납·니켈 등) 공급망 매핑 및 협력사 실사 정보 수집',due:'2027-02-28',reg:'2027-08-18'},
+ {id:'t15',dept:'PU',ob:'J',task:'공급 원료 유해물질·성분 정보(SDS) 확보·갱신',due:'상시',reg:'시행 중'},
+ {id:'t16',dept:'PR',ob:'E',task:'라벨 인쇄·부착 공정 라인 반영 및 부착 검증',due:'2026-08-18',reg:'2026-08-18'},
+ {id:'t17',dept:'PR',ob:'F',task:'QR 코드 인쇄/각인 공정 도입 및 판독 검증',due:'2027-02-18',reg:'2027-02-18'},
+ {id:'t18',dept:'PR',ob:'B',task:'재활용 원료 투입 비율 생산 기록(로트별) 관리 체계',due:'2028-06-30',reg:'선언 2028-08-18'},
+ {id:'t19',dept:'ES',ob:'B',task:'재활용 원료 함량 산정·선언서 작성(Pb 등)',due:'2028-06-30',reg:'2028-08-18'},
+ {id:'t20',dept:'ES',ob:'I',task:'EU 수거·재활용(EPR) 체계 이행 — PRO 가입·분담금 납부',due:'2026-09-30',reg:'상시/시장출시 전'},
+ {id:'t21',dept:'ES',ob:'H',task:'실사 제3자 검증 대응 및 근거 데이터 취합',due:'2027-06-30',reg:'2027-08-18'},
+ {id:'t22',dept:'ES',ob:'-',task:'SLI CFP 대비 — LCA/탄소발자국 산정 역량 사전 확보',due:'상시',reg:'추후(위임법)'},
+ {id:'t23',dept:'SA',ob:'M',task:'EU 수입자 지정 협의·계약 (규제·법무와 공동)',due:'2026-09-30',reg:'시장출시 전'},
+ {id:'t24',dept:'SA',ob:'K',task:'각 EU 회원국 생산자 등록 실행(수입자/PRO 통해)',due:'2026-11-30',reg:'시장출시 전'},
+ {id:'t25',dept:'SA',ob:'I',task:'회원국별 EPR 이행 상태 확인·관리',due:'상시',reg:'상시'},
+ {id:'t26',dept:'IT',ob:'F',task:'QR 코드 생성 및 연결 정보(라벨·선언) 데이터 시스템 구축',due:'2026-12-31',reg:'2027-02-18'},
+ {id:'t27',dept:'IT',ob:'F',task:'QR 링크 정보 최신화·접근성(가용성) 관리 체계 수립',due:'2027-02-18',reg:'2027-02-18'},
+ {id:'t28',dept:'MG',ob:'-',task:'대응 TF 구성·부서 R&R 확정 및 예산(EPR 분담금·검증) 편성',due:'2026-08-31',reg:'즉시'},
+];
+
+/* ---------- SOP (업무절차서) ---------- */
+const SOPS=[
+ {ob:'M',title:'EU 경제운영자(수입자·공인대리인) 지정 절차',purpose:'EU 역외 제조사로서 시장 출시의 전제인 EU 내 수입자 또는 공인대리인 체계를 확립한다.',scope:'EU에 출시하는 모든 SLI 제품',ref:'제38~41조',
+   steps:[{d:'RA',a:'EU 수입자/공인대리인 후보 물색 및 자격 확인',o:'후보 리스트'},
+     {d:'SA',a:'대상 후보와 역할·책임 협의 및 조건 합의',o:'협의록'},
+     {d:'RA',a:'위임계약(mandate) 체결 — 의무 범위 명시',o:'위임계약서'},
+     {d:'RA',a:'경제운영자 정보 등록·유지 및 대내외 공지',o:'등록 확인'}]},
+ {ob:'K',title:'회원국별 생산자 등록(EPR) 절차',purpose:'배터리를 출시하는 각 EU 회원국에 생산자로 등록하고 EPR 의무를 이행한다.',scope:'출시 대상 회원국별',ref:'제44~52조',
+   steps:[{d:'RA',a:'대상 회원국별 등록 요건·기관 조사',o:'요건 정리표'},
+     {d:'SA',a:'수입자/PRO를 통한 등록 신청',o:'등록번호'},
+     {d:'ES',a:'PRO 가입 및 EPR 분담금 산정·납부',o:'가입증빙'},
+     {d:'MG',a:'분담금 예산 반영 및 갱신 관리',o:'예산안'}]},
+ {ob:'L',title:'적합성 평가 및 적합성선언(DoC) 절차',purpose:'적합성 평가를 수행하고 EU 적합성선언과 기술문서를 확보하여 CE 마킹의 근거를 마련한다.',scope:'출시 SLI 모델별',ref:'제17~20조',
+   steps:[{d:'RD',a:'성능·안전·시험 데이터 산출',o:'시험 성적서'},
+     {d:'QA',a:'적합성 평가 절차(모듈) 수행',o:'평가 결과'},
+     {d:'QA',a:'기술문서 작성 및 EU 적합성선언(DoC) 서명',o:'DoC·기술문서'},
+     {d:'QA',a:'기술문서 10년 보관 체계 운영',o:'보관 대장'}]},
+ {ob:'E',title:'라벨링 및 CE 마킹 절차',purpose:'부속서 VI 라벨 정보와 CE 마킹을 정확히 표기하여 출시한다.',scope:'출시 SLI 전 제품',ref:'제13조·제19~20조·부속서 VI',
+   steps:[{d:'RD',a:'부속서 VI Part A 라벨 데이터 확정(제조사·용량·전압·화학조성·중량·제조정보 등)',o:'라벨 데이터시트'},
+     {d:'QA',a:'라벨 도안·기호(Part B) 및 CE 마킹 검증·승인',o:'승인 도안'},
+     {d:'PR',a:'라벨 인쇄·부착 공정 반영 및 부착 검증',o:'양산 라벨'},
+     {d:'QA',a:'출시 로트 라벨 적합성 샘플 점검',o:'점검 기록'}]},
+ {ob:'F',title:'QR 코드 부여·연결 절차',purpose:'모든 배터리에 QR 코드를 부여하고 라벨·선언 정보에 접근 가능하도록 연결한다.',scope:'출시 SLI 전 제품',ref:'제13조(6)·부속서 VI',
+   steps:[{d:'RA',a:'QR 연결 정보 항목 확정(부속서 VI Part C 기준)',o:'정보 항목표'},
+     {d:'IT',a:'QR 생성 및 정보 저장·연결 데이터 시스템 구축',o:'QR 시스템'},
+     {d:'PR',a:'QR 인쇄/각인 공정 도입 및 판독 검증',o:'인쇄 QR'},
+     {d:'IT',a:'연결 정보 최신화·가용성 상시 관리',o:'운영 로그'}]},
+ {ob:'J',title:'유해물질 제한 준수 절차',purpose:'수은·카드뮴 등 제한 물질 기준을 지속 충족한다.',scope:'원자재·완제품',ref:'제6조·부속서 I',
+   steps:[{d:'PU',a:'공급 원료 성분·SDS 확보 및 제한물질 스크리닝',o:'성분 데이터'},
+     {d:'RD',a:'물질구성 DB 관리 및 대체물질 검토',o:'물질 DB'},
+     {d:'QA',a:'제한물질 시험·확인 및 성적서 관리',o:'시험 성적서'}]},
+ {ob:'H',title:'공급망 실사 절차',purpose:'납·니켈 등 원료 공급망에 대한 위험기반 실사를 수행·보고한다.',scope:'대상 원료 공급망(순매출 €40M 초과 시)',ref:'제48~53조',
+   steps:[{d:'PU',a:'원료 공급망 매핑 및 협력사 실사 정보 수집',o:'공급망 지도'},
+     {d:'RA',a:'OECD 지침 정합 실사 정책 수립·문서화',o:'실사 정책서'},
+     {d:'ES',a:'위험 식별·완화 조치 및 근거 데이터 취합',o:'위험평가서'},
+     {d:'ES',a:'제3자 검증 대응 및 연례 보고서 작성',o:'실사 보고서'}]},
+ {ob:'B',title:'재활용 원료 함량 선언 절차',purpose:'활물질 내 회수 납 등 재활용 원료 함량을 산정·선언하고 최소 기준 달성을 관리한다.',scope:'출시 SLI 제품',ref:'제8조',
+   steps:[{d:'PU',a:'협력사 재활용 원료 함량 데이터 수집',o:'함량 데이터'},
+     {d:'PR',a:'로트별 재활용 원료 투입 비율 기록',o:'생산 기록'},
+     {d:'ES',a:'재활용 원료 함량 산정·선언서 작성',o:'선언서'},
+     {d:'RD',a:'최소 기준(Pb 85%) 달성 설계 로드맵 관리',o:'설계 로드맵'}]},
+ {ob:'I',title:'수거·재활용(EPR) 이행 절차',purpose:'회원국 수거·재활용 체계에 참여하여 EPR 의무를 이행한다.',scope:'출시 대상 회원국',ref:'제59~61조·제71조·부속서 XII',
+   steps:[{d:'ES',a:'회원국 수거·재활용 체계 및 PRO 확인',o:'체계 조사'},
+     {d:'ES',a:'PRO 가입·분담금 납부 및 실적 관리',o:'가입·실적'},
+     {d:'SA',a:'회원국별 EPR 이행 상태 점검',o:'점검표'}]},
 ];
 
 /* ---------- State ---------- */
@@ -520,14 +692,149 @@ function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 function setField(code,f,v){item(code)[f]=v;saveState();renderStats();renderUpcoming();
   if(f==='status'){renderChecklist();}}
 
+/* ---------- Department tasks ---------- */
+function effTaskStatus(t){return item(t.id).status;}
+function setTask(id,f,v){item(id)[f]=v;saveState();if(f==='status')renderDept();}
+function duePill(due){
+  if(!/^\d{4}-\d\d-\d\d$/.test(due))return {txt:due,cls:''};
+  const dd=dDay(due);return {txt:fmtDate(due)+' · '+dd.txt,cls:dd.cls};
+}
+function renderDept(){
+  const fd=document.getElementById('fDept').value;
+  const fs=document.getElementById('fTaskStatus').value;
+  const doSort=document.getElementById('fTaskSort').checked;
+  const el=document.getElementById('deptList');
+  let html='';
+  DEPTS.forEach(dep=>{
+    if(fd && fd!==dep.id)return;
+    let ts=TASKS.filter(t=>t.dept===dep.id);
+    if(fs)ts=ts.filter(t=>effTaskStatus(t)===fs);
+    if(!ts.length)return;
+    if(doSort)ts=ts.slice().sort((a,b)=>{
+      const av=/^\d{4}-/.test(a.due)?a.due:'9999';const bv=/^\d{4}-/.test(b.due)?b.due:'9999';
+      return av<bv?-1:av>bv?1:0;});
+    html+=`<div class="dept-grp">
+      <div class="dept-hd" style="background:${dep.color}">${dep.name}
+        <span class="cnt">${ts.length}개 과제</span></div>`;
+    ts.forEach(t=>{
+      const it=item(t.id);const dp=duePill(t.due);const obt=OBLIGATIONS.find(o=>o.code===t.ob);
+      html+=`<div class="task">
+        <div class="task-main">
+          <div class="task-t">${t.task}</div>
+          <div class="task-m">
+            ${t.ob!=='-'?`<span class="badge b-cat">${t.ob}. ${obt?obt.title:''}</span>`:'<span class="badge b-na">공통</span>'}
+            <span class="task-reg">규제 마감: ${t.reg}</span>
+            ${t.note?`<span style="color:var(--todo);font-weight:600">※ ${t.note}</span>`:''}
+          </div>
+        </div>
+        <div class="task-r">
+          <span class="due-pill ${dp.cls}">완료목표 ${dp.txt}</span>
+          <input value="${esc(it.owner)}" placeholder="담당자" style="width:80px" onchange="setTask('${t.id}','owner',this.value)">
+          <select onchange="setTask('${t.id}','status',this.value)">
+            ${Object.entries(STATUSES).map(([k,v])=>`<option value="${k}" ${it.status===k?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div></div>`;
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html||'<p class="muted" style="padding:20px 0">조건에 맞는 과제가 없습니다.</p>';
+}
+
+/* ---------- SOP ---------- */
+function renderSOP(){
+  document.getElementById('sopList').innerHTML=SOPS.map(s=>{
+    const obt=OBLIGATIONS.find(o=>o.code===s.ob);
+    return `<div class="sop">
+      <div class="sop-hd" onclick="this.parentNode.classList.toggle('open')">
+        <span class="ob-code">${s.ob}</span>
+        <div style="flex:1"><div class="ob-title">${s.title}</div>
+          <div class="ob-meta"><span class="ob-art">${s.ref}</span>
+            ${obt?`<span class="badge b-cat">${obt.title}</span>`:''}</div></div>
+      </div>
+      <div class="sop-body">
+        <div class="sop-meta"><b>목적</b> ${s.purpose}<br><b>적용범위</b> ${s.scope}<br><b>근거</b> ${s.ref}</div>
+        <table class="sop-tbl"><tr><th>No</th><th>담당</th><th>업무 단계</th><th>산출물</th></tr>
+        ${s.steps.map((st,i)=>`<tr><td class="no">${i+1}</td>
+          <td><span class="dept-tag" style="background:${DEPTCOLOR[st.d]}">${DEPTNAME[st.d]}</span></td>
+          <td>${st.a}</td><td>${st.o}</td></tr>`).join('')}
+        </table>
+      </div></div>`;
+  }).join('');
+}
+
+/* ---------- QR / Label content (부속서 VI · SLI 기준) ---------- */
+function renderQR(){
+  const partA=[
+    ['제조사 식별정보','상호·등록상표·주소 및 단일 연락처(웹·이메일 포함). <b>역외 제조사는 EU 수입자 식별정보도 함께 표기</b> (제38(7)·41조)'],
+    ['제조 장소','배터리 제조 지리적 위치'],
+    ['제조일','월·연 <span class="badge b-verify">확인필요</span>'],
+    ['배터리 카테고리','SLI (자동차 시동용)'],
+    ['모델/식별','모델 식별자 및/또는 배치·시리얼 번호'],
+    ['중량','배터리 질량'],
+    ['용량','정격 용량'],
+    ['화학조성','전기화학적 조성 — <b>납축(lead-acid)</b>'],
+    ['유해물질','수은·카드뮴·납 외 함유 유해물질'],
+    ['핵심원자재','중량 0.1%(w/w) 초과 함유 핵심원자재'],
+    ['소화제','사용 가능한 소화(진화) 물질'],
+  ];
+  const partB=[
+    ['분리수거 기호','바퀴 달린 쓰레기통에 X 표시','<b>모든 배터리(SLI 포함)</b> · 제13(4)'],
+    ['용량 라벨','정격 용량 표기','충전식 → <b>SLI 해당</b> · 제13(2)'],
+    ['"Cd" 기호','카드뮴 함유','카드뮴 &gt;0.002% 중량 시 · 제13(5)'],
+    ['"Pb" 기호','납 함유','납 &gt;0.004% 중량 시 → <b>납축 SLI는 항상 필수</b> · 제13(5)'],
+  ];
+  const qrLinks=[
+    '부속서 VI Part A 일반정보(위 항목)',
+    '분리수거·용량·물질(기호 뒤) 라벨 정보',
+    'EU 적합성선언(DoC) 또는 접근 수단',
+    '폐배터리 예방·관리(분리수거·회수·처리) 정보 — 최종사용자/유통',
+    '재활용 원료 함량 — 활물질 내 회수 코발트·<b>납</b>·리튬·니켈 %(제8조, 2028.8~ · 납축은 납이 핵심)',
+    '성능·내구성 결과 (해당 시) <span class="badge b-verify">SLI 해당범위 확인필요</span>',
+  ];
+  document.getElementById('qrContent').innerHTML=`
+  <div class="disclaimer" style="margin-bottom:16px">
+    ℹ️ <b>SLI 특이사항:</b> SLI는 <b>배터리 여권 대상이 아니며</b>(여권은 LMT·EV·산업용&gt;2kWh), <b>현재 탄소발자국(CFP) 대상도 아닙니다</b>(제7조는 EV·산업용·LMT).
+    따라서 QR은 배터리 여권이 아니라 <b>라벨정보+DoC+폐기정보+재활용함량 문서 집합</b>으로 연결됩니다.
+    아래 항목·수치는 2차 자료 교차확인 기준이며 <span class="badge b-verify">확인필요</span> 항목은 EUR-Lex 부속서 VI 원문 확정 필요.
+  </div>
+  <div class="qr-sec"><div class="qr-sec-hd">📋 Part A — 일반 라벨 정보 (제13(1)·부속서 VI-A · 2026.8.18~)</div>
+    <div class="qr-sec-bd">${partA.map(r=>`<div class="qr-item"><div class="k">${r[0]}</div><div class="v">${r[1]}</div></div>`).join('')}
+    <div class="qr-note">표기 요건: 눈에 보이고(visible)·판독가능(legible)·지워지지 않게(indelible). 아이콘 고대비, 최대 2.5×2.5cm, 최대 글자 25pt <span class="badge b-verify">수치 확인필요</span>. ※ 1차전지용 '최소 평균 지속시간' 항목은 충전식 SLI에 <b>비해당</b>.</div>
+    </div></div>
+  <div class="qr-sec"><div class="qr-sec-hd">🔖 Part B — 기호/픽토그램 (제13(2)~(5) · 2026.8.18~)</div>
+    <div class="qr-sec-bd"><table class="sop-tbl"><tr><th>기호</th><th>의미</th><th>적용 조건</th></tr>
+    ${partB.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
+    </table>
+    <div class="qr-note">Cd/Pb 기호는 분리수거 기호 <b>아래</b>에 표기. 납축 SLI는 납 함량이 0.004%를 크게 초과하므로 <b>"Pb" 기호 사실상 필수</b>. CE 마킹(제19~20조)은 별도 마킹.</div>
+    </div></div>
+  <div class="qr-sec"><div class="qr-sec-hd">🔳 Part C — QR 코드 (제13(6) · 2027.2.18~)</div>
+    <div class="qr-sec-bd">
+    <div class="qr-item"><div class="k">기술 표준</div><div class="v">ISO/IEC 18004 <span class="badge b-verify">에디션 확인필요</span></div></div>
+    <div class="qr-item"><div class="k">부착 방식</div><div class="v">배터리에 인쇄 또는 각인(visible·legible·indelible). 불가 시 포장·동봉 문서에 부착</div></div>
+    <div class="qr-item"><div class="k">접근성</div><div class="v">항상 최신·정확·무료 접근. 장애인 접근성(Dir. 2019/882) 준수</div></div>
+    <div class="qr-item"><div class="k">연결 정보(SLI)</div><div class="v"><ol style="margin:4px 0 0 18px;padding:0">${qrLinks.map(x=>`<li style="margin:3px 0">${x}</li>`).join('')}</ol></div></div>
+    <div class="qr-note">SLI QR = <b>라벨 데이터 + DoC + 폐기물 관리정보 + 재활용원료(Co/Pb/Li/Ni 회수) 선언</b>으로 연결. 배터리 여권·탄소발자국으로는 연결되지 않음(현재).</div>
+    </div></div>
+  <div class="qr-sec"><div class="qr-sec-hd">🏭 부서별 QR·라벨 준비 (요약)</div>
+    <div class="qr-sec-bd"><table class="sop-tbl"><tr><th>부서</th><th>준비 항목</th><th>마감</th></tr>
+    <tr><td><span class="dept-tag" style="background:${DEPTCOLOR.RD}">${DEPTNAME.RD}</span></td><td>Part A 라벨 데이터 확정(용량·전압·조성·중량·제조정보)</td><td>2026.05</td></tr>
+    <tr><td><span class="dept-tag" style="background:${DEPTCOLOR.QA}">${DEPTNAME.QA}</span></td><td>기호(Part B)·CE 마킹 검증, DoC 연결 확인</td><td>2026.06</td></tr>
+    <tr><td><span class="dept-tag" style="background:${DEPTCOLOR.PR}">${DEPTNAME.PR}</span></td><td>라벨 인쇄·부착(2026.8) / QR 인쇄·각인(2027.2)</td><td>2026.08 / 2027.02</td></tr>
+    <tr><td><span class="dept-tag" style="background:${DEPTCOLOR.IT}">${DEPTNAME.IT}</span></td><td>QR 생성·연결 데이터 시스템 구축·운영</td><td>2026.12</td></tr>
+    <tr><td><span class="dept-tag" style="background:${DEPTCOLOR.ES}">${DEPTNAME.ES}</span></td><td>재활용원료 함량 선언(QR 연결)</td><td>2028.06</td></tr>
+    </table></div></div>`;
+}
+
 /* ---------- Filters populate ---------- */
 function populateFilters(){
   const opts=CATS.map(c=>`<option value="${c.id}">${c.full}</option>`).join('');
   document.getElementById('fCat').innerHTML='<option value="">전체 카테고리</option>'+opts;
   document.getElementById('tlCat').innerHTML='<option value="">전체 카테고리</option>'+opts;
+  document.getElementById('fDept').innerHTML='<option value="">전체 부서</option>'+
+    DEPTS.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
 }
 
-function renderAll(){renderChips();renderStats();renderUpcoming();renderChecklist();renderTimeline();}
+function renderAll(){renderChips();renderStats();renderUpcoming();renderChecklist();renderDept();renderSOP();renderQR();renderTimeline();}
 
 /* ---------- Exports ---------- */
 function download(name,content,type){
@@ -569,12 +876,39 @@ function exportWord(){
     대상 배터리 카테고리: ${state.myCats.map(c=>CATNAME[c]).join(', ')||'미선택'}.</p>
     <h2>2. 의무별 이행 현황</h2>
     <table><tr><th>코드</th><th>의무 / 조항 · 카테고리</th><th>상태</th><th>담당자</th><th>목표완료일</th><th>메모</th></tr>${rows}</table>
-    <h2>3. 유의사항</h2>
+    <h2>3. 부서별 준비사항 (누가·무엇을·언제까지)</h2>
+    ${DEPTS.map(dep=>{const ts=TASKS.filter(t=>t.dept===dep.id);if(!ts.length)return '';
+      return `<h3 style="color:${dep.color};font-size:12pt;margin:10px 0 4px">${dep.name}</h3>
+      <table><tr><th style="width:44%">업무</th><th>규제 마감</th><th>완료목표</th><th>상태</th><th>담당자</th></tr>
+      ${ts.map(t=>{const it=item(t.id);return `<tr><td>${t.task}${t.note?` <b style="color:#b91c1c">(${t.note})</b>`:''}</td>
+        <td>${t.reg}</td><td>${t.due}</td><td style="text-align:center">${STATUSES[it.status]}</td><td>${esc(it.owner)||'-'}</td></tr>`;}).join('')}
+      </table>`;}).join('')}
+    <h2>4. 유의사항</h2>
     <p>· 탄소발자국(CFP) 등 '시행일 유동' 항목은 EU 집행위 위임법 채택 시점에 따라 시행일이 변동됩니다.<br>
     · '[확인필요]' 항목은 EUR-Lex 원문(CELEX 32023R1542) 및 사내 법무 검토를 통해 확정하시기 바랍니다.<br>
     · 본 보고서는 사내 관리 보조 자료이며 법적 조언을 대체하지 않습니다.</p>
     </body></html>`;
   download('EU배터리법_대응보고서_2026-07-22.doc',html,'application/msword');
+}
+function exportSOP(){
+  const secs=SOPS.map(s=>{
+    return `<h2>${s.ob}. ${s.title}</h2>
+      <p><b>목적</b> ${s.purpose}<br><b>적용범위</b> ${s.scope}<br><b>근거</b> ${s.ref}</p>
+      <table><tr><th style="width:34px">No</th><th style="width:120px">담당</th><th>업무 단계</th><th style="width:130px">산출물</th></tr>
+      ${s.steps.map((st,i)=>`<tr><td style="text-align:center">${i+1}</td><td>${DEPTNAME[st.d]}</td><td>${st.a}</td><td>${st.o}</td></tr>`).join('')}
+      </table>`;}).join('');
+  const html=`<html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8">
+    <style>body{font-family:'Malgun Gothic',sans-serif;font-size:11pt}
+    h1{color:#155e75;font-size:18pt}h2{color:#0e7490;font-size:13pt;border-bottom:2px solid #0e7490;padding-bottom:3px;margin-top:18px}
+    table{border-collapse:collapse;width:100%;margin-top:6px}td,th{border:1px solid #999;padding:6px 8px;font-size:10.5pt;vertical-align:top}
+    th{background:#0e7490;color:#fff}</style></head><body>
+    <h1>EU 배터리법 대응 업무절차서 (SOP)</h1>
+    <p style="color:#555">회사: gbattery · SLI(자동차 시동용) 배터리 · 기준: Regulation (EU) 2023/1542 · 발행일 2026-07-22</p>
+    ${secs}
+    <h2>부칙 · 유의사항</h2>
+    <p>본 절차서의 조항·시행일은 EUR-Lex 원문(CELEX 32023R1542) 및 사내 법무 검토로 확정하며, 위임법 채택 등에 따라 개정한다. 사내 관리용 표준 절차이며 법적 조언을 대체하지 않는다.</p>
+    </body></html>`;
+  download('EU배터리법_업무절차서_SOP_2026-07-22.doc',html,'application/msword');
 }
 function backupJSON(){download('EU배터리법_백업_2026-07-22.json',JSON.stringify(state,null,2),'application/json');}
 function restoreJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
@@ -594,6 +928,9 @@ document.getElementById('fStatus').onchange=renderChecklist;
 document.getElementById('fApplicable').onchange=renderChecklist;
 document.getElementById('tlCat').onchange=renderTimeline;
 document.getElementById('tlHidePast').onchange=renderTimeline;
+document.getElementById('fDept').onchange=renderDept;
+document.getElementById('fTaskStatus').onchange=renderDept;
+document.getElementById('fTaskSort').onchange=renderDept;
 document.getElementById('expandAll').onclick=function(){
   const opening=document.querySelector('.ob:not(.open)');
   document.querySelectorAll('.ob').forEach(o=>opening?o.classList.add('open'):o.classList.remove('open'));
