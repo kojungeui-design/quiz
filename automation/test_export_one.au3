@@ -72,20 +72,21 @@ Sleep(200)
 Send($fname, 1)
 Sleep(600)
 
-; ④ Copy(대상 확정)
+; ④ Copy(대상 확정) — 버튼 이름으로 클릭(좌표 부정확해도 동작)
 note("④ Copy — 대상 확정")
-MouseClick("left", $COPY[0], $COPY[1], 1, 15)
-Sleep(800)
-; 덮어쓰기 경고 → Yes
-If WinWait("[CLASS:#32770]", "", 3) Then
-    WinActivate("[CLASS:#32770]")
-    ControlClick("[CLASS:#32770]", "", "[TEXT:Yes]")
+clickBtn($EXPORT_WIN, "Copy", $COPY[0], $COPY[1])
+Sleep(1000)
+; 덮어쓰기 경고("This data file exists already!") → Yes
+Local $ov = WinWait("", "data file exists", 3)
+If $ov <> 0 Then
+    ControlClick($ov, "", "[TEXT:Yes]")
     Sleep(500)
 EndIf
 
-; ⑤ Ok → 변환
+; ⑤ Ok → 변환 (버튼 이름으로 클릭)
 note("⑤ Ok — 변환 시작")
-MouseClick("left", $OK[0], $OK[1], 1, 15)
+Sleep(300)
+clickBtn($EXPORT_WIN, "Ok", $OK[0], $OK[1])
 
 ; ⑥ 변환 완료 대기
 If WinWait($CONV_WIN, "", 8) Then
