@@ -37,6 +37,11 @@ Func abort($m)
     Exit 1
 EndFunc
 
+; 버튼 이름으로 클릭(우선), 실패 시 좌표로 클릭
+Func clickBtn($win, $text, $x, $y)
+    If ControlClick($win, "", "[TEXT:" & $text & "]") = 0 Then MouseClick("left", $x, $y, 1, 15)
+EndFunc
+
 If $CmdLine[0] < 2 Then Exit
 Local $circ = Number($CmdLine[1])
 Local $rowY = Number($CmdLine[2])
@@ -66,25 +71,26 @@ Sleep(150)
 Send($fname, 1)         ; 새 파일명 그대로 타이핑 (예: E:\bts_csv\CIRC0024.csv)
 Sleep(400)
 
-; ⑤ Copy(대상 확정)
-MouseClick("left", $C_COPY[0], $C_COPY[1], 1, 10)
+; ⑤ Copy(대상 확정) — 버튼 이름으로 클릭
+clickBtn($EXPORT_WIN, "Copy", $C_COPY[0], $C_COPY[1])
 Sleep($SLOW)
 ; "This data file exists already! Overwrite?" 경고 → Yes 클릭
-If WinWait("[CLASS:#32770]", "", 3) Then
-    WinActivate("[CLASS:#32770]")
-    ControlClick("[CLASS:#32770]", "", "[TEXT:Yes]")   ; Yes 명시적 클릭(Enter는 No일 수 있음)
+Local $ov = WinWait("", "data file exists", 3)
+If $ov <> 0 Then
+    ControlClick($ov, "", "[TEXT:Yes]")
     Sleep(400)
 EndIf
 
-; Ok → 변환 시작
-MouseClick("left", $C_OK[0], $C_OK[1], 1, 10)
+; ⑥ Ok → 변환 시작 (버튼 이름으로 클릭)
+Sleep(300)
+clickBtn($EXPORT_WIN, "Ok", $C_OK[0], $C_OK[1])
 
-; ⑤ 변환 완료 대기 (진행창이 닫힐 때까지, 최대 10분)
-WinWait($CONV_WIN, "", 10)
+; ⑦ 변환 완료 대기 (진행창이 닫힐 때까지, 최대 15분)
+WinWait($CONV_WIN, "", 15)
 Local $t = TimerInit()
 While WinExists($CONV_WIN)
-    If TimerDiff($t) > 600000 Then abort("변환 시간초과 Circ" & $circ)
-    Sleep(1000)
+    If TimerDiff($t) > 900000 Then abort("변환 15분 초과 Circ" & $circ)
+    Sleep(2000)
 WEnd
 
 ; ⑥ Test sections 닫기

@@ -88,13 +88,14 @@ note("⑤ Ok — 변환 시작")
 Sleep(300)
 clickBtn($EXPORT_WIN, "Ok", $OK[0], $OK[1])
 
-; ⑥ 변환 완료 대기
-If WinWait($CONV_WIN, "", 8) Then
-    note("⑥ 변환 중... 완료까지 대기")
+; ⑥ 변환 완료 대기 (수명시험은 파일이 커서 오래 걸림 → 최대 60분 대기)
+If WinWait($CONV_WIN, "", 15) Then
     Local $t = TimerInit()
     While WinExists($CONV_WIN)
-        If TimerDiff($t) > 600000 Then stop_("변환 시간초과")
-        Sleep(1000)
+        Local $mins = Round(TimerDiff($t) / 60000, 1)
+        note("⑥ 변환 중... " & $mins & "분 경과 (완료까지 대기 중)")
+        If TimerDiff($t) > 900000 Then stop_("변환 15분 초과 — 수동 확인 필요")
+        Sleep(2000)
     WEnd
 EndIf
 
