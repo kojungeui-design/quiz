@@ -23,13 +23,14 @@ Global $EXPORT_WIN = "Battery - Data export"
 Global $CONV_WIN = "Data file conversion"
 Global $SLOW = 700
 
-; ---- 좌표 (coords.txt 에서 채움) ----
-Global $X_BATTROW = 55       ; @@ 메인 배터리 행의 X (세로줄 위치)
-Global $C_EXPORT[2]  = [810, 308]   ; @@ Export버튼
-Global $C_DEST[2]    = [115, 398]   ; @@ 저장경로칸
-Global $C_COPY[2]    = [399, 350]   ; @@ Copy버튼
-Global $C_OK[2]      = [399, 399]   ; @@ Ok버튼
-Global $C_CANCEL[2]  = [505, 447]   ; @@ Test sections Cancel버튼
+; ---- 좌표 (1920x1080 전체화면 스크린샷에서 측정, ±수px 가능) ----
+; 메인 그리드: Batt0007행 y=202, 행높이 약 17px → 대상행 y = 202 + 17*순번
+Global $X_BATTROW = 55       ; 배터리 열 X
+Global $C_EXPORT[2]  = [810, 278]   ; Export버튼 (Test sections 창)
+Global $C_DEST[2]    = [180, 565]   ; Destination file 입력칸
+Global $C_COPY[2]    = [640, 487]   ; Copy버튼 (대상 확정)
+Global $C_OK[2]      = [640, 567]   ; Ok버튼
+Global $C_CANCEL[2]  = [810, 644]   ; Test sections Cancel버튼
 
 Func abort($m)
     FileWriteLine($OUT_DIR & "\_export_log.txt", "[중단] " & $m)
