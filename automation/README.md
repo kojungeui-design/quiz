@@ -35,6 +35,15 @@ Windows 7 · BTS-600 V1.600.395 · 40개 회로
 - Export 형식: **ASCII / EXCEL / LOTUS / DIA-PC / BTS Tabelle** — EXCEL 직접 export 가능.
 - 저장경로 파일명은 **DOS 8.3 규칙**(이름 8자 + 확장자 3자, 예: `CIRC0024.CSV`).
 
+### 영상 분석으로 확정한 전체 export 흐름 (2026-07-22)
+1. 메인 그리드에서 **대상 배터리 행 더블클릭** → 그 배터리 Test sections 창 열림
+2. **맨 아래(최근=방금 끝난) 시험 구간 자동 선택**
+3. **Export** 버튼 → Data export 대화상자
+4. Destination file 지우고 파일명 입력 → **Copy**(대상 확정) → **Ok**
+5. "Data file conversion" 진행창 (변환에 시간 소요) → 닫힐 때까지 대기
+6. 원본: `C:\BTS-600\Environ\Battery\Batt00NN\<시험명>\<시험명>.dat` → `E:\...csv`
+→ `export_circuit.au3` 에 이 흐름 반영 완료. 남은 건 좌표값 채우기뿐.
+
 확인된 export 대화상자(실제 화면 "Battery - Data export"):
 ```
 Export 버튼  →  Convert to: 형식 선택 (Excel 또는 ASCII)
