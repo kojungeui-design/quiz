@@ -34,13 +34,14 @@
   .bar{height:9px;border-radius:6px;background:#e7edf3;overflow:hidden}
   .bar>i{display:block;height:100%;background:var(--green)}
   .bar.warn>i{background:var(--amber)}.bar.bad>i{background:var(--red)}
-  .rowline{display:grid;grid-template-columns:150px 1fr 46px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid #eef2f6;font-size:12.5px}
+  .rowline{display:grid;grid-template-columns:150px 1fr 62px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid #eef2f6;font-size:12.5px}
   .rowline:last-child{border:none}.rowline .v{font-weight:800;text-align:right}
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
   .toolbar input,.toolbar select{border:1px solid #ccd6e0;border-radius:8px;padding:8px 10px}
   .toolbar input.search{min-width:230px}
   .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 13px;border-radius:8px;font-weight:700}
   .btn:hover{border-color:#9fb7cf}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.primary:hover{background:#0f5ec0}
+  .btn.sm{padding:5px 10px;font-size:12px}
   .tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
   table.data{width:100%;border-collapse:collapse;min-width:900px}
   table.data th{position:sticky;top:0;background:#edf3f8;text-align:left;padding:10px 9px;font-size:11px;color:#516174;border-bottom:1px solid #d5dee8;white-space:nowrap}
@@ -49,6 +50,7 @@
   table.data select{border:1px solid #d5dde6;border-radius:6px;padding:4px 5px;font-size:12px;background:#fff}
   .tag{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px;white-space:nowrap}
   .tag.oe{background:#efe7ff;color:#6338c2}.tag.big{background:#e3f0ff;color:#1560b8}.tag.sme{background:#e7f6ef;color:#12734d}
+  .tag.ctry{background:#eef2f6;color:#4a5a6b;margin:2px 3px 2px 0;cursor:pointer}
   .st{font-weight:700;font-size:12px}.st.ok{color:var(--green)}.st.prog{color:var(--amber)}.st.todo{color:var(--red)}.st.na{color:#7c6bb5}
   .sel-ok{color:var(--green)}.sel-prog{color:var(--amber)}.sel-todo{color:var(--red)}.sel-na{color:#7c6bb5}
   .mini{width:64px;text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
@@ -58,9 +60,10 @@
   .detail{background:#f8fbfe;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:12px}
   .detail h3{font-size:15px;margin-bottom:8px}
   .obg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:8px}
-  .obcell{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff}
+  .obcell{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;position:relative}
   .obcell .t{font-size:12px;font-weight:700}.obcell .r{font-size:10.5px;color:var(--muted);margin:2px 0 6px}
   .obcell select{width:100%;border:1px solid #d5dde6;border-radius:6px;padding:5px}
+  .obcell .x{position:absolute;top:6px;right:8px;color:#b9c3ce;font-weight:800;cursor:pointer}.obcell .x:hover{color:var(--red)}
   .exp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
   .exp{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
   .exp h3{font-size:15px;margin-bottom:6px}.exp p{color:var(--muted);font-size:12.5px;min-height:50px;margin-bottom:12px}
@@ -73,7 +76,7 @@
 <header>
   <div>
     <h1>🔋 EU 배터리법 · 바이어/제품 준수 현황</h1>
-    <div class="sub">세방전지 SLI · 바이어별 · 제품(SKU)별 진행 점검 · Regulation (EU) 2023/1542</div>
+    <div class="sub">세방전지 SLI · 바이어별 · 국가별 · 제품(SKU)별 진행 점검 · Regulation (EU) 2023/1542</div>
   </div>
   <a class="home" href="eu_battery_compliance.html">← 규정·절차 도구로</a>
 </header>
@@ -87,18 +90,14 @@
 
 <main>
   <div class="banner">
-    ⚠️ <b>안내:</b> 제품(SKU)별로는 <b>라벨·QR·CE/DoC·재활용원료·유해물질</b>을, 바이어별로는 <b>생산자등록·수입자·실사·EPR</b>(OE는 CFP·여권형데이터·IMDS/PPAP 추가)을 관리합니다.
-    바이어 준비도는 <b>납품 제품 상태 + 바이어 의무를 자동 합산</b>합니다. 규제 조항·시행일 근거는 <a class="link" href="eu_battery_compliance.html">규정·절차 도구</a>를 참고하세요.
-    아래 데이터는 <b>데모 샘플</b>이며, 실제 5,000개 제품은 <b>가져오기 탭에서 CSV 업로드</b>로 교체하세요.
+    ⚠️ <b>안내:</b> 제품(SKU)별로는 <b>라벨·QR·CE/DoC·재활용원료·유해물질</b>을, 바이어별로는 <b>수입자·실사</b>(바이어 단위)와
+    <b>생산자등록·EPR·무상회수</b>(<b>판매 국가별</b>)를 관리합니다. OE 등은 <b>바이어마다 요구항목(CFP·여권형·IMDS/PPAP)을 추가·삭제</b>할 수 있습니다.
+    바이어 준비도 = <b>제품 상태 + 바이어의무 + 국가별의무 + 커스텀요구</b> 자동 합산. 규제 근거는 <a class="link" href="eu_battery_compliance.html">규정·절차 도구</a> 참조. 아래는 <b>데모 샘플</b>이며 실데이터는 CSV로 교체하세요.
   </div>
 
-  <!-- DASHBOARD -->
   <section class="view active" id="dash"></section>
-  <!-- BUYERS -->
   <section class="view" id="buyers"></section>
-  <!-- PRODUCTS -->
   <section class="view" id="products"></section>
-  <!-- IMPORT/EXPORT -->
   <section class="view" id="io"></section>
 </main>
 
@@ -106,9 +105,7 @@
 <input type="file" id="fileProducts" accept=".csv" hidden>
 <input type="file" id="fileRestore" accept=".json" hidden>
 
-<footer>
-  세방전지 EU 배터리법 대응 · 바이어/제품 준수 관리 · 사내 관리 보조용(법적 조언 아님) · 규정 근거는 규정·절차 도구 참조
-</footer>
+<footer>세방전지 EU 배터리법 대응 · 바이어/국가/제품 준수 관리 · 사내 관리 보조용(법적 조언 아님) · 규정 근거는 규정·절차 도구 참조</footer>
 
 <script>
 /* ================= 의무 정의 ================= */
@@ -122,98 +119,108 @@ const POBS=[
   {k:'RECY', n:'재활용원료',     reg:'2028-08-18'},
   {k:'HAZ',  n:'유해물질',       reg:'시행중'},
 ];
-// 바이어(시장)별 의무 — 모든 바이어
-const BOBS=[
-  {k:'REG', n:'회원국 생산자등록', reg:'시장출시 전'},
+// 바이어(단위) 시장 의무
+const MOBS=[
   {k:'IMP', n:'수입자·공인대리인', reg:'시장출시 전'},
   {k:'DUE', n:'공급망 실사',       reg:'2027-08-18'},
-  {k:'EPR', n:'EPR·무상회수',      reg:'상시'},
 ];
-// OE 전용 추가 의무
-const OEOBS=[
-  {k:'CFP',  n:'탄소발자국(CFP) 제공', reg:'OE 계약'},
-  {k:'PASS', n:'여권형 데이터팩',      reg:'OE 계약'},
-  {k:'IMDS', n:'IMDS/PPAP 문서',       reg:'OE 계약'},
+// 국가(회원국)별 의무
+const COBS=[
+  {k:'REG', n:'생산자 등록', reg:'시장출시 전'},
+  {k:'EPR', n:'EPR·무상회수', reg:'상시'},
 ];
-const buyerObs=b=> b.type==='OE'? BOBS.concat(OEOBS):BOBS;
+// OE 기본 요구항목(커스텀 시드 — 이후 바이어별 추가/삭제 가능)
+const OE_DEFAULT=[
+  {k:'CFP', n:'탄소발자국(CFP) 제공'},
+  {k:'PASS',n:'여권형 데이터팩'},
+  {k:'IMDS',n:'IMDS/PPAP 문서'},
+];
 const TYPELABEL={OE:'OE',big:'대형',sme:'중소'};
+const EU=['독일','프랑스','스페인','이탈리아','폴란드','벨기에','네덜란드','스웨덴','오스트리아','체코'];
 
 /* ================= 상태/저장 ================= */
-const KEY='eu_batt_buyers_v1';
+const KEY='eu_batt_buyers_v2';
 let state=load();
 
 function load(){
-  try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.buyers)return s;}catch(e){}
+  try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.buyers)return migrate(s);}catch(e){}
   return seed();
 }
+function migrate(s){ // 구버전 안전 보정
+  s.buyers.forEach(b=>{if(!Array.isArray(b.countries))b.countries=b.country?[b.country]:[];if(!Array.isArray(b.customObs))b.customObs=(b.type==='OE'?OE_DEFAULT.map(o=>({...o})):[]);});
+  s.products.forEach(p=>{if(!p.status)p.status={};});
+  Object.keys(s.buyerStatus||{}).forEach(id=>{const st=s.buyerStatus[id];if(!st.byCountry)st.byCountry={};if(!st.custom)st.custom={};});
+  return s;
+}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+function ensureBS(id){const st=state.buyerStatus[id]||(state.buyerStatus[id]={});if(!st.byCountry)st.byCountry={};if(!st.custom)st.custom={};return st;}
 
-/* ---- 데모 시드 (실데이터는 CSV 업로드로 교체) ---- */
+/* ---- 데모 시드 ---- */
 function seed(){
-  const buyers=[
-    {id:'b1',name:'BMW Group',type:'OE',country:'독일'},
-    {id:'b2',name:'Volkswagen AG',type:'OE',country:'독일'},
-    {id:'b3',name:'Stellantis',type:'OE',country:'프랑스'},
-    {id:'b4',name:'Bosch Automotive',type:'big',country:'독일'},
-    {id:'b5',name:'Norauto',type:'big',country:'프랑스'},
-    {id:'b6',name:'A.T.U',type:'big',country:'독일'},
-    {id:'b7',name:'Auto5',type:'sme',country:'벨기에'},
-    {id:'b8',name:'Baterías Ibérica',type:'sme',country:'스페인'},
-    {id:'b9',name:'Nordic Batt AB',type:'sme',country:'스웨덴'},
-    {id:'b10',name:'Italbatt SRL',type:'sme',country:'이탈리아'},
+  const defs=[
+    ['BMW Group','OE',['독일','프랑스','스페인','이탈리아']],
+    ['Volkswagen AG','OE',['독일','폴란드','체코']],
+    ['Stellantis','OE',['프랑스','이탈리아','스페인']],
+    ['Bosch Automotive','big',['독일','오스트리아']],
+    ['Norauto','big',['프랑스','스페인','벨기에']],
+    ['A.T.U','big',['독일']],
+    ['Auto5','sme',['벨기에','네덜란드']],
+    ['Baterías Ibérica','sme',['스페인']],
+    ['Nordic Batt AB','sme',['스웨덴']],
+    ['Italbatt SRL','sme',['이탈리아']],
   ];
-  const plants=['창원','광주','천안'];
-  const chems=['일반 납축','EFB','AGM'];
-  const series=['SB-DIN','SB-JIS','SB-EFB','SB-AGM','SB-HD'];
-  let r=12345; const rnd=()=>{r=(r*1103515245+12345)&0x7fffffff;return r/0x7fffffff;};
-  const products=[];
-  const N=240; // 데모 240개 (CSV로 최대 5,000+ 교체 가능)
+  const buyers=defs.map((d,i)=>({id:'b'+(i+1),name:d[0],type:d[1],countries:d[2],customObs:d[1]==='OE'?OE_DEFAULT.map(o=>({...o})):[]}));
+  const plants=['창원','광주','천안'],chems=['일반 납축','EFB','AGM'],series=['SB-DIN','SB-JIS','SB-EFB','SB-AGM','SB-HD'];
+  let r=12345;const rnd=()=>{r=(r*1103515245+12345)&0x7fffffff;return r/0x7fffffff;};
+  const products=[];const N=240;
   for(let i=0;i<N;i++){
     const ser=series[Math.floor(rnd()*series.length)];
     const cap=[45,50,60,62,70,74,80,95,100,110][Math.floor(rnd()*10)];
-    const nb=1+Math.floor(rnd()*3);
-    const bs=[];while(bs.length<nb){const bid=buyers[Math.floor(rnd()*buyers.length)].id;if(!bs.includes(bid))bs.push(bid);}
-    const status={};POBS.forEach(o=>{const x=rnd();status[o.k]= x<.42?'todo':x<.7?'prog':x<.95?'ok':'na';});
-    products.push({id:'p'+(i+1),model:`${ser}-${cap}`,sku:`${ser.replace('SB-','')}${cap}${String(i+1).padStart(4,'0')}`,
-      chemistry:chems[Math.floor(rnd()*chems.length)],plant:plants[Math.floor(rnd()*plants.length)],capacity:cap+'Ah',buyerIds:bs,status});
+    const nb=1+Math.floor(rnd()*3),bs=[];while(bs.length<nb){const bid=buyers[Math.floor(rnd()*buyers.length)].id;if(!bs.includes(bid))bs.push(bid);}
+    const status={};POBS.forEach(o=>{const x=rnd();status[o.k]=x<.42?'todo':x<.7?'prog':x<.95?'ok':'na';});
+    products.push({id:'p'+(i+1),model:`${ser}-${cap}`,sku:`${ser.replace('SB-','')}${cap}${String(i+1).padStart(4,'0')}`,chemistry:chems[Math.floor(rnd()*chems.length)],plant:plants[Math.floor(rnd()*plants.length)],capacity:cap+'Ah',buyerIds:bs,status});
   }
   const buyerStatus={};
-  buyers.forEach(b=>{const o={};buyerObs(b).forEach(ob=>{const x=rnd();o[ob.k]=x<.4?'todo':x<.72?'prog':x<.95?'ok':'na';});buyerStatus[b.id]=o;});
+  buyers.forEach(b=>{const st={byCountry:{},custom:{}};
+    MOBS.forEach(o=>{const x=rnd();st[o.k]=x<.4?'todo':x<.72?'prog':x<.95?'ok':'na';});
+    b.countries.forEach(c=>{st.byCountry[c]={};COBS.forEach(o=>{const x=rnd();st.byCountry[c][o.k]=x<.45?'todo':x<.72?'prog':x<.95?'ok':'na';});});
+    (b.customObs||[]).forEach(o=>{const x=rnd();st.custom[o.k]=x<.5?'todo':x<.8?'prog':'ok';});
+    buyerStatus[b.id]=st;});
   return {buyers,products,buyerStatus};
 }
 
 /* ================= 계산 ================= */
-function productReadiness(p){
-  let app=0,ok=0;POBS.forEach(o=>{const s=p.status[o.k]||'todo';if(s!=='na'){app++;if(s==='ok')ok++;}});
-  return {app,ok,pct:app?Math.round(ok/app*100):100};
-}
+function productReadiness(p){let app=0,ok=0;POBS.forEach(o=>{const s=p.status[o.k]||'todo';if(s!=='na'){app++;if(s==='ok')ok++;}});return {app,ok,pct:app?Math.round(ok/app*100):100};}
 function buyerProducts(bid){return state.products.filter(p=>p.buyerIds.includes(bid));}
+function acc(s,ref){if(s!=='na'){ref.app++;if(s==='ok')ref.ok++;}}
 function buyerReadiness(b){
-  let app=0,ok=0;
-  buyerProducts(b.id).forEach(p=>{POBS.forEach(o=>{const s=p.status[o.k]||'todo';if(s!=='na'){app++;if(s==='ok')ok++;}});});
-  const bst=state.buyerStatus[b.id]||{};
-  buyerObs(b).forEach(o=>{const s=bst[o.k]||'todo';if(s!=='na'){app++;if(s==='ok')ok++;}});
-  return {app,ok,pct:app?Math.round(ok/app*100):100,products:buyerProducts(b.id).length};
+  const ref={app:0,ok:0};const st=state.buyerStatus[b.id]||{};
+  buyerProducts(b.id).forEach(p=>POBS.forEach(o=>acc(p.status[o.k]||'todo',ref)));
+  MOBS.forEach(o=>acc(st[o.k]||'todo',ref));
+  (b.countries||[]).forEach(c=>{const cs=(st.byCountry&&st.byCountry[c])||{};COBS.forEach(o=>acc(cs[o.k]||'todo',ref));});
+  (b.customObs||[]).forEach(o=>acc((st.custom&&st.custom[o.k])||'todo',ref));
+  return {app:ref.app,ok:ref.ok,pct:ref.app?Math.round(ref.ok/ref.app*100):100,products:buyerProducts(b.id).length,countries:(b.countries||[]).length};
 }
 function barClass(pct){return pct>=80?'':pct>=50?'warn':'bad';}
 
 /* ================= 렌더 ================= */
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function selHTML(cur,cb){return `<select class="sel-${cur}" onchange="${cb}">${STATUS.map(k=>`<option value="${k}" ${cur===k?'selected':''}>${STLABEL[k]}</option>`).join('')}</select>`;}
 
 function renderDash(){
   const nB=state.buyers.length,nP=state.products.length;
   let app=0,ok=0;state.buyers.forEach(b=>{const r=buyerReadiness(b);app+=r.app;ok+=r.ok;});
   const overall=app?Math.round(ok/app*100):0;
   const oeCount=state.buyers.filter(b=>b.type==='OE').length;
-  // 의무별 병목 (제품 의무)
   const bott=POBS.map(o=>{let a=0,k=0;state.products.forEach(p=>{const s=p.status[o.k]||'todo';if(s!=='na'){a++;if(s==='ok')k++;}});return {n:o.n,pct:a?Math.round(k/a*100):100};}).sort((x,y)=>x.pct-y.pct);
-  // 바이어 준비도 (낮은순)
   const brank=state.buyers.map(b=>({b,r:buyerReadiness(b)})).sort((x,y)=>x.r.pct-y.r.pct);
-  // 유형별
   const byType=['OE','big','sme'].map(t=>{const bs=state.buyers.filter(b=>b.type===t);let a=0,k=0;bs.forEach(b=>{const r=buyerReadiness(b);a+=r.app;k+=r.ok;});return {t,cnt:bs.length,pct:a?Math.round(k/a*100):100};});
+  // 국가별 등록·EPR 현황 (모든 바이어 합산)
+  const cmap={};state.buyers.forEach(b=>{const st=state.buyerStatus[b.id]||{};(b.countries||[]).forEach(c=>{const cs=(st.byCountry&&st.byCountry[c])||{};if(!cmap[c])cmap[c]={a:0,k:0,buyers:0};cmap[c].buyers++;COBS.forEach(o=>{const s=cs[o.k]||'todo';if(s!=='na'){cmap[c].a++;if(s==='ok')cmap[c].k++;}});});});
+  const countries=Object.entries(cmap).map(([c,v])=>({c,buyers:v.buyers,pct:v.a?Math.round(v.k/v.a*100):100})).sort((x,y)=>x.pct-y.pct);
   $('dash').innerHTML=`
-  <div class="sh"><div><h2>전체 준수 현황</h2><p>바이어 ${nB}곳 · 제품 ${nP}개 기준 · 제품상태와 바이어의무를 합산한 롤업</p></div></div>
+  <div class="sh"><div><h2>전체 준수 현황</h2><p>바이어 ${nB}곳 · 제품 ${nP}개 · 국가 ${countries.length}개 기준 · 제품+바이어+국가별+커스텀 롤업</p></div></div>
   <div class="grid4">
     <div class="kpi blue"><div class="l">바이어</div><div class="n">${nB}</div><div class="s">OE ${oeCount}곳 포함</div></div>
     <div class="kpi"><div class="l">제품(SKU)</div><div class="n">${nP.toLocaleString()}</div><div class="s">CSV로 최대 5,000+ 확장</div></div>
@@ -223,9 +230,11 @@ function renderDash(){
   <div class="cols">
     <div class="card"><h3>🚧 의무별 병목 (제품 기준 완료율)</h3>
       ${bott.map(o=>`<div class="rowline"><span>${esc(o.n)}</span><span class="bar ${barClass(o.pct)}"><i style="width:${o.pct}%"></i></span><span class="v">${o.pct}%</span></div>`).join('')}
-    </div>
-    <div class="card"><h3>🏷️ 바이어 유형별 준비도</h3>
+      <h3 style="margin-top:16px">🏷️ 바이어 유형별 준비도</h3>
       ${byType.map(t=>`<div class="rowline"><span>${TYPELABEL[t.t]} <span class="muted small">(${t.cnt}곳)</span></span><span class="bar ${barClass(t.pct)}"><i style="width:${t.pct}%"></i></span><span class="v">${t.pct}%</span></div>`).join('')}
+    </div>
+    <div class="card"><h3>🇪🇺 국가별 등록·EPR 준비도 <span class="muted small">(생산자등록+EPR)</span></h3>
+      ${countries.map(c=>`<div class="rowline"><span>${esc(c.c)} <span class="muted small">${c.buyers}곳</span></span><span class="bar ${barClass(c.pct)}"><i style="width:${c.pct}%"></i></span><span class="v">${c.pct}%</span></div>`).join('')}
       <h3 style="margin-top:16px">⚠️ 준비도 낮은 바이어 Top 5</h3>
       ${brank.slice(0,5).map(x=>`<div class="rowline"><span><a class="link" onclick="openBuyer('${x.b.id}')">${esc(x.b.name)}</a> <span class="tag ${x.b.type==='OE'?'oe':x.b.type==='big'?'big':'sme'}">${TYPELABEL[x.b.type]}</span></span><span class="bar ${barClass(x.r.pct)}"><i style="width:${x.r.pct}%"></i></span><span class="v">${x.r.pct}%</span></div>`).join('')}
     </div>
@@ -234,16 +243,16 @@ function renderDash(){
 
 let openBuyerId=null;
 function renderBuyers(){
-  const rows=state.buyers.map(b=>{const r=buyerReadiness(b);return {b,r};}).sort((x,y)=>x.r.pct-y.r.pct);
+  const rows=state.buyers.map(b=>({b,r:buyerReadiness(b)})).sort((x,y)=>x.r.pct-y.r.pct);
   $('buyers').innerHTML=`
-  <div class="sh"><div><h2>바이어별 준비 현황</h2><p>준비도 = 납품 제품 상태 + 바이어 의무(OE는 추가) 자동 합산. 행을 클릭하면 상세.</p></div>
-    <button class="btn" onclick="exportBuyerCSV()">바이어 준비도 CSV</button></div>
+  <div class="sh"><div><h2>바이어별 준비 현황</h2><p>준비도 = 납품 제품 + 바이어의무 + 국가별 등록/EPR + 커스텀요구 자동 합산. 행 클릭 시 상세.</p></div>
+    <div style="display:flex;gap:8px"><button class="btn" onclick="addBuyer()">+ 바이어 추가</button><button class="btn" onclick="exportBuyerCSV()">바이어 CSV</button></div></div>
   <div class="tablewrap"><table class="data"><thead><tr>
-    <th>바이어</th><th>유형</th><th>국가</th><th>제품수</th><th>준비도</th><th>완료/적용</th><th></th></tr></thead><tbody>
+    <th>바이어</th><th>유형</th><th>판매 국가</th><th>제품수</th><th>준비도</th><th>완료/적용</th><th></th></tr></thead><tbody>
     ${rows.map(({b,r})=>`<tr>
       <td><a class="link" onclick="openBuyer('${b.id}')">${esc(b.name)}</a></td>
       <td><span class="tag ${b.type==='OE'?'oe':b.type==='big'?'big':'sme'}">${TYPELABEL[b.type]}</span></td>
-      <td>${esc(b.country)}</td><td>${r.products}</td>
+      <td class="small">${(b.countries||[]).join(', ')||'<span class="muted">미지정</span>'}</td><td>${r.products}</td>
       <td style="min-width:140px"><span class="bar ${barClass(r.pct)}"><i style="width:${r.pct}%"></i></span></td>
       <td><b>${r.pct}%</b> <span class="muted small">(${r.ok}/${r.app})</span></td>
       <td><a class="link" onclick="openBuyer('${b.id}')">상세 ›</a></td></tr>`).join('')}
@@ -254,29 +263,52 @@ function renderBuyers(){
 function openBuyer(id){openBuyerId=id;go('buyers');renderBuyerDetail(id);setTimeout(()=>$('buyerDetail').scrollIntoView({behavior:'smooth',block:'start'}),40);}
 function renderBuyerDetail(id){
   const b=state.buyers.find(x=>x.id===id);if(!b)return;
-  const bst=state.buyerStatus[id]||(state.buyerStatus[id]={});
-  const prods=buyerProducts(id);const r=buyerReadiness(b);
-  const obs=buyerObs(b);
+  const st=ensureBS(id);const prods=buyerProducts(id);const r=buyerReadiness(b);
   $('buyerDetail').innerHTML=`<div class="detail">
-    <div class="sh"><div><h3>${esc(b.name)} <span class="tag ${b.type==='OE'?'oe':b.type==='big'?'big':'sme'}">${TYPELABEL[b.type]}</span> <span class="muted small">${esc(b.country)}</span></h3>
-      <p>준비도 ${r.pct}% · 납품 제품 ${prods.length}개</p></div>
-      <button class="btn" onclick="viewBuyerProducts('${id}')">이 바이어 제품 보기 →</button></div>
-    <h3 style="margin-top:6px">바이어(시장) 의무${b.type==='OE'?' + OE 추가 요구':''}</h3>
-    <div class="obg">${obs.map(o=>{const s=bst[o.k]||'todo';const oe=OEOBS.some(x=>x.k===o.k);
-      return `<div class="obcell"><div class="t">${esc(o.n)}${oe?' <span class="tag oe">OE</span>':''}</div><div class="r">규제/근거: ${esc(o.reg)}</div>
-      <select class="sel-${s}" onchange="setBuyerStatus('${id}','${o.k}',this.value)">${STATUS.map(k=>`<option value="${k}" ${s===k?'selected':''}>${STLABEL[k]}</option>`).join('')}</select></div>`;}).join('')}</div>
-    <h3 style="margin-top:14px">납품 제품 상태 (제품 의무)</h3>
-    ${prods.length?`<div class="tablewrap" style="max-height:340px"><table class="data"><thead><tr><th>모델</th><th>SKU</th>${POBS.map(o=>`<th>${o.n}</th>`).join('')}<th>준비도</th></tr></thead><tbody>
-      ${prods.slice(0,120).map(p=>{const pr=productReadiness(p);return `<tr><td>${esc(p.model)}</td><td class="small">${esc(p.sku)}</td>
-        ${POBS.map(o=>{const s=p.status[o.k]||'todo';return `<td><span class="st ${s}">${STLABEL[s]}</span></td>`;}).join('')}
-        <td class="mini">${pr.pct}%</td></tr>`;}).join('')}
-    </tbody></table></div>${prods.length>120?`<p class="muted small" style="margin-top:6px">상위 120개 표시 · 전체는 제품 탭에서 이 바이어로 필터</p>`:''}`:'<p class="muted">납품 제품이 없습니다.</p>'}
+    <div class="sh"><div><h3>${esc(b.name)} <span class="tag ${b.type==='OE'?'oe':b.type==='big'?'big':'sme'}">${TYPELABEL[b.type]}</span></h3>
+      <p>준비도 ${r.pct}% · 제품 ${prods.length}개 · 판매국 ${(b.countries||[]).length}개</p></div>
+      <button class="btn sm" onclick="viewBuyerProducts('${id}')">이 바이어 제품 보기 →</button></div>
+
+    <h3 style="margin-top:6px">① 바이어(단위) 시장 의무</h3>
+    <div class="obg">${MOBS.map(o=>`<div class="obcell"><div class="t">${esc(o.n)}</div><div class="r">규제: ${esc(o.reg)}</div>${selHTML(st[o.k]||'todo',`setMarket('${id}','${o.k}',this.value)`)}</div>`).join('')}</div>
+
+    <h3 style="margin-top:16px">② 국가별 생산자등록·EPR
+      <button class="btn sm" style="margin-left:8px" onclick="addCountry('${id}')">+ 국가 추가</button></h3>
+    ${(b.countries||[]).length?`<div class="tablewrap"><table class="data" style="min-width:520px"><thead><tr><th>판매 국가</th>${COBS.map(o=>`<th>${o.n}</th>`).join('')}<th></th></tr></thead><tbody>
+      ${b.countries.map(c=>{const cs=st.byCountry[c]||(st.byCountry[c]={});return `<tr><td><b>${esc(c)}</b></td>
+        ${COBS.map(o=>`<td>${selHTML(cs[o.k]||'todo',`setCountry('${id}','${esc(c)}','${o.k}',this.value)`)}</td>`).join('')}
+        <td><a class="link" style="color:var(--red)" onclick="removeCountry('${id}','${esc(c)}')">삭제</a></td></tr>`;}).join('')}
+    </tbody></table></div>`:'<p class="muted small">판매 국가가 없습니다. "국가 추가"로 등록하세요.</p>'}
+
+    <h3 style="margin-top:16px">③ 커스텀 요구항목 ${b.type==='OE'?'<span class="tag oe">OE</span>':''}
+      <button class="btn sm" style="margin-left:8px" onclick="addCustom('${id}')">+ 요구항목 추가</button></h3>
+    ${(b.customObs||[]).length?`<div class="obg">${b.customObs.map(o=>`<div class="obcell"><span class="x" title="삭제" onclick="removeCustom('${id}','${o.k}')">×</span><div class="t">${esc(o.n)}</div><div class="r">바이어 계약 요구</div>${selHTML((st.custom[o.k])||'todo',`setCustom('${id}','${o.k}',this.value)`)}</div>`).join('')}</div>`:'<p class="muted small">커스텀 요구항목이 없습니다. OE·특정 바이어의 추가 요구(CFP·여권형 데이터·IMDS/PPAP 등)를 추가하세요.</p>'}
+
+    <h3 style="margin-top:16px">④ 납품 제품 상태 (제품 의무)</h3>
+    ${prods.length?`<div class="tablewrap" style="max-height:320px"><table class="data"><thead><tr><th>모델</th><th>SKU</th>${POBS.map(o=>`<th>${o.n}</th>`).join('')}<th>준비도</th></tr></thead><tbody>
+      ${prods.slice(0,120).map(p=>{const pr=productReadiness(p);return `<tr><td>${esc(p.model)}</td><td class="small">${esc(p.sku)}</td>${POBS.map(o=>{const s=p.status[o.k]||'todo';return `<td><span class="st ${s}">${STLABEL[s]}</span></td>`;}).join('')}<td class="mini">${pr.pct}%</td></tr>`;}).join('')}
+    </tbody></table></div>${prods.length>120?'<p class="muted small" style="margin-top:6px">상위 120개 표시 · 전체는 제품 탭에서 이 바이어로 필터</p>':''}`:'<p class="muted">납품 제품이 없습니다.</p>'}
   </div>`;
 }
-function setBuyerStatus(id,k,v){(state.buyerStatus[id]||(state.buyerStatus[id]={}))[k]=v;save();renderBuyerDetail(id);renderDash();}
-function viewBuyerProducts(id){pFilter.buyer=id;go('products');renderProducts();}
+function setMarket(id,k,v){ensureBS(id)[k]=v;save();refreshBuyer(id);}
+function setCountry(id,c,k,v){const st=ensureBS(id);(st.byCountry[c]||(st.byCountry[c]={}))[k]=v;save();refreshBuyer(id);}
+function setCustom(id,k,v){ensureBS(id).custom[k]=v;save();refreshBuyer(id);}
+function refreshBuyer(id){renderBuyers();renderDash();}
+function addCountry(id){const b=state.buyers.find(x=>x.id===id);const c=prompt('추가할 판매 국가명 (예: 독일)\n여러 개는 쉼표로 구분',EU.filter(e=>!b.countries.includes(e))[0]||'');if(c===null)return;
+  c.split(',').map(s=>s.trim()).filter(Boolean).forEach(name=>{if(!b.countries.includes(name)){b.countries.push(name);const st=ensureBS(id);st.byCountry[name]={};COBS.forEach(o=>st.byCountry[name][o.k]='todo');}});save();refreshBuyer(id);}
+function removeCountry(id,c){if(!confirm(`'${c}' 국가를 삭제할까요?`))return;const b=state.buyers.find(x=>x.id===id);b.countries=b.countries.filter(x=>x!==c);const st=ensureBS(id);delete st.byCountry[c];save();refreshBuyer(id);}
+function addCustom(id){const b=state.buyers.find(x=>x.id===id);const preset=prompt('추가할 요구항목명\n(빈칸으로 두면 OE 기본 3종[CFP·여권형·IMDS/PPAP]을 한 번에 추가)','');if(preset===null)return;
+  const st=ensureBS(id);
+  if(preset.trim()===''){OE_DEFAULT.forEach(o=>{if(!b.customObs.some(x=>x.k===o.k)){b.customObs.push({...o});st.custom[o.k]='todo';}});}
+  else{preset.split(',').map(s=>s.trim()).filter(Boolean).forEach(n=>{const k='C'+Math.abs(hash(n+Date.now()+Math.random())).toString(36).slice(0,6);b.customObs.push({k,n});st.custom[k]='todo';});}
+  save();refreshBuyer(id);}
+function removeCustom(id,k){const b=state.buyers.find(x=>x.id===id);b.customObs=b.customObs.filter(o=>o.k!==k);delete ensureBS(id).custom[k];save();refreshBuyer(id);}
+function hash(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i)|0;}return h;}
+function viewBuyerProducts(id){pFilter.buyer=id;pFilter.page=1;go('products');renderProducts();}
+function addBuyer(){const name=prompt('바이어명');if(!name)return;const type=(prompt('유형: OE / big / sme','sme')||'sme').trim();const t=['OE','big','sme'].includes(type)?type:'sme';
+  const id='b'+(Date.now());state.buyers.push({id,name,type:t,countries:[],customObs:t==='OE'?OE_DEFAULT.map(o=>({...o})):[]});const st={byCountry:{},custom:{}};MOBS.forEach(o=>st[o.k]='todo');(t==='OE'?OE_DEFAULT:[]).forEach(o=>st.custom[o.k]='todo');state.buyerStatus[id]=st;save();renderAll();openBuyer(id);}
 
-/* ---- 제품 탭 (페이지네이션·필터) ---- */
+/* ---- 제품 탭 ---- */
 let pFilter={q:'',buyer:'',chem:'',plant:'',ob:'',st:'',page:1};
 const PAGE=40;
 function filteredProducts(){
@@ -287,17 +319,14 @@ function filteredProducts(){
     if(pFilter.chem && p.chemistry!==pFilter.chem)return false;
     if(pFilter.plant && p.plant!==pFilter.plant)return false;
     if(pFilter.ob && pFilter.st && (p.status[pFilter.ob]||'todo')!==pFilter.st)return false;
-    if(pFilter.st && !pFilter.ob){ // 상태만: 어떤 의무든 해당 상태 존재
-      if(!POBS.some(o=>(p.status[o.k]||'todo')===pFilter.st))return false;}
-    return true;
-  });
+    if(pFilter.st && !pFilter.ob && !POBS.some(o=>(p.status[o.k]||'todo')===pFilter.st))return false;
+    return true;});
 }
 function renderProducts(){
   const chems=[...new Set(state.products.map(p=>p.chemistry))];
   const plants=[...new Set(state.products.map(p=>p.plant))];
   const bmap=Object.fromEntries(state.buyers.map(b=>[b.id,b.name]));
-  const all=filteredProducts();
-  const pages=Math.max(1,Math.ceil(all.length/PAGE));
+  const all=filteredProducts();const pages=Math.max(1,Math.ceil(all.length/PAGE));
   if(pFilter.page>pages)pFilter.page=pages;
   const slice=all.slice((pFilter.page-1)*PAGE,pFilter.page*PAGE);
   $('products').innerHTML=`
@@ -317,118 +346,90 @@ function renderProducts(){
     ${slice.map(p=>{const pr=productReadiness(p);return `<tr>
       <td><b>${esc(p.model)}</b></td><td class="small">${esc(p.sku)}</td><td>${esc(p.chemistry)}</td><td>${esc(p.plant)}</td>
       <td class="small">${p.buyerIds.map(id=>esc(bmap[id]||id)).join(', ')}</td>
-      ${POBS.map(o=>{const s=p.status[o.k]||'todo';return `<td><select class="sel-${s}" onchange="setProductStatus('${p.id}','${o.k}',this.value)">${STATUS.map(k=>`<option value="${k}" ${s===k?'selected':''}>${STLABEL[k]}</option>`).join('')}</select></td>`;}).join('')}
+      ${POBS.map(o=>{const s=p.status[o.k]||'todo';return `<td>${selHTML(s,`setProduct('${p.id}','${o.k}',this.value)`)}</td>`;}).join('')}
       <td class="mini">${pr.pct}%</td></tr>`;}).join('')||`<tr><td colspan="${5+POBS.length+1}" style="text-align:center;padding:26px" class="muted">조건에 맞는 제품이 없습니다.</td></tr>`}
   </tbody></table></div>
   <div class="pager"><button class="btn" ${pFilter.page<=1?'disabled':''} onclick="pFilter.page--;renderProducts()">‹ 이전</button>
     <span>${pFilter.page} / ${pages} 페이지</span>
     <button class="btn" ${pFilter.page>=pages?'disabled':''} onclick="pFilter.page++;renderProducts()">다음 ›</button></div>`;
 }
-function setProductStatus(pid,k,v){const p=state.products.find(x=>x.id===pid);if(!p)return;p.status[k]=v;save();
-  const sel=event.target;sel.className='sel-'+v; // recolor without full re-render for speed
-  const row=sel.closest('tr');const pr=productReadiness(p);row.querySelector('.mini').textContent=pr.pct+'%';
-  renderDashQuiet();}
-let dashDirty=false;function renderDashQuiet(){dashDirty=true;}
+function setProduct(pid,k,v){const p=state.products.find(x=>x.id===pid);if(!p)return;p.status[k]=v;save();
+  const sel=event.target;sel.className='sel-'+v;const row=sel.closest('tr');const pr=productReadiness(p);row.querySelector('.mini').textContent=pr.pct+'%';dashDirty=true;}
+let dashDirty=false;
 
 /* ---- 가져오기/내보내기 ---- */
 function renderIO(){
   $('io').innerHTML=`
   <div class="sh"><div><h2>가져오기 · 내보내기</h2><p>실제 바이어·제품(최대 5,000+)을 CSV로 올리고, 진행상황을 내보냅니다.</p></div></div>
   <div class="exp-grid">
-    <div class="exp"><h3>① 바이어 CSV 가져오기</h3><p>열: <code>name,type,country</code> (type = OE/big/sme). 기존 바이어를 대체합니다.</p>
+    <div class="exp"><h3>① 바이어 CSV 가져오기</h3><p>열: <code>name,type,countries</code> (type=OE/big/sme, countries=국가 <code>;</code> 구분). 기존 바이어 대체.</p>
       <button class="btn" onclick="downloadBuyerTemplate()">양식 받기</button> <button class="btn primary" onclick="$('fileBuyers').click()">CSV 업로드</button></div>
-    <div class="exp"><h3>② 제품 CSV 가져오기</h3><p>열: <code>model,sku,chemistry,plant,capacity,buyers</code> (buyers = 바이어명 <code>;</code> 구분). 기존 제품을 대체합니다.</p>
+    <div class="exp"><h3>② 제품 CSV 가져오기</h3><p>열: <code>model,sku,chemistry,plant,capacity,buyers</code> (buyers=바이어명 <code>;</code> 구분). 기존 제품 대체.</p>
       <button class="btn" onclick="downloadProductTemplate()">양식 받기</button> <button class="btn primary" onclick="$('fileProducts').click()">CSV 업로드</button></div>
-    <div class="exp"><h3>③ 내보내기</h3><p>바이어 준비도·제품 상태를 Excel용 CSV로 저장합니다.</p>
-      <button class="btn" onclick="exportBuyerCSV()">바이어 CSV</button> <button class="btn" onclick="exportProductCSV()">제품 CSV</button></div>
-    <div class="exp"><h3>④ 백업·복원</h3><p>모든 데이터(바이어·제품·상태)를 JSON으로 백업/복원합니다.</p>
+    <div class="exp"><h3>③ 내보내기</h3><p>바이어 준비도·국가별 등록/EPR·제품 상태를 Excel용 CSV로 저장.</p>
+      <button class="btn" onclick="exportBuyerCSV()">바이어</button> <button class="btn" onclick="exportCountryCSV()">국가별</button> <button class="btn" onclick="exportProductCSV()">제품</button></div>
+    <div class="exp"><h3>④ 백업·복원</h3><p>모든 데이터(바이어·국가·제품·상태)를 JSON으로 백업/복원.</p>
       <button class="btn" onclick="backup()">백업</button> <button class="btn" onclick="$('fileRestore').click()">복원</button>
       <div style="margin-top:10px"><button class="btn" style="color:var(--red)" onclick="resetAll()">데모로 초기화</button></div></div>
   </div>
   <div class="card" style="margin-top:16px"><h3>CSV 작성 팁</h3>
     <ul style="margin-left:18px;font-size:12.5px;line-height:1.9">
-      <li>Excel에서 <b>다른 이름으로 저장 → CSV UTF-8</b>로 내보내면 됩니다.</li>
-      <li>제품 CSV의 <code>buyers</code> 열에는 바이어 CSV의 <code>name</code>과 동일한 이름을 <code>;</code>로 구분해 넣습니다. (예: <code>BMW Group;Norauto</code>)</li>
-      <li>바이어를 먼저 업로드한 뒤 제품을 업로드하면 자동 매칭됩니다. 이름이 없으면 중소(sme)로 자동 생성됩니다.</li>
-      <li>제품 의무 상태는 업로드 후 모두 '미착수'로 시작하며, 화면에서 갱신합니다. (상태까지 올리려면 백업 JSON 복원을 사용)</li>
+      <li>Excel에서 <b>다른 이름으로 저장 → CSV UTF-8</b>.</li>
+      <li>바이어 CSV의 <code>countries</code>에는 판매 국가를 <code>;</code>로 구분 (예: <code>독일;프랑스;스페인</code>). 국가별 등록·EPR이 자동 생성됩니다.</li>
+      <li>OE로 지정한 바이어는 커스텀 요구항목(CFP·여권형·IMDS/PPAP) 3종이 기본 부여됩니다. 이후 바이어 상세에서 개별 추가/삭제.</li>
+      <li>제품 CSV의 <code>buyers</code>는 바이어명을 <code>;</code>로 구분. 바이어 먼저 업로드 → 제품 업로드 순서 권장.</li>
     </ul></div>`;
 }
-
-/* ---- CSV 유틸 ---- */
-function parseCSV(text){
-  const rows=[];let i=0,f='',row=[],q=false;
-  text=text.replace(/^﻿/,'');
+function parseCSV(text){const rows=[];let i=0,f='',row=[],q=false;text=text.replace(/^﻿/,'');
   while(i<text.length){const c=text[i];
     if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
     else{if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else if(c!=='\r')f+=c;}
     i++;}
-  if(f.length||row.length){row.push(f);rows.push(row);}
-  return rows.filter(r=>r.some(x=>x.trim()!==''));
-}
-function csvOut(name,headers,rows){
-  const esc=v=>`"${String(v??'').replace(/"/g,'""')}"`;
-  const csv='﻿'+[headers,...rows].map(r=>r.map(esc).join(',')).join('\r\n');
-  dl(name,csv,'text/csv;charset=utf-8');
-}
+  if(f.length||row.length){row.push(f);rows.push(row);}return rows.filter(r=>r.some(x=>x.trim()!==''));}
+function csvOut(name,headers,rows){const e=v=>`"${String(v??'').replace(/"/g,'""')}"`;dl(name,'﻿'+[headers,...rows].map(r=>r.map(e).join(',')).join('\r\n'),'text/csv;charset=utf-8');}
 function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-
-function downloadBuyerTemplate(){csvOut('바이어_양식.csv',['name','type','country'],[['BMW Group','OE','독일'],['Norauto','big','프랑스'],['Italbatt SRL','sme','이탈리아']]);}
+function downloadBuyerTemplate(){csvOut('바이어_양식.csv',['name','type','countries'],[['BMW Group','OE','독일;프랑스;스페인'],['Norauto','big','프랑스;벨기에'],['Italbatt SRL','sme','이탈리아']]);}
 function downloadProductTemplate(){csvOut('제품_양식.csv',['model','sku','chemistry','plant','capacity','buyers'],[['SB-DIN-60','DIN600001','EFB','창원','60Ah','BMW Group;Norauto'],['SB-AGM-80','AGM800002','AGM','광주','80Ah','Volkswagen AG']]);}
 
 function importBuyers(text){
   const rows=parseCSV(text);if(rows.length<2){alert('데이터가 없습니다.');return;}
-  const head=rows[0].map(h=>h.trim().toLowerCase());
-  const iN=head.indexOf('name'),iT=head.indexOf('type'),iC=head.indexOf('country');
+  const h=rows[0].map(x=>x.trim().toLowerCase());const iN=h.indexOf('name'),iT=h.indexOf('type'),iC=h.indexOf('countries')>=0?h.indexOf('countries'):h.indexOf('country');
   if(iN<0){alert('name 열이 필요합니다.');return;}
   const buyers=[],bst={};
   rows.slice(1).forEach((r,idx)=>{const name=(r[iN]||'').trim();if(!name)return;
-    let type=(r[iT]||'sme').trim().toLowerCase();if(!['oe','big','sme'].includes(type))type='sme';type=type==='oe'?'OE':type;
-    const id='b'+(idx+1);buyers.push({id,name,type,country:(r[iC]||'').trim()});
-    const o={};buyerObs({type}).forEach(ob=>o[ob.k]='todo');bst[id]=o;});
-  // keep products but re-map buyer names→ids
+    let type=(r[iT]||'sme').trim().toLowerCase();type=['oe','big','sme'].includes(type)?(type==='oe'?'OE':type):'sme';
+    const countries=(iC>=0?(r[iC]||''):'').split(';').map(s=>s.trim()).filter(Boolean);
+    const id='b'+(idx+1);const customObs=type==='OE'?OE_DEFAULT.map(o=>({...o})):[];
+    buyers.push({id,name,type,countries,customObs});
+    const st={byCountry:{},custom:{}};MOBS.forEach(o=>st[o.k]='todo');countries.forEach(c=>{st.byCountry[c]={};COBS.forEach(o=>st.byCountry[c][o.k]='todo');});customObs.forEach(o=>st.custom[o.k]='todo');bst[id]=st;});
   const nameToId=Object.fromEntries(buyers.map(b=>[b.name,b.id]));
-  state.products.forEach(p=>{p.buyerIds=(p._buyerNames||p.buyerIds.map(id=>{const b=state.buyers.find(x=>x.id===id);return b?b.name:id;})).map(n=>nameToId[n]).filter(Boolean);});
-  state.buyers=buyers;state.buyerStatus=bst;save();alert(`바이어 ${buyers.length}곳을 가져왔습니다.`);renderAll();go('buyers');
-}
+  state.products.forEach(p=>{const names=p._buyerNames||p.buyerIds.map(id=>{const b=state.buyers.find(x=>x.id===id);return b?b.name:null;}).filter(Boolean);p.buyerIds=names.map(n=>nameToId[n]).filter(Boolean);});
+  state.buyers=buyers;state.buyerStatus=bst;save();alert(`바이어 ${buyers.length}곳을 가져왔습니다.`);renderAll();go('buyers');}
 function importProducts(text){
   const rows=parseCSV(text);if(rows.length<2){alert('데이터가 없습니다.');return;}
-  const head=rows[0].map(h=>h.trim().toLowerCase());
-  const gi=n=>head.indexOf(n);
+  const h=rows[0].map(x=>x.trim().toLowerCase());const gi=n=>h.indexOf(n);
   const iM=gi('model'),iS=gi('sku'),iCh=gi('chemistry'),iP=gi('plant'),iCap=gi('capacity'),iB=gi('buyers');
   if(iM<0&&iS<0){alert('model 또는 sku 열이 필요합니다.');return;}
-  const nameToId=Object.fromEntries(state.buyers.map(b=>[b.name,b.id]));
-  let created=0;
+  const nameToId=Object.fromEntries(state.buyers.map(b=>[b.name,b.id]));let created=0;
   const products=rows.slice(1).map((r,idx)=>{
     const names=(iB>=0?(r[iB]||''):'').split(';').map(s=>s.trim()).filter(Boolean);
-    const bids=names.map(n=>{if(nameToId[n])return nameToId[n];
-      const id='b'+(state.buyers.length+(++created));state.buyers.push({id,name:n,type:'sme',country:''});state.buyerStatus[id]={};buyerObs({type:'sme'}).forEach(o=>state.buyerStatus[id][o.k]='todo');nameToId[n]=id;return id;});
+    const bids=names.map(n=>{if(nameToId[n])return nameToId[n];const id='b'+(state.buyers.length+(++created));state.buyers.push({id,name:n,type:'sme',countries:[],customObs:[]});state.buyerStatus[id]={byCountry:{},custom:{}};MOBS.forEach(o=>state.buyerStatus[id][o.k]='todo');nameToId[n]=id;return id;});
     const status={};POBS.forEach(o=>status[o.k]='todo');
-    return {id:'p'+(idx+1),model:(r[iM]||'').trim()||(r[iS]||'').trim(),sku:(r[iS]||'').trim(),chemistry:(r[iCh]||'').trim(),plant:(r[iP]||'').trim(),capacity:(r[iCap]||'').trim(),buyerIds:bids,status,_buyerNames:names};
-  });
-  state.products=products;save();alert(`제품 ${products.length.toLocaleString()}개를 가져왔습니다.${created?` (신규 바이어 ${created}곳 자동 생성)`:''}`);renderAll();go('products');
-}
-function exportBuyerCSV(){
-  const rows=state.buyers.map(b=>{const r=buyerReadiness(b);return [b.name,TYPELABEL[b.type],b.country,r.products,r.pct+'%',`${r.ok}/${r.app}`];});
-  csvOut('EU배터리_바이어준비도.csv',['바이어','유형','국가','제품수','준비도','완료/적용'],rows);
-}
-function exportProductCSV(){
-  const bmap=Object.fromEntries(state.buyers.map(b=>[b.id,b.name]));
-  const rows=state.products.map(p=>{const pr=productReadiness(p);return [p.model,p.sku,p.chemistry,p.plant,p.capacity,p.buyerIds.map(id=>bmap[id]||id).join(';'),...POBS.map(o=>STLABEL[p.status[o.k]||'todo']),pr.pct+'%'];});
-  csvOut('EU배터리_제품상태.csv',['모델','SKU','화학계','공장','용량','바이어',...POBS.map(o=>o.n),'준비도'],rows);
-}
+    return {id:'p'+(idx+1),model:(r[iM]||'').trim()||(r[iS]||'').trim(),sku:(r[iS]||'').trim(),chemistry:(r[iCh]||'').trim(),plant:(r[iP]||'').trim(),capacity:(r[iCap]||'').trim(),buyerIds:bids,status,_buyerNames:names};});
+  state.products=products;save();alert(`제품 ${products.length.toLocaleString()}개를 가져왔습니다.${created?` (신규 바이어 ${created}곳 자동 생성)`:''}`);renderAll();go('products');}
+function exportBuyerCSV(){const rows=state.buyers.map(b=>{const r=buyerReadiness(b);return [b.name,TYPELABEL[b.type],(b.countries||[]).join(';'),r.products,r.pct+'%',`${r.ok}/${r.app}`];});csvOut('EU배터리_바이어준비도.csv',['바이어','유형','판매국가','제품수','준비도','완료/적용'],rows);}
+function exportCountryCSV(){const rows=[];state.buyers.forEach(b=>{const st=state.buyerStatus[b.id]||{};(b.countries||[]).forEach(c=>{const cs=(st.byCountry&&st.byCountry[c])||{};rows.push([b.name,TYPELABEL[b.type],c,...COBS.map(o=>STLABEL[cs[o.k]||'todo'])]);});});csvOut('EU배터리_국가별등록EPR.csv',['바이어','유형','국가',...COBS.map(o=>o.n)],rows);}
+function exportProductCSV(){const bmap=Object.fromEntries(state.buyers.map(b=>[b.id,b.name]));const rows=state.products.map(p=>{const pr=productReadiness(p);return [p.model,p.sku,p.chemistry,p.plant,p.capacity,p.buyerIds.map(id=>bmap[id]||id).join(';'),...POBS.map(o=>STLABEL[p.status[o.k]||'todo']),pr.pct+'%'];});csvOut('EU배터리_제품상태.csv',['모델','SKU','화학계','공장','용량','바이어',...POBS.map(o=>o.n),'준비도'],rows);}
 function backup(){dl('EU배터리_바이어제품_백업.json',JSON.stringify(state,null,2),'application/json');}
-function resetAll(){if(confirm('데모 데이터로 초기화할까요? (입력 내용 삭제)')){state=seed();save();renderAll();go('dash');}}
+function resetAll(){if(confirm('데모 데이터로 초기화할까요? (입력 내용 삭제)')){state=seed();save();openBuyerId=null;renderAll();go('dash');}}
 
-/* ---- 파일 입력 ---- */
 $('fileBuyers').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>importBuyers(rd.result);rd.readAsText(f,'utf-8');e.target.value='';};
 $('fileProducts').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>importProducts(rd.result);rd.readAsText(f,'utf-8');e.target.value='';};
-$('fileRestore').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const x=JSON.parse(rd.result);if(!x.buyers||!x.products)throw 0;state=x;save();renderAll();go('dash');alert('복원되었습니다.');}catch(err){alert('올바른 백업 파일이 아닙니다.');}};rd.readAsText(f);e.target.value='';};
+$('fileRestore').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const x=JSON.parse(rd.result);if(!x.buyers||!x.products)throw 0;state=migrate(x);save();openBuyerId=null;renderAll();go('dash');alert('복원되었습니다.');}catch(err){alert('올바른 백업 파일이 아닙니다.');}};rd.readAsText(f);e.target.value='';};
 
-/* ---- 네비 ---- */
 function go(v){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id===v));
-  if(v==='dash'&&dashDirty){renderDash();dashDirty=false;}
-  window.scrollTo({top:0});}
+  if(v==='dash'&&dashDirty){renderDash();dashDirty=false;}window.scrollTo({top:0});}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 
 function renderAll(){renderDash();renderBuyers();renderProducts();renderIO();}
