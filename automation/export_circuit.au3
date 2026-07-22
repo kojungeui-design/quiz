@@ -56,19 +56,25 @@ If Not WinWait($EXPORT_WIN, "", 8) Then abort("Export 창 안뜸")
 WinActivate($EXPORT_WIN)
 Sleep($SLOW)
 
-; ④ Destination file 입력
+; ④ Destination file: 기존 이름 지우고 새 파일명 입력 (구형 앱 호환 방식)
 MouseClick("left", $C_DEST[0], $C_DEST[1], 1, 10)
 Sleep(300)
-Send("^a"): Send("{DEL}")
-Send($fname, 1)
+Send("{END}")           ; 커서 맨 뒤로
+Send("+{HOME}")         ; Shift+Home 으로 전체 선택
+Send("{DEL}")           ; 선택 삭제
+Sleep(150)
+Send($fname, 1)         ; 새 파일명 그대로 타이핑 (예: E:\bts_csv\CIRC0024.csv)
 Sleep(400)
 
 ; ⑤ Copy(대상 확정)
 MouseClick("left", $C_COPY[0], $C_COPY[1], 1, 10)
 Sleep($SLOW)
-; 파일 존재 경고 등 뜨면 Yes/Enter
-If WinExists("[CLASS:#32770]") Then Send("{ENTER}")
-Sleep(300)
+; "This data file exists already! Overwrite?" 경고 → Yes 클릭
+If WinWait("[CLASS:#32770]", "", 3) Then
+    WinActivate("[CLASS:#32770]")
+    ControlClick("[CLASS:#32770]", "", "[TEXT:Yes]")   ; Yes 명시적 클릭(Enter는 No일 수 있음)
+    Sleep(400)
+EndIf
 
 ; Ok → 변환 시작
 MouseClick("left", $C_OK[0], $C_OK[1], 1, 10)
