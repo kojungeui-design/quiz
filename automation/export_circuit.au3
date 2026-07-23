@@ -23,9 +23,11 @@ Global $EXPORT_WIN = "Battery - Data export"
 Global $CONV_WIN = "Data file conversion"
 Global $SLOW = 700
 
-; ---- 좌표 (1920x1080 전체화면 스크린샷에서 측정, ±수px 가능) ----
-; 메인 그리드: Batt0007행 y=202, 행높이 약 17px → 대상행 y = 202 + 17*순번
+; ---- 좌표 (1920x1080 전체화면 스크린샷에서 측정) ----
+; 메인 그리드 행위치: y = BASE_Y + ROW_H * 행index (Batt0007=0, 0008=1, ...)  [검증됨]
 Global $X_BATTROW = 55       ; 배터리 열 X
+Global $BASE_Y = 212         ; 첫 줄(index 0)의 y
+Global $ROW_H  = 17          ; 한 줄 높이
 Global $C_EXPORT[2]  = [810, 278]   ; Export버튼 (Test sections 창)
 Global $C_DEST[2]    = [180, 565]   ; Destination file 입력칸
 Global $C_COPY[2]    = [640, 487]   ; Copy버튼 (대상 확정)
@@ -42,9 +44,11 @@ Func clickBtn($win, $text, $x, $y)
     If ControlClick($win, "", "[TEXT:" & $text & "]") = 0 Then MouseClick("left", $x, $y, 1, 15)
 EndFunc
 
+; 인자:  <회로번호>  <행index>   (행index = 화면 목록에서 몇 번째 줄, 0부터)
 If $CmdLine[0] < 2 Then Exit
 Local $circ = Number($CmdLine[1])
-Local $rowY = Number($CmdLine[2])
+Local $rowIdx = Number($CmdLine[2])
+Local $rowY = $BASE_Y + $ROW_H * $rowIdx        ; 회로 줄의 화면 y (검증된 공식)
 Local $fname = $OUT_DIR & "\CIRC" & StringFormat("%04d", $circ) & ".csv"
 If Not FileExists($OUT_DIR) Then DirCreate($OUT_DIR)
 
