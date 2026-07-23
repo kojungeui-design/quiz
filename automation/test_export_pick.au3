@@ -11,9 +11,9 @@ Global $BTS = "BTS-600"
 Global $EXPORT_WIN = "Battery - Data export"
 Global $CONV_WIN = "Data file conversion"
 Global $OUT_DIR = "E:\bts_csv"
-Global $BASE_Y = 212, $ROW_H = 17, $COL_X = 55
+Global $BASE_Y = 202, $ROW_H = 16.2, $COL_X = 55   ; 확인된 2점(Batt0007=202, Batt0016=348)으로 보정
 Global $fname = $OUT_DIR & "\CIRC" & StringFormat("%04d", $CIRC) & ".csv"
-Global $rowY = $BASE_Y + $ROW_H * $ROWIDX
+Global $rowY = Int($BASE_Y + $ROW_H * $ROWIDX)
 
 Global $EXPORT[2] = [810, 278], $DEST[2] = [180, 565]
 Global $COPY[2] = [640, 487], $OK[2] = [640, 567], $CANCEL[2] = [810, 644]
