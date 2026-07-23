@@ -210,7 +210,10 @@ def process(path, cyc_interval, outdir=None):
         if "Batt" in title:
             sheet = base
     out_name = base + " - 표시.xlsx"
-    out_path = os.path.join(outdir or os.path.dirname(path) or ".", out_name)
+    dest_dir = outdir or os.path.dirname(path) or "."
+    if dest_dir and not os.path.isdir(dest_dir):
+        os.makedirs(dest_dir, exist_ok=True)
+    out_path = os.path.join(dest_dir, out_name)
     write_xlsx(meta, hdr, unit_row, data, highlights, out_path, sheet)
 
     tag = "수명(%d사이클,%d칸 표시)" % (maxc, len(highlights)) if kind == "cycle" \
@@ -228,16 +231,24 @@ def main():
 
     if os.path.isdir(args.target):
         files = sorted(glob.glob(os.path.join(args.target, "*.csv")))
+        # J2801 은 대상에서 제외
+        skipped = [f for f in files if "j2801" in os.path.basename(f).lower()]
+        files = [f for f in files if "j2801" not in os.path.basename(f).lower()]
         if not files:
-            sys.exit("폴더에 CSV가 없습니다: " + args.target)
-        print("%d개 CSV 처리:" % len(files))
+            sys.exit("폴더에 처리할 CSV가 없습니다: " + args.target)
+        print("%d개 CSV 처리 (J2801 제외 %d개):" % (len(files), len(skipped)))
         for f in files:
             try:
                 process(f, args.cyc, args.out)
             except Exception as e:
                 print("  ERR %s: %s" % (os.path.basename(f), e))
+        for f in skipped:
+            print("  SKIP %s (J2801 제외)" % os.path.basename(f))
     else:
-        process(args.target, args.cyc, args.out)
+        if "j2801" in os.path.basename(args.target).lower():
+            print("  SKIP %s (J2801 제외)" % os.path.basename(args.target))
+        else:
+            process(args.target, args.cyc, args.out)
     print("완료.")
 
 if __name__ == "__main__":
