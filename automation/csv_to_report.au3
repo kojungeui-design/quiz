@@ -8,7 +8,7 @@
 #include <Array.au3>
 
 Global $DIR = "E:\bts_csv"
-Global $OUT = $DIR & "\_관리대장.csv"
+Global $OUT = $DIR & "\_report.csv"      ; 영문 파일명 (한글 파일명은 저장 실패 가능)
 
 ; 요약 컬럼
 Global $HEADER = "시료,회로,시험구간,프로그램,상태,경과(h),현재전압(V),충전용량(Ah),방전용량(Ah),사이클"
@@ -132,6 +132,10 @@ Next
 FileDelete($OUT)
 ; UTF-8 BOM 으로 저장 → 엑셀에서 한글 안 깨짐
 Local $h = FileOpen($OUT, 2 + 128)   ; 2=쓰기, 128=UTF8(BOM)
+If $h = -1 Then
+    MsgBox(16, "저장 실패", "파일을 못 만듭니다: " & $OUT & @CRLF & "경로/권한 확인 필요")
+    Exit
+EndIf
 FileWrite($h, $out)
 FileClose($h)
-MsgBox(64, "완료", $cnt & "개 회로 정리 완료!" & @CRLF & "→ " & $OUT & @CRLF & "엑셀로 열어보세요.")
+MsgBox(64, "완료", $cnt & "개 회로 정리 완료!" & @CRLF & "생성됨: " & $OUT & @CRLF & "(폴더에서 _report.csv 를 엑셀로 열어보세요)")
