@@ -101,6 +101,17 @@ Func exportOne($circ, $rowIdx)
         Sleep(1500)
     WEnd
 
+    ; 파일명 보정: 파일 안의 실제 Battery ID로 이름 맞춤 (이름=내용 항상 일치)
+    Local $first = FileReadLine($fname, 1)
+    Local $m = StringRegExp($first, "Batt(\d+)", 1)
+    If IsArray($m) Then
+        Local $realName = $OUT_DIR & "\CIRC" & StringFormat("%04d", Number($m[0])) & ".csv"
+        If $realName <> $fname Then
+            FileMove($fname, $realName, 1)
+            log_("파일명 보정: 요청 Circ" & $circ & " → 실제 Batt" & $m[0] & " (행위치 확인필요)")
+        EndIf
+    EndIf
+
     Return "ok"
 EndFunc
 
