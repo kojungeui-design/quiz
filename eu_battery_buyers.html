@@ -110,6 +110,7 @@
 <input type="file" id="fileBuyers" accept=".csv" hidden>
 <input type="file" id="fileProducts" accept=".csv" hidden>
 <input type="file" id="fileRestore" accept=".json" hidden>
+<input type="file" id="docFile" hidden>
 
 <footer>세방전지 EU 배터리법 대응 · 바이어/국가/제품 준수 관리 · 사내 관리 보조용(법적 조언 아님) · 규정 근거는 규정·절차 도구 참조</footer>
 
@@ -154,6 +155,14 @@ const DOCDEFS=[
  {k:'SDS',  name:'SDS·물질구성표',             basis:'제6조·부속서 I',     owner:'기술연구소', months:12},
  {k:'RECY', name:'재활용원료 산정서',           basis:'제8조',              owner:'환경안전',  months:12},
  {k:'WASTE',name:'폐배터리 안내문',             basis:'제74조',             owner:'환경안전',  months:12},
+];
+/* DoC(적합성선언) 발행에 필요한 선행 자료 → 문서대장 매핑 */
+const DOC_REQ=[
+ {k:'TD',  why:'적합성 평가·기술문서 (제17조·부속서 VIII)'},
+ {k:'TEST',why:'성능·안전 시험 근거 (제10조·부속서 IV)'},
+ {k:'LBL', why:'라벨·마킹 적합 (제13조·부속서 VI)'},
+ {k:'SDS', why:'유해물질 적합 (제6조·부속서 I)'},
+ {k:'RECY',why:'재활용원료 함량 (제8조 · 발효 시)'},
 ];
 const INFOMAP=[
  {info:'제조사·카테고리·모델·중량·용량·전압·화학계 (라벨 일반정보)',docs:['LBL','TD']},
@@ -409,6 +418,41 @@ function editDoc(pid,k,field,val){const p=state.products.find(x=>x.id===pid);if(
 function setProdImg(pid,v){const p=state.products.find(x=>x.id===pid);if(p){p.img=v.trim();save();renderProductDetail(pid);}}
 function setQrBase(pid,v){state.qrBase=v.trim();save();renderProductDetail(pid);}
 
+/* ---- DoC 선언 준비 현황 카드 ---- */
+function docCard(p){
+  const docs=docsFor(p);
+  const reqs=DOC_REQ.map(r=>{const d=docs.find(x=>x.k===r.k)||{};const m=docMeta(r.k);const s=docStatus(d);return {r,d,m,s};});
+  const missing=reqs.filter(x=>x.s.t!=='최신');
+  const self=docs.find(x=>x.k==='DOC')||{};const selfSt=docStatus(self);
+  const ok=missing.length===0;
+  return `<h3 style="margin-top:16px">📑 DoC(EU 적합성선언) 선언 준비 현황 <span class="muted small">제18조·부속서 IX · 제6·9/10·12·13·14조 적합 선언</span></h3>
+  <div style="border-radius:10px;padding:11px 14px;margin-bottom:10px;font-weight:700;${ok?'background:#e9f7f1;color:#0f6b47;border:1px solid #b5e0cd':'background:#fdecef;color:#b32b3b;border:1px solid #f2c0c8'}">
+    ${ok?'✅ 필요자료 모두 최신 — DoC 발행·서명 가능':'⛔ 미비 '+missing.length+'건 — 보완 후 발행 ('+missing.map(x=>x.m.name).join(', ')+')'}
+    · DoC 문서 현재상태 <span class="st ${selfSt.cls}">${selfSt.t}</span>${self.no?' ('+esc(self.no)+' '+esc(self.ver||'')+')':''}
+  </div>
+  <div class="tablewrap"><table class="data" style="min-width:600px"><thead><tr><th>필요 자료</th><th>필요 이유(조항)</th><th>문서번호</th><th>최종 갱신</th><th>상태</th><th>첨부</th></tr></thead><tbody>
+    ${reqs.map(x=>`<tr><td><b>${esc(x.m.name)}</b></td><td class="small">${esc(x.r.why)}</td><td class="small">${esc(x.d.no)||'<span class="muted">미지정</span>'}</td><td class="small">${x.d.date||'<span class="muted">-</span>'}</td><td><span class="st ${x.s.cls}">${x.s.t}</span></td><td>${x.d.file?'📎':'<span class="muted small">없음</span>'}</td></tr>`).join('')}
+    <tr style="background:#eef6ff"><td><b>→ EU 적합성선언(DoC)</b></td><td class="small">제18조·부속서 IX (선언 결과물)</td><td class="small">${esc(self.no)||'<span class="muted">미지정</span>'}</td><td class="small">${self.date||'<span class="muted">-</span>'}</td><td><span class="st ${selfSt.cls}">${selfSt.t}</span></td><td>${self.file?'📎':'<span class="muted small">없음</span>'}</td></tr>
+  </tbody></table></div>`;
+}
+
+/* ---- 문서 파일 첨부 (IndexedDB) ---- */
+let _db=null;
+function idb(){return new Promise((res,rej)=>{if(_db)return res(_db);const rq=indexedDB.open('euBattFiles',1);rq.onupgradeneeded=()=>rq.result.createObjectStore('files');rq.onsuccess=()=>{_db=rq.result;res(_db);};rq.onerror=()=>rej(rq.error);});}
+async function idbPut(k,b){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('files','readwrite');t.objectStore('files').put(b,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});}
+async function idbGet(k){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('files','readonly');const r=t.objectStore('files').get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function idbDel(k){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('files','readwrite');t.objectStore('files').delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});}
+let _upTarget=null;
+function uploadDoc(pid,k){_upTarget={pid,k};$('docFile').click();}
+function fileCell(pid,k,d){
+  if(d&&d.file)return `<span class="small">📎 ${esc(d.file.name)}</span> <a class="link" onclick="downloadDoc('${pid}','${k}')">다운로드</a> <a class="link" style="color:var(--red)" onclick="deleteDocFile('${pid}','${k}')">삭제</a>`;
+  return `<button class="btn sm" onclick="uploadDoc('${pid}','${k}')">＋ 업로드</button>`;
+}
+async function downloadDoc(pid,k){const blob=await idbGet(pid+':'+k);if(!blob){alert('파일이 없습니다.');return;}
+  const p=state.products.find(x=>x.id===pid);const d=docsFor(p).find(x=>x.k===k);
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=(d&&d.file&&d.file.name)||(k+'.bin');a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+async function deleteDocFile(pid,k){if(!confirm('첨부 파일을 삭제할까요?'))return;await idbDel(pid+':'+k);const p=state.products.find(x=>x.id===pid);const d=materializeDocs(p).find(x=>x.k===k);if(d)delete d.file;save();renderProductDetail(pid);}
+
 /* ---- 도면·라벨·QR ---- */
 function qrSVG(url){
   if(typeof QRLIB!=='function')return '<div style="width:96px;height:96px;border:1.5px dashed #aab4c0;display:grid;place-items:center;font-size:10px;color:#8a94a0">QR</div>';
@@ -486,13 +530,15 @@ function renderProductDetail(id){
     <h3 style="margin-top:16px">제품 의무 상태</h3>
     <div class="obg">${POBS.map(o=>{const s=p.status[o.k]||'todo';return `<div class="obcell"><div class="t">${esc(o.n)}</div><div class="r">규제/시행: ${esc(o.reg)}</div>${selHTML(s,`setProduct('${p.id}','${o.k}',this.value)`)}</div>`;}).join('')}</div>
 
+    ${docCard(p)}
+
     <h3 style="margin-top:16px">🔗 QR·라벨 정보 ↔ 근거 문서 <span class="muted small">각 정보가 어떤 문서 기준으로 작성되는지</span></h3>
     <div class="tablewrap"><table class="data" style="min-width:640px"><thead><tr><th>QR·라벨 표시/연결 정보</th><th>근거 문서 · 관리 상태</th></tr></thead><tbody>
       ${INFOMAP.map(r=>`<tr><td>${r.info}</td><td>${r.docs.map(k=>{const d=docs.find(x=>x.k===k);const m=docMeta(k);const s=docStatus(d);return `<span class="tag" style="background:#eef2f6;color:#44536a;margin:2px 6px 2px 0">${m.name} <span class="st ${s.cls}">· ${s.t}</span></span>`;}).join('')}</td></tr>`).join('')}
     </tbody></table></div>
 
     <h3 style="margin-top:16px">📄 근거 문서 대장 <span class="muted small">최종 갱신일 기준 자동 판정 (유효주기 초과 → 갱신필요)</span></h3>
-    <div class="tablewrap"><table class="data" style="min-width:780px"><thead><tr><th>근거 문서</th><th>규제 근거</th><th>문서번호</th><th>버전</th><th>최종 갱신일</th><th>담당</th><th>유효주기</th><th>상태</th></tr></thead><tbody>
+    <div class="tablewrap"><table class="data" style="min-width:960px"><thead><tr><th>근거 문서</th><th>규제 근거</th><th>문서번호</th><th>버전</th><th>최종 갱신일</th><th>담당</th><th>유효주기</th><th>상태</th><th>첨부 파일</th></tr></thead><tbody>
       ${docs.map(d=>{const m=docMeta(d.k);const s=docStatus(d);return `<tr>
         <td><b>${m.name}</b></td><td class="small">${m.basis}</td>
         <td><input style="width:112px" value="${esc(d.no)}" placeholder="문서번호" onchange="editDoc('${p.id}','${d.k}','no',this.value)"></td>
@@ -500,7 +546,8 @@ function renderProductDetail(id){
         <td><input type="date" value="${d.date||''}" onchange="editDoc('${p.id}','${d.k}','date',this.value)"></td>
         <td><select onchange="editDoc('${p.id}','${d.k}','owner',this.value)">${OWNERS.map(o=>`<option ${o===d.owner?'selected':''}>${o}</option>`).join('')}</select></td>
         <td class="small">${m.months}개월</td>
-        <td><span class="st ${s.cls}">${s.t}</span></td></tr>`;}).join('')}
+        <td><span class="st ${s.cls}">${s.t}</span></td>
+        <td>${fileCell(p.id,d.k,d)}</td></tr>`;}).join('')}
     </tbody></table></div>
 
     <h3 style="margin-top:16px">납품 바이어 (${buyers.length}) <span class="muted small">클릭 시 바이어 상세</span></h3>
@@ -537,6 +584,7 @@ function renderIO(){
       <li>제품 CSV의 <code>buyers</code>는 바이어명을 <code>;</code>로 구분. 바이어 먼저 업로드 → 제품 업로드 순서 권장.</li>
       <li>제품 CSV에 <code>img</code> 열(선택)로 제품 사진/도면 URL을 넣으면 상세 화면에 실물이 표시됩니다. 없으면 모식도가 표시됩니다.</li>
       <li>업로드된 실제 제품의 근거 문서 대장은 <b>미작성</b> 상태로 시작합니다 — 문서번호·갱신일을 입력해 관리하세요.</li>
+      <li><b>첨부 문서 파일</b>(PDF 등, 25MB 이하)은 제품 상세의 문서 대장에서 업로드/다운로드합니다. 파일은 이 브라우저(IndexedDB)에 저장되며 JSON 백업에는 포함되지 않습니다 — 원본은 사내 문서서버에도 보관하세요.</li>
     </ul></div>`;
 }
 function parseCSV(text){const rows=[];let i=0,f='',row=[],q=false;text=text.replace(/^﻿/,'');
@@ -586,6 +634,12 @@ function resetAll(){if(confirm('데모 데이터로 초기화할까요? (입력 
 $('fileBuyers').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>importBuyers(rd.result);rd.readAsText(f,'utf-8');e.target.value='';};
 $('fileProducts').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>importProducts(rd.result);rd.readAsText(f,'utf-8');e.target.value='';};
 $('fileRestore').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const x=JSON.parse(rd.result);if(!x.buyers||!x.products)throw 0;state=migrate(x);save();openBuyerId=null;renderAll();go('dash');alert('복원되었습니다.');}catch(err){alert('올바른 백업 파일이 아닙니다.');}};rd.readAsText(f);e.target.value='';};
+$('docFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||!_upTarget)return;
+  const {pid,k}=_upTarget;_upTarget=null;
+  if(f.size>25*1024*1024){alert('25MB 이하 파일만 첨부하세요.');return;}
+  try{await idbPut(pid+':'+k,f);const p=state.products.find(x=>x.id===pid);const d=materializeDocs(p).find(x=>x.k===k);
+    d.file={name:f.name,size:f.size,at:new Date().toISOString().slice(0,10)};if(!d.date)d.date=d.file.at;
+    save();renderProductDetail(pid);dashDirty=true;}catch(err){alert('파일 저장 실패: '+err);}};
 
 function go(v){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id===v));
