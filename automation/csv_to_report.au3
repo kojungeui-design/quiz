@@ -118,13 +118,13 @@ If @error Then
     Exit
 EndIf
 
-Local $out = $HEADER & @CRLF
+Local $report = $HEADER & @CRLF     ; ※ $OUT(경로)와 겹치지 않게 다른 이름 사용
 Local $cnt = 0
 For $i = 1 To $files[0]
-    If $files[$i] = "_관리대장.csv" Then ContinueLoop
+    If $files[$i] = "_report.csv" Then ContinueLoop
     Local $row = summarize($DIR & "\" & $files[$i])
     If $row <> "" Then
-        $out &= $row & @CRLF
+        $report &= $row & @CRLF
         $cnt += 1
     EndIf
 Next
@@ -136,6 +136,6 @@ If $h = -1 Then
     MsgBox(16, "저장 실패", "파일을 못 만듭니다: " & $OUT & @CRLF & "경로/권한 확인 필요")
     Exit
 EndIf
-FileWrite($h, $out)
+FileWrite($h, $report)
 FileClose($h)
 MsgBox(64, "완료", $cnt & "개 회로 정리 완료!" & @CRLF & "생성됨: " & $OUT & @CRLF & "(폴더에서 _report.csv 를 엑셀로 열어보세요)")
