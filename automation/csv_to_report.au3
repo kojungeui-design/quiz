@@ -91,6 +91,9 @@ Func summarize($path)
         If $cy <> "" And $cy > $maxCyc Then $maxCyc = $cy
     Next
 
+    ; 유효 데이터 없는 파일은 건너뜀 (빈 줄 방지)
+    If $lastStatus = "" Then Return ""
+
     ; 상태 한글화
     Local $stKo = $lastStatus
     If $lastStatus = "CHA" Then $stKo = "충전"
