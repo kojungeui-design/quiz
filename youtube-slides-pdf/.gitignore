@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.mp4
+*.mkv
+*.webm
+slides.pdf
+yt2pdf_*/
