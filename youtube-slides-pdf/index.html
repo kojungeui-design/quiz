@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>강의 영상 → 슬라이드 PDF</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#273449; --line:#334155;
+    --text:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --accent2:#0ea5e9;
+    --good:#22c55e; --danger:#f87171;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    line-height:1.5; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:16px}
+  header{text-align:center; padding:12px 0 4px}
+  header h1{font-size:1.35rem; margin:0 0 4px}
+  header p{color:var(--muted); font-size:.9rem; margin:0}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin-top:16px}
+  .note{background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:12px 14px; font-size:.85rem; color:var(--muted); margin-top:12px}
+  .note b{color:var(--text)}
+  label.file{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    border:2px dashed var(--line); border-radius:14px; padding:26px 16px; text-align:center;
+    cursor:pointer; transition:.15s; color:var(--muted);
+  }
+  label.file:active{border-color:var(--accent); color:var(--text)}
+  label.file .big{font-size:2rem}
+  label.file .fn{color:var(--accent); font-weight:600; word-break:break-all}
+  input[type=file]{display:none}
+
+  .row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0}
+  .row .lab{font-size:.9rem}
+  .row .val{color:var(--accent); font-variant-numeric:tabular-nums; font-weight:600; min-width:56px; text-align:right}
+  input[type=range]{-webkit-appearance:none; width:100%; height:6px; border-radius:3px; background:var(--line); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px; border:none; border-radius:50%; background:var(--accent); cursor:pointer}
+  .sub{font-size:.78rem; color:var(--muted); margin-top:-6px}
+
+  .adv summary{cursor:pointer; color:var(--muted); font-size:.85rem; padding:6px 0}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .fld{display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--muted)}
+  .fld input{background:var(--bg); border:1px solid var(--line); border-radius:8px; color:var(--text); padding:8px; font-size:.9rem}
+  .chk{display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--text); margin-top:6px}
+  .chk input{width:18px; height:18px; accent-color:var(--accent)}
+
+  button{
+    width:100%; border:none; border-radius:12px; padding:14px; font-size:1rem; font-weight:700;
+    color:#04121f; background:linear-gradient(180deg,var(--accent),var(--accent2)); cursor:pointer; margin-top:16px;
+  }
+  button:disabled{opacity:.5; cursor:not-allowed}
+  button.ghost{background:transparent; color:var(--accent); border:1px solid var(--line)}
+
+  .bar{height:10px; border-radius:5px; background:var(--line); overflow:hidden; margin-top:14px; display:none}
+  .bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--accent),var(--good)); transition:width .1s}
+  .status{font-size:.85rem; color:var(--muted); margin-top:8px; text-align:center; min-height:1.2em}
+
+  .count{display:flex; align-items:baseline; gap:8px; margin-top:4px}
+  .count b{font-size:1.5rem; color:var(--good)}
+  .thumbs{display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:14px}
+  .thumb{position:relative; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#000; aspect-ratio:16/9}
+  .thumb img{width:100%; height:100%; object-fit:contain; display:block}
+  .thumb .tt{position:absolute; left:6px; bottom:6px; background:rgba(0,0,0,.75); color:#fff; font-size:.7rem; padding:2px 6px; border-radius:6px; font-variant-numeric:tabular-nums}
+  .thumb .rm{position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:50%; background:rgba(0,0,0,.6); color:#fff; border:none; font-size:14px; line-height:1; cursor:pointer; padding:0}
+  .hidden{display:none !important}
+  footer{text-align:center; color:var(--muted); font-size:.75rem; padding:20px 0 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🎬 강의 영상 → 슬라이드 PDF</h1>
+    <p>화면이 바뀌는 순간만 자동 캡처해서 PDF로 만들어요</p>
+  </header>
+
+  <div class="card">
+    <label class="file" for="file">
+      <span class="big">📁</span>
+      <span>영상 파일 선택 / 촬영</span>
+      <span class="fn" id="fname">탭해서 갤러리·파일에서 선택</span>
+    </label>
+    <input type="file" id="file" accept="video/*">
+
+    <div class="note">
+      <b>YouTube 링크는?</b> 브라우저 보안 때문에 웹페이지에서 YouTube 화면을 직접
+      읽어올 수 없어요. 강의를 <b>영상 파일로 저장</b>한 뒤 위에서 선택하세요.
+      (같은 폴더의 <code>youtube_to_pdf.py</code> 로 URL만 넣어 내려받을 수 있어요.)
+    </div>
+  </div>
+
+  <div class="card" id="settings">
+    <div class="row">
+      <span class="lab">캡처 민감도</span>
+      <span class="val" id="sensVal">보통</span>
+    </div>
+    <input type="range" id="sens" min="3" max="20" step="1" value="8">
+    <div class="sub">민감할수록 작은 변화도 새 슬라이드로 잡아요 (많이 캡처됨)</div>
+
+    <div class="row" style="margin-top:18px">
+      <span class="lab">검사 간격</span>
+      <span class="val" id="ivVal">1.0초</span>
+    </div>
+    <input type="range" id="iv" min="0.3" max="3" step="0.1" value="1">
+    <div class="sub">간격이 짧을수록 꼼꼼하지만 처리 시간이 늘어요</div>
+
+    <details class="adv">
+      <summary>고급 옵션</summary>
+      <div class="grid2" style="margin-top:10px">
+        <label class="fld">시작(초)<input type="number" id="start" value="0" min="0" step="1"></label>
+        <label class="fld">끝(초, 0=끝까지)<input type="number" id="end" value="0" min="0" step="1"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="ts" checked> 각 슬라이드에 타임스탬프 넣기</label>
+    </details>
+
+    <button id="run" disabled>슬라이드 추출 시작</button>
+    <div class="bar" id="bar"><i></i></div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="card hidden" id="result">
+    <div class="count"><b id="num">0</b><span>장의 슬라이드를 찾았어요</span></div>
+    <div class="thumbs" id="thumbs"></div>
+    <button id="pdf">📄 PDF 다운로드</button>
+    <button class="ghost" id="reset">처음부터 다시</button>
+  </div>
+
+  <footer>모든 처리는 이 기기 안에서만 이루어집니다 · 업로드 없음</footer>
+</div>
+
+<video id="video" class="hidden" muted playsinline preload="auto"></video>
+<canvas id="work" class="hidden"></canvas>
+<canvas id="sig" class="hidden" width="32" height="32"></canvas>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const fileInput=$("file"), fname=$("fname"), runBtn=$("run"),
+      sens=$("sens"), sensVal=$("sensVal"), iv=$("iv"), ivVal=$("ivVal"),
+      bar=$("bar"), barFill=bar.firstElementChild, status=$("status"),
+      video=$("video"), work=$("work"), sig=$("sig"),
+      resultCard=$("result"), thumbs=$("thumbs"), numEl=$("num"),
+      pdfBtn=$("pdf"), resetBtn=$("reset");
+
+let videoURL=null, slides=[], busy=false;
+
+// ---- 슬라이더 표시 --------------------------------------------------------
+function sensLabel(v){ return v<=5?"매우 민감": v<=9?"보통": v<=14?"둔감":"매우 둔감"; }
+sens.oninput=()=> sensVal.textContent=sensLabel(+sens.value);
+iv.oninput  =()=> ivVal.textContent=(+iv.value).toFixed(1)+"초";
+sens.oninput(); iv.oninput();
+
+// ---- 파일 선택 ------------------------------------------------------------
+fileInput.onchange=()=>{
+  const f=fileInput.files[0]; if(!f) return;
+  if(videoURL) URL.revokeObjectURL(videoURL);
+  videoURL=URL.createObjectURL(f);
+  video.src=videoURL;
+  fname.textContent=f.name;
+  runBtn.disabled=false;
+  resultCard.classList.add("hidden");
+  slides=[]; thumbs.innerHTML="";
+};
+
+// ---- 유틸 -----------------------------------------------------------------
+function fmtTime(sec){
+  sec=Math.round(sec); const h=(sec/3600|0), m=((sec%3600)/60|0), s=sec%60;
+  const mm=String(m).padStart(h?2:1,"0"), ss=String(s).padStart(2,"0");
+  return h? `${h}:${mm}:${ss}` : `${m}:${ss}`;
+}
+function seek(t){
+  return new Promise((res,rej)=>{
+    let done=false;
+    const ok=()=>{ if(done) return; done=true; video.removeEventListener("seeked",ok); res(); };
+    video.addEventListener("seeked",ok,{once:true});
+    setTimeout(()=>{ if(!done){done=true; video.removeEventListener("seeked",ok); res();} },1500); // 안전장치
+    try{ video.currentTime=Math.min(t, Math.max(0,(video.duration||t)-0.05)); }catch(e){ rej(e); }
+  });
+}
+function waitMeta(){
+  return new Promise((res,rej)=>{
+    if(video.error) return rej(new Error("codec"));
+    if(video.readyState>=1 && video.videoWidth) return res();
+    video.addEventListener("loadedmetadata",()=>res(),{once:true});
+    video.addEventListener("error",()=>rej(new Error("codec")),{once:true});
+    setTimeout(()=>{ (video.readyState>=1 && video.videoWidth) ? res() : rej(new Error("timeout")); }, 20000);
+  });
+}
+
+// ---- 지문 계산 (축소 컬러 썸네일의 평균 절대차, 0~100) ---------------------
+const sigCtx=sig.getContext("2d",{willReadFrequently:true});
+function frameSignature(){
+  sigCtx.drawImage(video,0,0,32,32);
+  return sigCtx.getImageData(0,0,32,32).data; // RGBA
+}
+function sigDiff(a,b){
+  let sum=0,n=0;
+  for(let i=0;i<a.length;i+=4){ sum+=Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]); n+=3; }
+  return sum/n/255*100;
+}
+
+// ---- 전체 프레임 캡처 → JPEG dataURL --------------------------------------
+const workCtx=work.getContext("2d");
+function captureFrame(t, drawTs){
+  const MAXW=1280;
+  let w=video.videoWidth||1280, h=video.videoHeight||720;
+  if(w>MAXW){ h=Math.round(h*MAXW/w); w=MAXW; }
+  work.width=w; work.height=h;
+  workCtx.drawImage(video,0,0,w,h);
+  if(drawTs){
+    const label=fmtTime(t);
+    workCtx.font=`bold ${Math.max(16,Math.round(h*0.045))}px sans-serif`;
+    const pad=Math.round(h*0.012), tw=workCtx.measureText(label).width, th=Math.round(h*0.045);
+    const x=Math.round(w*0.02), y=h - th - pad*2 - Math.round(h*0.02);
+    workCtx.fillStyle="rgba(0,0,0,0.78)";
+    workCtx.fillRect(x, y, tw+pad*2, th+pad*2);
+    workCtx.fillStyle="#fff"; workCtx.textBaseline="top";
+    workCtx.fillText(label, x+pad, y+pad);
+  }
+  return work.toDataURL("image/jpeg",0.88);
+}
+
+// ---- 메인 처리 ------------------------------------------------------------
+async function run(){
+  if(busy) return; busy=true;
+  runBtn.disabled=true; bar.style.display="block"; barFill.style.width="0%";
+  status.textContent="영상 정보를 읽는 중…";
+  resultCard.classList.add("hidden");
+  slides=[]; thumbs.innerHTML="";
+
+  try{
+    await waitMeta();
+  }catch(e){
+    status.textContent = e.message==="codec"
+      ? "이 영상 형식을 브라우저에서 재생할 수 없어요. (mp4/H.264 권장)"
+      : "영상을 여는 데 시간이 너무 오래 걸려요. 다른 파일을 시도해 주세요.";
+    reset(true); return;
+  }
+  const dur=video.duration || 0;
+  if(!dur || !isFinite(dur)){ status.textContent="영상 길이를 읽을 수 없어요. 다른 파일을 시도해 주세요."; reset(true); return; }
+
+  const interval=+iv.value;
+  const changeTh=+sens.value;          // 3~20 (0~100 스케일)
+  const settleTh=Math.max(1.5, changeTh*0.35);
+  const drawTs=$("ts").checked;
+  let start=Math.max(0, +$("start").value||0);
+  let end=+$("end").value||0; if(!end||end>dur) end=dur;
+
+  let prevSig=null, lastSig=null, t=start;
+  while(t<=end){
+    await seek(t);
+    const s=frameSignature();
+    const settled = prevSig===null || sigDiff(s,prevSig)<=settleTh;
+    const changed = lastSig===null || sigDiff(s,lastSig)>=changeTh;
+    if(settled && changed){
+      const url=captureFrame(t, drawTs);
+      slides.push({t, url});
+      addThumb(slides.length-1);
+      lastSig=s;
+    }
+    prevSig=s;
+    const pct=Math.min(100, Math.round((t-start)/(end-start)*100));
+    barFill.style.width=pct+"%";
+    status.textContent=`분석 중  ${fmtTime(t)} / ${fmtTime(end)}  ·  ${slides.length}장 캡처`;
+    t=+(t+interval).toFixed(3);
+    await new Promise(r=>requestAnimationFrame(r)); // UI 갱신 양보
+  }
+
+  barFill.style.width="100%";
+  status.textContent = slides.length? `완료! ${slides.length}장을 찾았어요.` : "감지된 슬라이드가 없어요. 민감도를 올려 다시 시도해 보세요.";
+  numEl.textContent=slides.length;
+  resultCard.classList.toggle("hidden", slides.length===0);
+  pdfBtn.disabled = slides.length===0;
+  busy=false; runBtn.disabled=false;
+}
+
+function addThumb(i){
+  const s=slides[i];
+  const d=document.createElement("div"); d.className="thumb"; d.dataset.i=i;
+  d.innerHTML=`<img src="${s.url}" loading="lazy"><span class="tt">${fmtTime(s.t)}</span><button class="rm" title="삭제">✕</button>`;
+  d.querySelector(".rm").onclick=()=>{ removeSlide(i); };
+  thumbs.appendChild(d);
+}
+function removeSlide(i){
+  slides.splice(i,1);
+  thumbs.innerHTML=""; slides.forEach((_,k)=>addThumb(k));
+  numEl.textContent=slides.length;
+  pdfBtn.disabled=slides.length===0;
+}
+
+function reset(soft){
+  busy=false; runBtn.disabled = soft ? !videoURL : true;
+  bar.style.display="none"; barFill.style.width="0%";
+  if(!soft){
+    status.textContent=""; slides=[]; thumbs.innerHTML="";
+    resultCard.classList.add("hidden"); fileInput.value="";
+    fname.textContent="탭해서 갤러리·파일에서 선택";
+  }
+}
+
+runBtn.onclick=run;
+resetBtn.onclick=()=>reset(false);
+
+// ==========================================================================
+//  의존성 없는 최소 PDF 생성기 (JPEG를 DCTDecode 로 그대로 임베드)
+// ==========================================================================
+function dataURLtoBytes(dataURL){
+  const b64=dataURL.split(",")[1], bin=atob(b64), len=bin.length;
+  const bytes=new Uint8Array(len);
+  for(let i=0;i<len;i++) bytes[i]=bin.charCodeAt(i);
+  return bytes;
+}
+// JPEG 헤더에서 픽셀 크기 읽기 (SOF0/1/2 마커)
+function jpegSize(bytes){
+  let i=2;
+  while(i<bytes.length){
+    if(bytes[i]!==0xFF){ i++; continue; }
+    const marker=bytes[i+1];
+    if(marker>=0xC0 && marker<=0xCF && marker!==0xC4 && marker!==0xC8 && marker!==0xCC){
+      const h=(bytes[i+5]<<8)|bytes[i+6], w=(bytes[i+7]<<8)|bytes[i+8];
+      return {w,h};
+    }
+    const len=(bytes[i+2]<<8)|bytes[i+3]; i+=2+len;
+  }
+  return {w:work.width,h:work.height};
+}
+function strBytes(s){ const a=new Uint8Array(s.length); for(let i=0;i<s.length;i++) a[i]=s.charCodeAt(i)&0xff; return a; }
+
+function buildPDF(items){
+  // items: [{bytes, w, h}]
+  const parts=[]; let len=0;
+  const offsets=[]; let objNo=0;
+  const add=chunk=>{ parts.push(chunk); len+=chunk.length; };
+  const addStr=s=>add(strBytes(s));
+  const startObj=()=>{ objNo++; offsets[objNo]=len; return objNo; };
+
+  addStr("%PDF-1.4\n%\xFF\xFF\xFF\xFF\n");
+
+  const N=items.length;
+  const catalog=1, pagesObj=2;
+  const pageNums=[], contentNums=[], imgNums=[];
+  for(let k=0;k<N;k++){ pageNums.push(3+k*3); contentNums.push(4+k*3); imgNums.push(5+k*3); }
+
+  // 1: Catalog
+  startObj(); addStr(`1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n`);
+  // 2: Pages
+  startObj();
+  addStr(`2 0 obj\n<< /Type /Pages /Count ${N} /Kids [${pageNums.map(n=>n+" 0 R").join(" ")}] >>\nendobj\n`);
+
+  for(let k=0;k<N;k++){
+    const {bytes,w,h}=items[k];
+    // page
+    startObj();
+    addStr(`${pageNums[k]} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] `
+      +`/Resources << /XObject << /Im0 ${imgNums[k]} 0 R >> >> /Contents ${contentNums[k]} 0 R >>\nendobj\n`);
+    // content
+    const content=`q\n${w} 0 0 ${h} 0 0 cm\n/Im0 Do\nQ\n`;
+    startObj();
+    addStr(`${contentNums[k]} 0 obj\n<< /Length ${content.length} >>\nstream\n${content}endstream\nendobj\n`);
+    // image
+    startObj();
+    addStr(`${imgNums[k]} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} `
+      +`/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`);
+    add(bytes);
+    addStr(`\nendstream\nendobj\n`);
+  }
+
+  // xref
+  const xrefStart=len;
+  const total=objNo+1;
+  addStr(`xref\n0 ${total}\n`);
+  addStr(`0000000000 65535 f \n`);
+  for(let i=1;i<total;i++){
+    addStr(String(offsets[i]).padStart(10,"0")+" 00000 n \n");
+  }
+  addStr(`trailer\n<< /Size ${total} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
+
+  // concat
+  const out=new Uint8Array(len); let p=0;
+  for(const c of parts){ out.set(c,p); p+=c.length; }
+  return new Blob([out],{type:"application/pdf"});
+}
+
+pdfBtn.onclick=()=>{
+  if(!slides.length) return;
+  pdfBtn.disabled=true; status.textContent="PDF 만드는 중…";
+  const items=slides.map(s=>{ const bytes=dataURLtoBytes(s.url); const {w,h}=jpegSize(bytes); return {bytes,w,h}; });
+  const blob=buildPDF(items);
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="slides.pdf";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  status.textContent=`완료! ${slides.length}장 · slides.pdf 저장됨`;
+  pdfBtn.disabled=false;
+};
+</script>
+</body>
+</html>
