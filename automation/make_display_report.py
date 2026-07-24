@@ -83,6 +83,82 @@ def col(header_row, name):
             return i
     return -1
 
+# Step time "00:00:05.00" / "00:00:05" → 초(실수). 0.1초 로깅도 정확히 처리.
+def steptime_sec(s):
+    s = s.strip()
+    if not s:
+        return None
+    frac = 0.0
+    if "." in s:
+        s, f = s.split(".", 1)
+        try:
+            frac = float("0." + f)
+        except ValueError:
+            frac = 0.0
+    p = s.split(":")
+    try:
+        return int(p[0]) * 3600 + int(p[1]) * 60 + int(p[2]) + frac
+    except (ValueError, IndexError):
+        return None
+
+# ── CCA(냉간시동) 표시 규칙 ──────────────────────────────────────────
+#  · 크랭킹 방전(첫 DCH 블록): 시작 + 5초·10초·30초 전압 + (더 길면) 방전 종료
+#  · 지구력 방전(이후 DCH 블록): 방전 종료점만
+def pick_highlights_cca(data, ci_step, ci_status, ci_stept, ci_accu, g):
+    # 스텝 번호로 블록 분할
+    blocks = []
+    for i, r in enumerate(data):
+        st = g(r, ci_step)
+        if blocks and blocks[-1][0] == st:
+            blocks[-1][3] = i
+        else:
+            blocks.append([st, g(r, ci_status), i, i])  # [step, status, start, end]
+
+    def has_data(i):
+        return ci_accu < 0 or g(data[i], ci_accu) != ""
+    def last_with_data(s, e):
+        found = None
+        for i in range(s, e + 1):
+            if has_data(i):
+                found = i
+        return found
+    # 블록 안에서 목표 초(target)에 가장 가까운 데이터 행 (동률이면 나중 행)
+    def nearest_sec(s, e, target):
+        best, bestd = None, None
+        for i in range(s, e + 1):
+            if not has_data(i):
+                continue
+            t = steptime_sec(g(data[i], ci_stept))
+            if t is None:
+                continue
+            d = abs(t - target)
+            if bestd is None or d <= bestd:
+                best, bestd = i, d
+        # 그 초가 실제로 존재할 때만(0.6초 이내) 인정
+        if best is not None and bestd is not None and bestd <= 0.6:
+            return best
+        return None
+
+    dch = [b for b in blocks if b[1] == "DCH"]
+    hl = set()
+    for k, (st, sta, s, e) in enumerate(dch):
+        if k == 0:
+            # 크랭킹 방전
+            hl.add(s)                                  # 방전 시작(초기 전압)
+            for sec in (5, 10, 30):
+                i = nearest_sec(s, e, sec)
+                if i is not None:
+                    hl.add(i)                          # 해당 초의 전압
+            end_i = last_with_data(s, e)               # 방전 종료행
+            if end_i is not None:
+                hl.add(end_i)
+        else:
+            # 지구력 방전 종료점
+            end_i = last_with_data(s, e)
+            if end_i is not None:
+                hl.add(end_i)
+    return hl
+
 # ── 핵심: 표시할 행 결정 ─────────────────────────────────────────────
 def pick_highlights(data, hdr, cyc_interval):
     """data: 원본 데이터행. 반환: 표시할 data index 집합."""
@@ -93,6 +169,10 @@ def pick_highlights(data, hdr, cyc_interval):
     def g(r, i):
         return r[i].strip() if 0 <= i < len(r) else ""
 
+    ci_cur   = col(hdr, "Current")
+    ci_stept = col(hdr, "Step time")
+    ci_accu  = col(hdr, "AhAccu")
+
     # 사이클 수로 시험 종류 판별
     max_cyc = 0
     for r in data:
@@ -100,7 +180,20 @@ def pick_highlights(data, hdr, cyc_interval):
         if v.isdigit():
             max_cyc = max(max_cyc, int(v))
 
+    # 최대 방전전류(절대값) — CCA(냉간시동)는 수백 A로 매우 큼
+    max_abs_cur = 0.0
+    for r in data:
+        v = g(r, ci_cur)
+        try:
+            max_abs_cur = max(max_abs_cur, abs(float(v)))
+        except (ValueError, TypeError):
+            pass
+
     hl = set()
+
+    # ── CCA(냉간시동전류) 시험: 방전전류가 매우 큼(>100A) ──
+    if max_abs_cur > 100 and ci_stept >= 0:
+        return pick_highlights_cca(data, ci_step, ci_status, ci_stept, ci_accu, g), ("CCA", max_abs_cur)
 
     if max_cyc >= 2:
         # ── 수명/반복 시험: N 사이클 간격의 '방전 종료' 행 표시 ──
@@ -216,8 +309,12 @@ def process(path, cyc_interval, outdir=None):
     out_path = os.path.join(dest_dir, out_name)
     write_xlsx(meta, hdr, unit_row, data, highlights, out_path, sheet)
 
-    tag = "수명(%d사이클,%d칸 표시)" % (maxc, len(highlights)) if kind == "cycle" \
-          else "단일시험(%d칸 표시)" % len(highlights)
+    if kind == "CCA":
+        tag = "CCA 냉간시동(%.0fA, %d칸 표시)" % (maxc, len(highlights))
+    elif kind == "cycle":
+        tag = "수명(%d사이클,%d칸 표시)" % (maxc, len(highlights))
+    else:
+        tag = "단일시험(%d칸 표시)" % len(highlights)
     print("  OK  %-28s → %s   [%s]" % (os.path.basename(path), out_name, tag))
     return out_path
 
