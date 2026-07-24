@@ -65,10 +65,16 @@ if _MISSING:
 # ---------------------------------------------------------------------------
 # 1. 영상 다운로드
 # ---------------------------------------------------------------------------
-def download_video(url: str, workdir: str, max_height: int = 720) -> str:
+def download_video(
+    url: str,
+    workdir: str,
+    max_height: int = 720,
+    log=None,
+) -> str:
     """yt-dlp 로 영상을 내려받고 저장된 파일 경로를 반환한다.
 
     ffmpeg 없이도 동작하도록 '병합이 필요 없는 progressive mp4' 포맷을 우선한다.
+    log(msg) 가 주어지면 진행 메시지를 그쪽으로도 보낸다.
     """
     if shutil.which("yt-dlp") is None:
         raise RuntimeError(
@@ -88,7 +94,10 @@ def download_video(url: str, workdir: str, max_height: int = 720) -> str:
         "-o", out_tmpl,
         url,
     ]
-    print(f"[1/3] 영상 다운로드 중 …  ({url})")
+    msg = f"[1/3] 영상 다운로드 중 …  ({url})"
+    print(msg)
+    if log:
+        log(msg)
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(
@@ -146,11 +155,13 @@ def detect_slides(
     start: float = 0.0,
     end: Optional[float] = None,
     add_timestamp: bool = True,
+    progress=None,
 ) -> List[Slide]:
     """영상을 훑으며 새 슬라이드로 판단되는 프레임만 저장.
 
     change_threshold : 마지막 캡처와 이만큼(0~100) 이상 다르면 '변경'으로 간주.
     settle_threshold : 직전 샘플과 이 이하로 비슷하면 '화면이 안정됨'으로 간주.
+    progress(frac, text, count) : 진행 상황 콜백(선택).
     """
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
@@ -197,6 +208,14 @@ def detect_slides(
             slides.append(Slide(time_sec=t, image_path=img_path))
             last_captured_sig = sig
             print(f"      + 슬라이드 {idx:02d}  @ {fmt_timestamp(t)}")
+
+        if progress and end > start:
+            frac = min(1.0, (t - start) / (end - start))
+            progress(
+                frac,
+                f"분석 중  {fmt_timestamp(t)} / {fmt_timestamp(end)}",
+                len(slides),
+            )
 
         prev_sig = sig
         t += interval
@@ -258,6 +277,61 @@ def build_pdf(slides: List[Slide], output_path: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# 상위 오케스트레이션 (CLI · 서버 공용)
+# ---------------------------------------------------------------------------
+def generate(
+    source: str,
+    output_path: str,
+    workdir: str,
+    *,
+    is_local: bool = False,
+    interval: float = 1.0,
+    change_threshold: float = 8.0,
+    settle_threshold: float = 2.0,
+    start: float = 0.0,
+    end: Optional[float] = None,
+    max_height: int = 720,
+    add_timestamp: bool = True,
+    log=None,
+    progress=None,
+) -> List[Slide]:
+    """source(URL 또는 로컬 경로)를 받아 슬라이드 PDF를 생성한다.
+
+    다운로드 → 화면 변화 감지 → PDF 생성 전 과정을 한 번에 수행하며,
+    CLI 와 웹 서버가 함께 사용한다.
+    """
+    if is_local:
+        video_path = os.path.abspath(source)
+        if not os.path.exists(video_path):
+            raise RuntimeError("영상 파일을 찾을 수 없습니다: " + video_path)
+        if log:
+            log(f"[1/3] 로컬 영상 사용 → {video_path}")
+    else:
+        video_path = download_video(
+            source, workdir, max_height=max_height, log=log
+        )
+
+    if log:
+        log("[2/3] 화면 변화 감지 중 …")
+    slides = detect_slides(
+        video_path,
+        workdir,
+        interval=interval,
+        change_threshold=change_threshold,
+        settle_threshold=settle_threshold,
+        start=start,
+        end=end,
+        add_timestamp=add_timestamp,
+        progress=progress,
+    )
+
+    if log:
+        log(f"[3/3] PDF 생성 중 … ({len(slides)}페이지)")
+    build_pdf(slides, output_path)
+    return slides
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
@@ -313,27 +387,19 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     workdir = tempfile.mkdtemp(prefix="yt2pdf_")
     try:
-        if args.video:
-            video_path = os.path.abspath(args.video)
-            if not os.path.exists(video_path):
-                print(f"영상 파일을 찾을 수 없습니다: {video_path}", file=sys.stderr)
-                return 1
-            print(f"[1/3] 로컬 영상 사용 → {video_path}")
-        else:
-            video_path = download_video(url, workdir, max_height=args.max_height)
-
-        slides = detect_slides(
-            video_path,
+        slides = generate(
+            args.video if args.video else url,
+            args.output,
             workdir,
+            is_local=bool(args.video),
             interval=args.interval,
             change_threshold=args.change_threshold,
             settle_threshold=args.settle_threshold,
             start=args.start,
             end=args.end,
+            max_height=args.max_height,
             add_timestamp=not args.no_timestamp,
         )
-
-        build_pdf(slides, args.output)
 
         if args.keep_images:
             os.makedirs(args.keep_images, exist_ok=True)

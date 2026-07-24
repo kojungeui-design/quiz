@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>YouTube 강의 → 슬라이드 PDF</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#273449; --line:#334155;
+    --text:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --accent2:#0ea5e9; --good:#22c55e;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    line-height:1.5; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  .wrap{max-width:720px; margin:0 auto; padding:16px}
+  header{text-align:center; padding:12px 0 4px}
+  header h1{font-size:1.3rem; margin:0 0 4px}
+  header p{color:var(--muted); font-size:.9rem; margin:0}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin-top:16px}
+  label.lbl{display:block; font-size:.85rem; color:var(--muted); margin-bottom:6px}
+  input[type=url]{width:100%; background:var(--bg); border:1px solid var(--line); border-radius:12px;
+    color:var(--text); padding:14px; font-size:1rem}
+  input[type=url]:focus{outline:none; border-color:var(--accent)}
+  .row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0 4px}
+  .row .lab{font-size:.9rem}
+  .row .val{color:var(--accent); font-variant-numeric:tabular-nums; font-weight:600; min-width:56px; text-align:right}
+  input[type=range]{-webkit-appearance:none; width:100%; height:6px; border-radius:3px; background:var(--line)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:var(--accent)}
+  input[type=range]::-moz-range-thumb{width:22px; height:22px; border:none; border-radius:50%; background:var(--accent)}
+  .sub{font-size:.78rem; color:var(--muted)}
+  .adv summary{cursor:pointer; color:var(--muted); font-size:.85rem; padding:6px 0}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px}
+  .fld{display:flex; flex-direction:column; gap:4px; font-size:.8rem; color:var(--muted)}
+  .fld input{background:var(--bg); border:1px solid var(--line); border-radius:8px; color:var(--text); padding:8px}
+  .chk{display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--text); margin-top:8px}
+  .chk input{width:18px; height:18px; accent-color:var(--accent)}
+  button{width:100%; border:none; border-radius:12px; padding:14px; font-size:1rem; font-weight:700;
+    color:#04121f; background:linear-gradient(180deg,var(--accent),var(--accent2)); cursor:pointer; margin-top:16px}
+  button:disabled{opacity:.5}
+  button.ghost{background:transparent; color:var(--accent); border:1px solid var(--line)}
+  .bar{height:10px; border-radius:5px; background:var(--line); overflow:hidden; margin-top:14px; display:none}
+  .bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--accent),var(--good)); transition:width .2s}
+  .status{font-size:.85rem; color:var(--muted); margin-top:10px; min-height:1.2em}
+  .count{color:var(--good); font-weight:700}
+  .log{font-family:ui-monospace,Menlo,monospace; font-size:.72rem; color:var(--muted); background:var(--bg);
+    border:1px solid var(--line); border-radius:10px; padding:10px; margin-top:10px; max-height:120px; overflow:auto; white-space:pre-wrap; display:none}
+  .hidden{display:none !important}
+  .err{color:#fca5a5}
+  footer{text-align:center; color:var(--muted); font-size:.75rem; padding:20px 0 8px}
+  code{background:var(--card2); padding:1px 6px; border-radius:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🎬 YouTube 강의 → 슬라이드 PDF</h1>
+    <p>주소만 붙여넣으면 화면 바뀌는 부분만 캡처해 PDF로!</p>
+  </header>
+
+  <div class="card">
+    <label class="lbl" for="url">YouTube 영상 주소</label>
+    <input type="url" id="url" inputmode="url" autocomplete="off"
+           placeholder="https://www.youtube.com/watch?v=...">
+
+    <div class="row" style="margin-top:16px">
+      <span class="lab">캡처 민감도</span><span class="val" id="sensVal">보통</span>
+    </div>
+    <input type="range" id="sens" min="3" max="20" step="1" value="8">
+    <div class="sub">민감할수록 작은 변화도 새 슬라이드로 잡아요</div>
+
+    <div class="row" style="margin-top:16px">
+      <span class="lab">검사 간격</span><span class="val" id="ivVal">1.0초</span>
+    </div>
+    <input type="range" id="iv" min="0.3" max="3" step="0.1" value="1">
+    <div class="sub">짧을수록 꼼꼼하지만 오래 걸려요</div>
+
+    <details class="adv">
+      <summary>고급 옵션</summary>
+      <div class="grid2">
+        <label class="fld">시작(초)<input type="number" id="start" value="0" min="0"></label>
+        <label class="fld">끝(초, 0=끝까지)<input type="number" id="end" value="0" min="0"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="ts" checked> 각 슬라이드에 타임스탬프 넣기</label>
+    </details>
+
+    <button id="run">슬라이드 추출 시작</button>
+    <div class="bar" id="bar"><i></i></div>
+    <div class="status" id="status"></div>
+    <div class="log" id="log"></div>
+    <button class="ghost hidden" id="dl">📄 PDF 다운로드</button>
+    <button class="ghost hidden" id="again">새로 만들기</button>
+  </div>
+
+  <footer>서버가 영상을 받아 처리합니다 · 처리 후 임시 파일은 삭제돼요</footer>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const url=$("url"), sens=$("sens"), sensVal=$("sensVal"), iv=$("iv"), ivVal=$("ivVal"),
+      runBtn=$("run"), bar=$("bar"), barFill=bar.firstElementChild, status=$("status"),
+      logEl=$("log"), dlBtn=$("dl"), againBtn=$("again");
+let es=null, jobId=null;
+
+function sensLabel(v){ return v<=5?"매우 민감": v<=9?"보통": v<=14?"둔감":"매우 둔감"; }
+sens.oninput=()=> sensVal.textContent=sensLabel(+sens.value);
+iv.oninput  =()=> ivVal.textContent=(+iv.value).toFixed(1)+"초";
+sens.oninput(); iv.oninput();
+
+function addLog(t){ logEl.style.display="block"; logEl.textContent += t+"\n"; logEl.scrollTop=logEl.scrollHeight; }
+
+function start(){
+  const u=url.value.trim();
+  if(!u){ status.textContent="영상 주소를 입력해 주세요."; return; }
+  runBtn.disabled=true; dlBtn.classList.add("hidden"); againBtn.classList.add("hidden");
+  bar.style.display="block"; barFill.style.width="0%"; logEl.textContent=""; logEl.style.display="none";
+  status.className="status"; status.textContent="작업을 시작하는 중…";
+
+  fetch("api/jobs",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      url:u, sensitivity:+sens.value, interval:+iv.value,
+      timestamp:$("ts").checked, start:+$("start").value||0, end:+$("end").value||0
+    })})
+  .then(r=>r.json()).then(j=>{
+    if(j.error){ fail(j.error); return; }
+    jobId=j.id; listen(jobId);
+  }).catch(e=>fail(String(e)));
+}
+
+function listen(id){
+  es=new EventSource("api/jobs/"+id+"/stream");
+  es.addEventListener("log", e=> addLog(e.data));
+  es.addEventListener("progress", e=>{
+    const d=JSON.parse(e.data);
+    barFill.style.width=Math.round(d.frac*100)+"%";
+    status.innerHTML=`${d.text} · <span class="count">${d.count}장</span>`;
+  });
+  es.addEventListener("done", e=>{
+    const d=JSON.parse(e.data); es.close();
+    barFill.style.width="100%";
+    status.innerHTML=`완료! <span class="count">${d.count}장</span>을 찾았어요.`;
+    dlBtn.classList.remove("hidden"); againBtn.classList.remove("hidden");
+    dlBtn.onclick=()=> location.href="api/jobs/"+id+"/pdf";
+  });
+  es.addEventListener("error", e=>{
+    if(e.data) fail(e.data);
+    else if(es.readyState===EventSource.CLOSED) fail("서버 연결이 끊어졌어요.");
+  });
+}
+
+function fail(msg){
+  if(es) es.close();
+  bar.style.display="none"; status.className="status err"; status.textContent="오류: "+msg;
+  runBtn.disabled=false; againBtn.classList.remove("hidden");
+}
+
+runBtn.onclick=start;
+againBtn.onclick=()=>{
+  runBtn.disabled=false; bar.style.display="none"; status.textContent="";
+  logEl.style.display="none"; logEl.textContent="";
+  dlBtn.classList.add("hidden"); againBtn.classList.add("hidden");
+};
+</script>
+</body>
+</html>
