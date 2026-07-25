@@ -80,6 +80,19 @@
   </header>
 
   <div class="card">
+    <label class="lbl" for="yurl" style="display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px">YouTube 영상 주소</label>
+    <div style="display:flex;gap:8px">
+      <input type="url" id="yurl" inputmode="url" autocomplete="off"
+             placeholder="https://www.youtube.com/watch?v=..."
+             style="flex:1;background:var(--bg);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:13px;font-size:.95rem;min-width:0">
+      <button id="load" style="width:auto;margin:0;padding:0 18px;white-space:nowrap">불러오기</button>
+    </div>
+    <div class="sub" id="urlStatus" style="margin-top:8px;min-height:1.1em"></div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:14px 0 12px;color:var(--muted);font-size:.8rem">
+      <span style="flex:1;height:1px;background:var(--line)"></span>또는<span style="flex:1;height:1px;background:var(--line)"></span>
+    </div>
+
     <label class="file" for="file">
       <span class="big">📁</span>
       <span>영상 파일 선택 / 촬영</span>
@@ -88,9 +101,9 @@
     <input type="file" id="file" accept="video/*">
 
     <div class="note">
-      <b>YouTube 링크는?</b> 브라우저 보안 때문에 웹페이지에서 YouTube 화면을 직접
-      읽어올 수 없어요. 강의를 <b>영상 파일로 저장</b>한 뒤 위에서 선택하세요.
-      (같은 폴더의 <code>youtube_to_pdf.py</code> 로 URL만 넣어 내려받을 수 있어요.)
+      <b>주소 입력은 어떻게 동작하나요?</b> 공개 우회 서버(Piped)를 자동으로 여러 곳
+      시도해서 영상을 불러와요. 우회 서버 사정에 따라 실패할 수 있는데, 그럴 땐
+      영상을 <b>파일로 저장</b>한 뒤 아래에서 선택하면 항상 됩니다.
     </div>
   </div>
 
@@ -140,14 +153,144 @@
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
-const fileInput=$("file"), fname=$("fname"), runBtn=$("run"),
+const yurl=$("yurl"), loadBtn=$("load"), urlStatus=$("urlStatus"),
+      fileInput=$("file"), fname=$("fname"), runBtn=$("run"),
       sens=$("sens"), sensVal=$("sensVal"), iv=$("iv"), ivVal=$("ivVal"),
       bar=$("bar"), barFill=bar.firstElementChild, status=$("status"),
       video=$("video"), work=$("work"), sig=$("sig"),
       resultCard=$("result"), thumbs=$("thumbs"), numEl=$("num"),
       pdfBtn=$("pdf"), resetBtn=$("reset");
 
-let videoURL=null, slides=[], busy=false;
+let videoURL=null, slides=[], busy=false, srcTitle=null;
+
+// ==========================================================================
+//  YouTube 주소 → 재생 가능한 스트림  (공개 Piped 인스턴스 자동 순회)
+//  브라우저 단독으론 YouTube 픽셀을 못 읽지만, CORS 를 열어둔 공개 프록시
+//  (Piped)의 스트림은 읽을 수 있다.  인스턴스는 자주 죽으므로 목록을
+//  동적으로 갱신하고 순서대로 시도한다.
+// ==========================================================================
+const PIPED_INSTANCES = window.PIPED_INSTANCES_OVERRIDE || [
+  "https://pipedapi.kavin.rocks",
+  "https://pipedapi.adminforge.de",
+  "https://api.piped.private.coffee",
+  "https://pipedapi.drgns.space",
+  "https://piped-api.codespace.cz",
+  "https://pipedapi.ducks.party",
+  "https://pipedapi.owo.si",
+  "https://pipedapi.reallyaweso.me",
+  "https://pipedapi.darkness.services",
+  "https://pipedapi.leptons.xyz",
+];
+const INSTANCE_DIRECTORY = "https://piped-instances.kavin.rocks/";
+
+function parseYouTubeId(u){
+  try{
+    const url=new URL(u.trim());
+    const h=url.hostname.replace(/^www\.|^m\./,"");
+    if(h==="youtu.be") return url.pathname.slice(1).split("/")[0]||null;
+    if(/(^|\.)youtube(-nocookie)?\.com$/.test(h)){
+      if(url.searchParams.get("v")) return url.searchParams.get("v");
+      const m=url.pathname.match(/^\/(shorts|embed|live|v)\/([\w-]{6,})/);
+      if(m) return m[2];
+    }
+  }catch(e){}
+  const m=u.match(/[\w-]{11}/);           // 마지막 수단: 11자 ID 패턴
+  return m && u.length<40 ? m[0] : null;
+}
+
+function fetchTO(url, ms, opts){
+  const c=new AbortController();
+  const t=setTimeout(()=>c.abort(), ms);
+  return fetch(url, {...opts, signal:c.signal}).finally(()=>clearTimeout(t));
+}
+
+async function instanceList(){
+  let list=PIPED_INSTANCES.slice();
+  try{                                    // 살아있는 목록을 동적으로 받아 앞에 배치
+    const r=await fetchTO(INSTANCE_DIRECTORY, 4000);
+    const dir=await r.json();
+    const fresh=dir.map(d=>d.api_url).filter(Boolean);
+    list=[...new Set([...fresh, ...list])];
+  }catch(e){ /* 디렉터리가 죽어도 내장 목록으로 진행 */ }
+  return list;
+}
+
+function pickStreams(j){
+  // 진행형(오디오 포함) mp4 우선, 다음 videoOnly mp4/webm — 720p 이하 중 최고화질
+  const ok=(j.videoStreams||[]).filter(s=>s.url && /mp4|webm/i.test(s.mimeType||s.format||""));
+  const ph=s=>parseInt(s.quality)||0;
+  const prog=ok.filter(s=>!s.videoOnly && ph(s)<=720).sort((a,b)=>ph(b)-ph(a));
+  const vonly=ok.filter(s=>s.videoOnly && ph(s)<=720).sort((a,b)=>ph(b)-ph(a));
+  return [...prog, ...vonly].slice(0,3);
+}
+
+const MAX_DOWNLOAD = 1500 * 1024 * 1024;   // 1.5GB 안전 상한
+
+async function downloadStream(streamUrl, onProgress){
+  // 스트림을 통째로 받아 blob 으로 만든다.  이후엔 로컬 파일과 완전히 동일하게
+  // 동작하므로 탐색(seek)이 100% 신뢰되고 샘플링도 네트워크 없이 빠르다.
+  // CORS 가 안 열린 스트림은 이 fetch 자체가 실패해 자연스럽게 걸러진다.
+  const r=await fetchTO(streamUrl, 20000);
+  if(!r.ok) throw new Error("stream http "+r.status);
+  const total=+r.headers.get("content-length")||0;
+  if(total>MAX_DOWNLOAD) throw new Error("too-big");
+  const reader=r.body.getReader();
+  const chunks=[]; let got=0;
+  while(true){
+    const {done,value}=await reader.read();
+    if(done) break;
+    chunks.push(value); got+=value.length;
+    if(got>MAX_DOWNLOAD){ reader.cancel(); throw new Error("too-big"); }
+    if(onProgress) onProgress(got,total);
+  }
+  return URL.createObjectURL(new Blob(chunks,{type:r.headers.get("content-type")||"video/mp4"}));
+}
+
+function loadIntoVideo(objUrl){
+  return new Promise((res,rej)=>{
+    const ok=()=>{ cleanup(); res(); };
+    const err=()=>{ cleanup(); rej(new Error("이 형식을 재생할 수 없어요")); };
+    const cleanup=()=>{ video.removeEventListener("loadeddata",ok); video.removeEventListener("error",err); clearTimeout(tm); };
+    const tm=setTimeout(()=>{ cleanup(); rej(new Error("timeout")); }, 20000);
+    video.addEventListener("loadeddata",ok,{once:true});
+    video.addEventListener("error",err,{once:true});
+    video.removeAttribute("crossorigin");   // blob 은 동일 출처
+    video.src=objUrl;
+    video.load();
+  });
+}
+
+async function loadFromYouTube(rawUrl){
+  const id=parseYouTubeId(rawUrl);
+  if(!id) throw new Error("유튜브 주소 형식이 아니에요.");
+  urlStatus.textContent="우회 서버 목록 확인 중…";
+  const list=await instanceList();
+  for(const api of list){
+    const host=api.replace(/^https?:\/\//,"");
+    urlStatus.textContent=`시도 중: ${host} …`;
+    let j;
+    try{
+      const r=await fetchTO(`${api}/streams/${id}`, 8000);
+      if(!r.ok) throw 0;
+      j=await r.json();
+      if(j.error) throw 0;
+    }catch(e){ continue; }               // 이 인스턴스 실패 → 다음
+    for(const s of pickStreams(j)){
+      try{
+        const objUrl=await downloadStream(s.url,(got,total)=>{
+          const mb=(got/1048576).toFixed(1);
+          const pct=total? ` (${Math.round(got/total*100)}%)` : "";
+          urlStatus.textContent=`영상 받는 중 ${mb}MB${pct} — ${host}, ${s.quality||""}`;
+        });
+        await loadIntoVideo(objUrl);
+        if(videoURL) URL.revokeObjectURL(videoURL);
+        videoURL=objUrl;
+        return {title:j.title||id, instance:host};
+      }catch(e){ /* 다음 스트림/인스턴스 */ }
+    }
+  }
+  throw new Error("모든 우회 서버가 응답하지 않아요. 영상을 파일로 저장해 아래에서 선택해 주세요.");
+}
 
 // ---- 슬라이더 표시 --------------------------------------------------------
 function sensLabel(v){ return v<=5?"매우 민감": v<=9?"보통": v<=14?"둔감":"매우 둔감"; }
@@ -160,11 +303,34 @@ fileInput.onchange=()=>{
   const f=fileInput.files[0]; if(!f) return;
   if(videoURL) URL.revokeObjectURL(videoURL);
   videoURL=URL.createObjectURL(f);
+  video.removeAttribute("crossorigin");
   video.src=videoURL;
+  srcTitle=f.name.replace(/\.[^.]+$/,"");
   fname.textContent=f.name;
+  urlStatus.textContent="";
   runBtn.disabled=false;
   resultCard.classList.add("hidden");
   slides=[]; thumbs.innerHTML="";
+};
+
+// ---- YouTube 주소 불러오기 -------------------------------------------------
+loadBtn.onclick=async ()=>{
+  const u=yurl.value.trim();
+  if(!u){ urlStatus.textContent="주소를 붙여넣어 주세요."; return; }
+  loadBtn.disabled=true; runBtn.disabled=true;
+  if(videoURL){ URL.revokeObjectURL(videoURL); videoURL=null; }
+  fname.textContent="탭해서 갤러리·파일에서 선택";
+  resultCard.classList.add("hidden"); slides=[]; thumbs.innerHTML="";
+  try{
+    const {title, instance}=await loadFromYouTube(u);
+    srcTitle=title;
+    urlStatus.innerHTML=`✅ <b style="color:var(--accent)">${title}</b> <span style="opacity:.6">(${instance})</span>`;
+    runBtn.disabled=false;
+  }catch(e){
+    urlStatus.textContent="❌ "+e.message;
+  }finally{
+    loadBtn.disabled=false;
+  }
 };
 
 // ---- 유틸 -----------------------------------------------------------------
@@ -294,12 +460,14 @@ function removeSlide(i){
 }
 
 function reset(soft){
-  busy=false; runBtn.disabled = soft ? !videoURL : true;
+  busy=false; runBtn.disabled = soft ? !video.src : true;
   bar.style.display="none"; barFill.style.width="0%";
   if(!soft){
     status.textContent=""; slides=[]; thumbs.innerHTML="";
     resultCard.classList.add("hidden"); fileInput.value="";
     fname.textContent="탭해서 갤러리·파일에서 선택";
+    yurl.value=""; urlStatus.textContent=""; srcTitle=null;
+    runBtn.disabled=true;
   }
 }
 
@@ -393,7 +561,8 @@ pdfBtn.onclick=()=>{
   const blob=buildPDF(items);
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
-  a.href=url; a.download="slides.pdf";
+  const safe=(srcTitle||"slides").replace(/[\\/:*?"<>|]/g,"_").slice(0,80);
+  a.href=url; a.download=safe+".pdf";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),4000);
   status.textContent=`완료! ${slides.length}장 · slides.pdf 저장됨`;
