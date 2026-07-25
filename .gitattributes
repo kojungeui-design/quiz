@@ -1,0 +1,11 @@
+# 윈도우 배치 파일은 반드시 CRLF 로 유지한다.
+# LF 로 저장되면 cmd.exe 가 줄을 제대로 못 읽어서 더블클릭이 조용히 실패한다.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 나머지는 저장소에 LF 로 두고 체크아웃할 때 OS 에 맞춘다.
+* text=auto
+*.png binary
+*.jpg binary
+*.pdf binary
+*.mp4 binary
