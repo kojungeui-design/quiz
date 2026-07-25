@@ -38,6 +38,8 @@ import youtube_to_pdf as y2p
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__)
+print(f"[server] youtube-slides-pdf 부팅 완료 (PORT={os.environ.get('PORT', '8000')})",
+      flush=True)
 
 # job_id -> job dict
 JOBS: dict = {}
