@@ -97,15 +97,40 @@ def check_requirements() -> bool:
     return ok
 
 
+def find_cloudflared() -> "str | None":
+    """cloudflared 실행 파일을 찾는다.
+
+    갓 설치한 직후에는 PATH 갱신이 지금 열려 있는 창에 반영되지 않는다.
+    (다시 로그인해야 보인다.)  그래서 흔한 설치 위치도 함께 뒤진다.
+    """
+    found = shutil.which("cloudflared")
+    if found:
+        return found
+
+    candidates = [
+        os.path.join(os.environ.get("ProgramFiles", ""), "cloudflared", "cloudflared.exe"),
+        os.path.join(os.environ.get("ProgramFiles(x86)", ""), "cloudflared", "cloudflared.exe"),
+        os.path.join(os.environ.get("LOCALAPPDATA", ""),
+                     "Microsoft", "WinGet", "Links", "cloudflared.exe"),
+        "/usr/local/bin/cloudflared",
+        "/opt/homebrew/bin/cloudflared",
+    ]
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+    return None
+
+
 def start_tunnel(port: int, out) -> "subprocess.Popen | None":
     """cloudflared 로 임시 공개 주소를 연다. 계정 없이 바로 된다."""
-    if shutil.which("cloudflared") is None:
+    binary = find_cloudflared()
+    if binary is None:
         print("  [안내] cloudflared 가 없어 집 밖 접속은 건너뜁니다.")
         print("         설치: winget install Cloudflare.cloudflared")
         return None
 
     proc = subprocess.Popen(
-        ["cloudflared", "tunnel", "--url", f"http://127.0.0.1:{port}"],
+        [binary, "tunnel", "--url", f"http://127.0.0.1:{port}"],
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         text=True, bufsize=1, encoding="utf-8", errors="replace",
     )
@@ -162,21 +187,26 @@ def main() -> int:
         if not args.tunnel:
             break
 
-    url = public[0] if public else address
     print()
     print("─" * 60)
     print("  휴대폰 브라우저에서 아래 주소로 접속하세요")
     print()
-    print(f"     {url}")
+    print(f"   [집 안 · 같은 WiFi]   {address}")
+    if public:
+        print(f"   [집 밖 · 어디서나]    {public[0]}")
     print()
     if public:
-        print("  ※ 집 밖에서도 됩니다. 이 창을 닫으면 주소가 사라집니다.")
+        # 집 안에서 터널 주소를 쓰면 인터넷을 한 바퀴 돌아 훨씬 느리다.
+        # 실측: 같은 WiFi 49MB/s vs 터널 0.37MB/s (130배 차이)
+        print("  ※ 집에 있을 때는 반드시 위쪽(WiFi) 주소를 쓰세요. 훨씬 빠릅니다.")
+        print("     아래 터널 주소는 밖에 있을 때만. 이 창을 닫으면 사라집니다.")
     else:
         print("  ※ 휴대폰이 이 PC와 같은 WiFi 에 있어야 합니다.")
         print("     집 밖에서도 쓰려면:  python start_server.py --tunnel")
     print("─" * 60)
 
-    if not print_qr(url):
+    # QR 은 집에서 주로 쓰는 WiFi 주소로 만든다.
+    if not print_qr(address):
         print("  (QR 코드를 보려면:  pip install qrcode)")
 
     print("  종료하려면 이 창에서 Ctrl+C 를 누르거나 창을 닫으세요.")

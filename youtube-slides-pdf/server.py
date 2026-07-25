@@ -246,7 +246,18 @@ def main():
     # PATH 에 없어도 `python -m yt_dlp` 로 돌 수 있으므로 which 대신 이쪽으로 확인한다.
     if y2p._ytdlp_bin() is None:
         print("  [주의] yt-dlp 가 없습니다.  pip install -r requirements.txt")
-    app.run(host=args.host, port=args.port, threaded=True)
+
+    # Flask 내장 서버는 개발용이라 동시 접속(진행 스트림 + PDF 내려받기)에 약하다.
+    # waitress 가 있으면 그쪽을 쓴다(윈도우에서도 도는 실제 WSGI 서버).
+    try:
+        from waitress import serve
+    except ImportError:
+        print("  [참고] waitress 를 설치하면 더 빠릅니다:  pip install waitress")
+        app.run(host=args.host, port=args.port, threaded=True)
+    else:
+        # SSE 를 계속 열어 두므로 스레드를 넉넉히, 응답 버퍼는 크게 잡는다.
+        serve(app, host=args.host, port=args.port, threads=16,
+              outbuf_overflow=64 * 1024 * 1024, channel_timeout=1800)
 
 
 if __name__ == "__main__":

@@ -7,5 +7,7 @@ img2pdf>=0.5.0
 numpy>=1.24.0
 Flask>=3.0.0
 gunicorn>=21.2.0
+# 윈도우에서는 gunicorn 이 안 돌아서 waitress 를 쓴다(server.py 가 자동 선택).
+waitress>=3.0.0
 
 
