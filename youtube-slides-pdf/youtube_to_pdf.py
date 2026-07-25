@@ -27,6 +27,7 @@ import argparse
 import json
 import os
 import queue
+import re
 import shutil
 import subprocess
 import sys
@@ -156,7 +157,29 @@ def _ytdlp_bin() -> Optional[List[str]]:
     return [found] if found else None
 
 
+# yt-dlp 가 요구하는 최소 버전 (https://github.com/yt-dlp/yt-dlp/wiki/EJS).
+# 버전이 모자라면 yt-dlp 가 '지원되는 런타임 없음'으로 무시해 버리므로, 넘기기 전에
+# 우리가 먼저 걸러야 한다.  실제로 Debian 의 nodejs 는 18 이라 그냥 넘기면 실패한다.
+_JS_RUNTIME_MIN = {
+    "deno": (2, 0, 0),
+    "node": (22, 0, 0),
+    "bun": (1, 2, 11),
+}
 _JS_RUNTIME_CACHE: List[Optional[str]] = []
+
+
+def _runtime_version(binary: str) -> Optional[tuple]:
+    """`<binary> --version` 출력에서 (major, minor, patch) 를 뽑는다."""
+    try:
+        out = subprocess.run(
+            [binary, "--version"], capture_output=True, text=True,
+            timeout=20, encoding="utf-8", errors="replace",
+        )
+    except Exception:
+        return None
+    text = (out.stdout or "") + (out.stderr or "")
+    match = re.search(r"(\d+)\.(\d+)\.(\d+)", text)
+    return tuple(int(g) for g in match.groups()) if match else None
 
 
 def _js_runtime(ytdlp: List[str]) -> Optional[str]:
@@ -172,13 +195,22 @@ def _js_runtime(ytdlp: List[str]) -> Optional[str]:
         return _JS_RUNTIME_CACHE[0]
 
     found: Optional[str] = None
-    if os.environ.get("YTDLP_JS_RUNTIME"):
-        found = os.environ["YTDLP_JS_RUNTIME"]
+    override = os.environ.get("YTDLP_JS_RUNTIME")
+    if override:
+        found = override          # 직접 지정했으면 그대로 믿는다
     else:
-        for name in ("deno", "node", "bun"):
-            if shutil.which(name):
-                found = name
+        for name, minimum in _JS_RUNTIME_MIN.items():
+            path = shutil.which(name)
+            if not path:
+                continue
+            version = _runtime_version(path)
+            if version is None or version >= minimum:
+                found = name       # 버전을 못 읽으면 일단 써 본다
                 break
+            print(
+                f"      [주의] {name} {'.'.join(map(str, version))} 은 너무 낮습니다 "
+                f"(yt-dlp 는 {'.'.join(map(str, minimum))} 이상 필요). 건너뜁니다."
+            )
 
     # 구버전 yt-dlp 에는 --js-runtimes 가 없다.  넘기면 그대로 죽으므로 먼저 확인.
     if found:

@@ -1,14 +1,19 @@
 # YouTube → 슬라이드 PDF 웹 서버용 이미지
 FROM python:3.11-slim
 
+# yt-dlp 는 YouTube 서명을 풀기 위해 JavaScript 런타임이 필요하다. 없으면 포맷을
+# 못 얻거나 다운로드가 403 으로 실패한다.  deno 가 yt-dlp 의 권장 런타임이고 기본으로
+# 켜져 있다.  (apt 의 nodejs 는 Debian bookworm 기준 18 이라 yt-dlp 의 최소 요구
+#  버전 22 에 못 미쳐 무시된다 — 실제로 이것 때문에 한 번 실패했다.)
+COPY --from=denoland/deno:bin-2.1.4 /deno /usr/local/bin/deno
+
 # ffmpeg  : yt-dlp 의 구간 다운로드(--download-sections)에 필요
 # libglib : opencv 런타임 의존성
-# nodejs  : yt-dlp 가 YouTube 서명을 풀 때 쓰는 JavaScript 런타임.
-#           없으면 포맷을 못 얻거나 다운로드가 HTTP 403 으로 실패한다.
+# ※ 저장소 루트의 Dockerfile 과 반드시 같이 고칠 것.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        ffmpeg libglib2.0-0 nodejs \
+        ffmpeg libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/* \
-    && node --version
+    && deno --version
 
 WORKDIR /app
 
