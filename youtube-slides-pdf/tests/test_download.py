@@ -304,6 +304,22 @@ class ConsoleEncodingTest(unittest.TestCase):
                 else:
                     os.environ[key] = value
 
+    def test_entry_points_protect_stdout(self):
+        """더블클릭으로 도는 진입점들은 cp949 에서 죽지 않아야 한다.
+
+        실제로 make_pdf.py 가 '✅' 를 찍다가 UnicodeEncodeError 로 죽었다.
+        진입점마다 errors="replace" 로 stdout 을 열어 두면 한 번에 막힌다.
+        """
+        root = os.path.dirname(HERE_DIR)
+        for name in ("make_pdf.py", "start_server.py", "youtube_to_pdf.py"):
+            with self.subTest(파일=name):
+                with open(os.path.join(root, name), encoding="utf-8") as f:
+                    source = f.read()
+                self.assertIn(
+                    'reconfigure(errors="replace"', source,
+                    f"{name} 이 cp949 콘솔에서 죽지 않도록 stdout 을 보호해야 합니다.",
+                )
+
     def test_all_output_goes_through_safe_print(self):
         """새로 추가되는 print 도 반드시 _safe_print 를 거쳐야 한다.
 

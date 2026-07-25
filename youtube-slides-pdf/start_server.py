@@ -155,8 +155,9 @@ def main() -> int:
     args = ap.parse_args()
 
     # 출력이 파이프로 넘어갈 때도 안내가 바로 보이도록(버퍼에 갇히지 않게).
+    # errors="replace" 는 cp949 콘솔에서 QR 블록·기호 때문에 죽지 않게 하려는 것.
     try:
-        sys.stdout.reconfigure(line_buffering=True)
+        sys.stdout.reconfigure(errors="replace", line_buffering=True)
     except Exception:
         pass
 

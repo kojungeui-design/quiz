@@ -929,6 +929,11 @@ def _console_progress(frac: float, text: str, count: int) -> None:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
+    # cp949 콘솔에서 못 쓰는 글자 때문에 죽지 않게(표시만 '?' 가 된다).
+    try:
+        sys.stdout.reconfigure(errors="replace")
+    except Exception:
+        pass
     args = parse_args(argv)
 
     url = args.url
