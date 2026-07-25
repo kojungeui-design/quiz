@@ -68,6 +68,19 @@ def size_mode_settings(mode: str):
     return SIZE_MODES.get(mode, SIZE_MODES["normal"])
 
 
+# 파일명에 쓸 수 없는 글자들(윈도우 기준이 가장 빡빡하다)
+_BAD_FILENAME_CHARS = '\\/:*?"<>|\r\n\t'
+
+
+def pdf_filename(job: dict) -> str:
+    """영상 제목으로 PDF 파일명을 만든다. 제목이 없으면 기본값."""
+    title = (job.get("title") or "").strip()
+    for ch in _BAD_FILENAME_CHARS:
+        title = title.replace(ch, " ")
+    title = " ".join(title.split())[:80].strip(" .")
+    return f"{title}.pdf" if title else "slides.pdf"
+
+
 def run_job(job_id: str, params: dict) -> None:
     job = JOBS[job_id]
     q: queue.Queue = job["queue"]
@@ -83,6 +96,7 @@ def run_job(job_id: str, params: dict) -> None:
     try:
         change, settle = sensitivity_to_thresholds(params["sensitivity"])
         max_width, quality, max_mb = size_mode_settings(params["size_mode"])
+        info: dict = {}
         slides = y2p.generate(
             params["url"],
             out_pdf,
@@ -97,9 +111,11 @@ def run_job(job_id: str, params: dict) -> None:
             max_width=max_width,
             quality=quality,
             max_mb=max_mb,
+            info=info,
             log=log,
             progress=progress,
         )
+        job["title"] = info.get("title")
         job["pdf"] = out_pdf
         job["count"] = len(slides)
         job["done_at"] = time.time()
@@ -199,7 +215,7 @@ def download_pdf(job_id: str):
     if not job or not job.get("pdf") or not os.path.exists(job["pdf"]):
         return jsonify({"error": "PDF 가 아직 준비되지 않았습니다."}), 404
     return send_file(job["pdf"], mimetype="application/pdf",
-                     as_attachment=True, download_name="slides.pdf")
+                     as_attachment=True, download_name=pdf_filename(job))
 
 
 # ---------------------------------------------------------------------------

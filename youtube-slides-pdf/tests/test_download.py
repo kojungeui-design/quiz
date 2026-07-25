@@ -76,7 +76,7 @@ class DownloadTest(unittest.TestCase):
         self._saved = {
             k: os.environ.get(k)
             for k in ("YTDLP_BIN", "YTDLP_STALL_TIMEOUT", "YTDLP_TIMEOUT",
-                      "YTDLP_NO_SECTIONS")
+                      "YTDLP_NO_SECTIONS", "YTDLP_ATTEMPTS")
         }
         self.addCleanup(self._restore_env)
 
@@ -159,6 +159,50 @@ class DownloadTest(unittest.TestCase):
         self.assertIn("영상 다운로드 실패", message)
         self.assertIn("Sign in to confirm", message)
         self.assertIn("YTDLP_COOKIES", message)
+
+    # -- 간헐적 실패 재시도 --------------------------------------------------
+    def test_retries_transient_failure(self):
+        """YouTube 는 같은 요청에도 간헐적으로 403 을 낸다 — 다시 시도해야 한다."""
+        os.environ["YTDLP_BIN"] = make_fake_ytdlp(self.tmp, """
+            import os, sys
+            args = sys.argv[1:]
+            d = os.path.dirname(args[args.index("-o") + 1])
+            counter = os.path.join(d, "attempts.txt")
+            n = 0
+            if os.path.exists(counter):
+                n = int(open(counter).read())
+            n += 1
+            open(counter, "w").write(str(n))
+            if n < 3:                       # 처음 두 번은 유튜브가 거절
+                print("ERROR: unable to download video data: HTTP Error 403: Forbidden")
+                sys.exit(1)
+            open(os.path.join(d, "video.mp4"), "wb").close()
+        """)
+        result = y2p.download_video("https://example.invalid/v", self.tmp)
+
+        self.assertTrue(result.path.endswith("video.mp4"))
+        with open(os.path.join(self.tmp, "attempts.txt")) as f:
+            self.assertEqual(f.read(), "3", "3번째 시도에서 성공해야 한다")
+
+    def test_gives_up_after_attempt_limit(self):
+        """계속 실패하면 정해진 횟수만 시도하고 원인을 알려야 한다."""
+        os.environ["YTDLP_ATTEMPTS"] = "2"
+        os.environ["YTDLP_BIN"] = make_fake_ytdlp(self.tmp, """
+            import os, sys
+            args = sys.argv[1:]
+            d = os.path.dirname(args[args.index("-o") + 1])
+            counter = os.path.join(d, "attempts.txt")
+            n = (int(open(counter).read()) if os.path.exists(counter) else 0) + 1
+            open(counter, "w").write(str(n))
+            print("ERROR: unable to download video data: HTTP Error 403: Forbidden")
+            sys.exit(1)
+        """)
+        with self.assertRaises(RuntimeError) as ctx:
+            y2p.download_video("https://example.invalid/v", self.tmp)
+
+        with open(os.path.join(self.tmp, "attempts.txt")) as f:
+            self.assertEqual(f.read(), "2")
+        self.assertIn("403", str(ctx.exception))
 
     # -- 구간 다운로드 -----------------------------------------------------
     def test_section_spec(self):

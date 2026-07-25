@@ -500,14 +500,17 @@ function inkMapFromPixels(px, EDGE_W, EDGE_H, INK_GRID){
   return out;
 }
 
+// 캡처 원본. 평소엔 파일/URL 영상이지만, 화면 공유 모드에서는 공유 스트림으로 바뀐다.
+let capSrc=video;
+
 function inkMap(){
-  edgeCtx.drawImage(video,0,0,EDGE_W,EDGE_H);
+  edgeCtx.drawImage(capSrc,0,0,EDGE_W,EDGE_H);
   return inkMapFromPixels(edgeCtx.getImageData(0,0,EDGE_W,EDGE_H).data, EDGE_W, EDGE_H, INK_GRID);
 }
 
 function frameSignature(){
-  sigCtx.drawImage(video,0,0,32,32);
-  regCtx.drawImage(video,0,0,REGION_GRID,REGION_GRID);
+  sigCtx.drawImage(capSrc,0,0,32,32);
+  regCtx.drawImage(capSrc,0,0,REGION_GRID,REGION_GRID);
   return {
     color: sigCtx.getImageData(0,0,32,32).data,
     ink: inkMap(),
@@ -568,10 +571,10 @@ document.getElementById("sizeSeg").addEventListener("click", e=>{
 
 function captureFrame(t, drawTs){
   const [MAXW, Q]=SIZE_MODES[sizeMode]||SIZE_MODES.normal;
-  let w=video.videoWidth||1280, h=video.videoHeight||720;
+  let w=capSrc.videoWidth||1280, h=capSrc.videoHeight||720;
   if(w>MAXW){ h=Math.round(h*MAXW/w); w=MAXW; }
   work.width=w; work.height=h;
-  workCtx.drawImage(video,0,0,w,h);
+  workCtx.drawImage(capSrc,0,0,w,h);
   if(drawTs){
     const label=fmtTime(t);
     workCtx.font=`bold ${Math.max(16,Math.round(h*0.045))}px sans-serif`;

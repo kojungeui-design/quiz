@@ -82,6 +82,7 @@ class Download:
     path: str
     time_offset: float = 0.0
     sectioned: bool = False
+    title: Optional[str] = None
 
 
 # yt-dlp 진행률을 파싱하기 쉬운 전용 라인으로 뽑아내기 위한 템플릿.
@@ -282,6 +283,8 @@ def download_video(
         "--socket-timeout", str(int(_env_float("YTDLP_SOCKET_TIMEOUT", 20))),
         "--newline",
         "--progress-template", _PROGRESS_TEMPLATE,
+        # 제목을 얻으려고 따로 네트워크 요청을 하지 않도록, 받는 김에 같이 저장한다.
+        "--write-info-json",
         "-o", out_tmpl,
     ]
     runtime = _js_runtime(ytdlp)
@@ -318,6 +321,62 @@ def download_video(
 
     emit(f"[1/3] 영상 다운로드 중 …  ({url})")
 
+    # YouTube 는 같은 요청에도 간헐적으로 403 을 낸다(실측: 실패 직후 3회 연속 성공).
+    # 그래서 실패하면 몇 번 다시 시도한다.  타임아웃은 이미 오래 기다린 뒤라 재시도하지 않는다.
+    attempts = max(1, int(_env_float("YTDLP_ATTEMPTS", 3)))
+    rc, tail = 1, []
+    for attempt in range(1, attempts + 1):
+        rc, tail = _run_ytdlp(cmd, emit, log, progress)
+        if rc == 0:
+            break
+        if attempt < attempts:
+            emit(f"      다운로드 실패 — 다시 시도합니다 ({attempt}/{attempts - 1})")
+            time.sleep(3)
+
+    if rc != 0:
+        err = "\n".join(tail).strip() or "(yt-dlp 가 출력을 남기지 않았습니다)"
+        if "403" in err or "JavaScript runtime" in err:
+            err += (
+                "\n\n※ YouTube 서명을 풀지 못했습니다. JavaScript 런타임이 필요합니다.\n"
+                "→ 서버에 node(또는 deno)를 설치하세요. "
+                "이미 있다면 YTDLP_JS_RUNTIME=node 로 지정할 수 있습니다.\n"
+                "→ yt-dlp 가 오래됐을 수도 있습니다: pip install -U yt-dlp"
+            )
+        if "Sign in to confirm" in err or "bot" in err.lower():
+            err += (
+                "\n\n※ YouTube 가 서버 IP 를 차단한 것 같습니다.\n" + _COOKIE_HINT
+            )
+        raise RuntimeError("영상 다운로드 실패:\n" + err)
+
+    title = None
+    info_path = os.path.join(workdir, "video.info.json")
+    if os.path.exists(info_path):
+        try:
+            with open(info_path, encoding="utf-8") as f:
+                title = (json.load(f).get("title") or "").strip() or None
+        except Exception:
+            pass
+
+    for name in sorted(os.listdir(workdir)):
+        # .part/.ytdl/.info.json 은 영상 파일이 아니므로 제외한다.
+        if name.startswith("video.") and not name.endswith(
+            (".part", ".ytdl", ".json")
+        ):
+            print(f"      완료 → {name}")
+            return Download(
+                path=os.path.join(workdir, name),
+                time_offset=time_offset,
+                sectioned=sectioned,
+                title=title,
+            )
+    raise RuntimeError("다운로드된 영상 파일을 찾을 수 없습니다.")
+
+
+def _run_ytdlp(cmd: List[str], emit, log, progress) -> Tuple[int, List[str]]:
+    """yt-dlp 를 한 번 실행하며 진행률을 보고한다. (종료코드, 마지막 출력)
+
+    출력을 한 줄씩 읽어 두 종류의 타임아웃을 감시한다.  타임아웃이면 예외를 던진다.
+    """
     proc = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
@@ -394,34 +453,11 @@ def download_video(
             elif log:
                 log(text)
 
-    if progress and last_report:  # 진행바를 100% 로 닫아 다음 단계와 겹치지 않게
+    rc = proc.wait()
+    if rc == 0 and progress and last_report:
+        # 진행바를 100% 로 닫아 다음 단계와 겹치지 않게
         progress(1.0, "다운로드 중  100.0%  ·  완료", 0)
-
-    if proc.wait() != 0:
-        err = "\n".join(tail).strip() or "(yt-dlp 가 출력을 남기지 않았습니다)"
-        if "403" in err or "JavaScript runtime" in err:
-            err += (
-                "\n\n※ YouTube 서명을 풀지 못했습니다. JavaScript 런타임이 필요합니다.\n"
-                "→ 서버에 node(또는 deno)를 설치하세요. "
-                "이미 있다면 YTDLP_JS_RUNTIME=node 로 지정할 수 있습니다.\n"
-                "→ yt-dlp 가 오래됐을 수도 있습니다: pip install -U yt-dlp"
-            )
-        if "Sign in to confirm" in err or "bot" in err.lower():
-            err += (
-                "\n\n※ YouTube 가 서버 IP 를 차단한 것 같습니다.\n" + _COOKIE_HINT
-            )
-        raise RuntimeError("영상 다운로드 실패:\n" + err)
-
-    for name in sorted(os.listdir(workdir)):
-        # .part/.ytdl 은 미완성 조각이므로 제외한다.
-        if name.startswith("video.") and not name.endswith((".part", ".ytdl")):
-            print(f"      완료 → {name}")
-            return Download(
-                path=os.path.join(workdir, name),
-                time_offset=time_offset,
-                sectioned=sectioned,
-            )
-    raise RuntimeError("다운로드된 영상 파일을 찾을 수 없습니다.")
+    return rc, tail
 
 
 # ---------------------------------------------------------------------------
@@ -739,6 +775,7 @@ def generate(
     max_width: int = 1600,
     quality: int = 80,
     max_mb: Optional[float] = None,
+    info: Optional[dict] = None,
     log=None,
     progress=None,
 ) -> List[Slide]:
@@ -763,6 +800,8 @@ def generate(
             progress=progress, start=start, end=end,
         )
         video_path = dl.path
+        if info is not None and dl.title:
+            info["title"] = dl.title      # 호출자가 PDF 파일명으로 쓸 수 있게
         if dl.sectioned:
             time_offset = dl.time_offset
             detect_start = 0.0
