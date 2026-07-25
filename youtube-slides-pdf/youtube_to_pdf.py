@@ -156,6 +156,46 @@ def _ytdlp_bin() -> Optional[List[str]]:
     return [found] if found else None
 
 
+_JS_RUNTIME_CACHE: List[Optional[str]] = []
+
+
+def _js_runtime(ytdlp: List[str]) -> Optional[str]:
+    """yt-dlp 에 넘길 JavaScript 런타임 이름. 못 찾거나 불필요하면 None.
+
+    요즘 yt-dlp 는 YouTube 의 서명을 풀기 위해 JS 런타임이 필요하다.  없으면
+    포맷을 못 얻거나 다운로드가 `HTTP Error 403: Forbidden` 으로 실패한다.
+    기본으로 켜져 있는 건 deno 뿐이라, node/bun 이 있으면 명시해 줘야 한다.
+
+    결과는 캐시한다(프로세스당 한 번만 조사).
+    """
+    if _JS_RUNTIME_CACHE:
+        return _JS_RUNTIME_CACHE[0]
+
+    found: Optional[str] = None
+    if os.environ.get("YTDLP_JS_RUNTIME"):
+        found = os.environ["YTDLP_JS_RUNTIME"]
+    else:
+        for name in ("deno", "node", "bun"):
+            if shutil.which(name):
+                found = name
+                break
+
+    # 구버전 yt-dlp 에는 --js-runtimes 가 없다.  넘기면 그대로 죽으므로 먼저 확인.
+    if found:
+        try:
+            help_text = subprocess.run(
+                ytdlp + ["--help"], capture_output=True, text=True,
+                timeout=30, encoding="utf-8", errors="replace",
+            ).stdout or ""
+            if "--js-runtimes" not in help_text:
+                found = None
+        except Exception:
+            found = None
+
+    _JS_RUNTIME_CACHE.append(found)
+    return found
+
+
 def _kill(proc: "subprocess.Popen") -> None:
     """멈춘 yt-dlp 를 확실히 정리한다(좀비 방지)."""
     try:
@@ -212,6 +252,13 @@ def download_video(
         "--progress-template", _PROGRESS_TEMPLATE,
         "-o", out_tmpl,
     ]
+    runtime = _js_runtime(ytdlp)
+    if runtime:
+        cmd += ["--js-runtimes", runtime]
+    else:
+        emit("      [주의] JavaScript 런타임(deno/node/bun)이 없어 403 으로 실패할 수 "
+             "있습니다. Dockerfile 은 nodejs 를 설치합니다.")
+
     # 클라우드 서버는 YouTube 가 IP 를 막는 경우가 많다.  쿠키 파일이 주어지면
     # (환경변수 YTDLP_COOKIES) 로그인 세션으로 우회한다.
     cookies = os.environ.get("YTDLP_COOKIES")
@@ -320,6 +367,13 @@ def download_video(
 
     if proc.wait() != 0:
         err = "\n".join(tail).strip() or "(yt-dlp 가 출력을 남기지 않았습니다)"
+        if "403" in err or "JavaScript runtime" in err:
+            err += (
+                "\n\n※ YouTube 서명을 풀지 못했습니다. JavaScript 런타임이 필요합니다.\n"
+                "→ 서버에 node(또는 deno)를 설치하세요. "
+                "이미 있다면 YTDLP_JS_RUNTIME=node 로 지정할 수 있습니다.\n"
+                "→ yt-dlp 가 오래됐을 수도 있습니다: pip install -U yt-dlp"
+            )
         if "Sign in to confirm" in err or "bot" in err.lower():
             err += (
                 "\n\n※ YouTube 가 서버 IP 를 차단한 것 같습니다.\n" + _COOKIE_HINT

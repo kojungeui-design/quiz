@@ -11,6 +11,10 @@ on:
         description: "Deployed service base URL"
         required: false
         default: "https://quiz-c53w.onrender.com"
+      seconds:
+        description: "How many seconds of the video to process (0 = whole video)"
+        required: false
+        default: "180"
 
 jobs:
   verify:
@@ -19,6 +23,8 @@ jobs:
     env:
       BASE: ${{ inputs.service_url || 'https://quiz-c53w.onrender.com' }}
       VIDEO: ${{ inputs.video_url || 'https://youtu.be/yMTQBgoR-rI' }}
+      # 구간만 받으면 다운로드가 짧아 유튜브 스로틀에 덜 걸리고 검증도 빨리 끝난다.
+      SECONDS_TO_TEST: ${{ inputs.seconds || '180' }}
     steps:
       - name: Wake service (free tier cold start)
         run: |
@@ -40,7 +46,7 @@ jobs:
         run: |
           resp=$(curl -sf -X POST "$BASE/api/jobs" \
             -H 'Content-Type: application/json' \
-            -d "{\"url\":\"$VIDEO\",\"sensitivity\":8,\"interval\":1.0,\"timestamp\":true,\"start\":0,\"end\":0}")
+            -d "{\"url\":\"$VIDEO\",\"sensitivity\":8,\"interval\":1.0,\"timestamp\":true,\"start\":0,\"end\":$SECONDS_TO_TEST,\"size_mode\":\"light\"}")
           echo "response: $resp"
           id=$(echo "$resp" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
           echo "id=$id" >> "$GITHUB_OUTPUT"
@@ -52,13 +58,27 @@ jobs:
           for i in $(seq 1 115); do
             if grep -q "^event: done" sse.log; then break; fi
             if grep -q "^event: error" sse.log; then
-              echo "❌ job reported an error:"; cat sse.log; exit 1
+              echo "❌ job reported an error:"; cat sse.log
+              if grep -q "전혀 진행되지 않아\|Sign in to confirm" sse.log; then
+                echo ""
+                echo "──────────────────────────────────────────────────────"
+                echo "YouTube 가 이 서버 IP 의 다운로드를 막고 있습니다."
+                echo "쿠키 파일을 설정하면 대부분 해결됩니다 → DEPLOY.md 3단계"
+                echo "──────────────────────────────────────────────────────"
+              fi
+              exit 1
             fi
+            # 살아 있다는 신호를 10초마다 남긴다 (다운로드 퍼센트가 여기 보인다)
+            last=$(grep '^data: ' sse.log | tail -1)
+            echo "[$((i*10))s] ${last:-(아직 진행 보고 없음)}"
             sleep 10
           done
           kill $CURL 2>/dev/null || true
           if ! grep -q "^event: done" sse.log; then
-            echo "❌ job did not finish in time; last events:"; tail -50 sse.log; exit 1
+            echo "❌ job did not finish in time; last events:"; tail -50 sse.log
+            echo
+            echo "진행 보고가 '다운로드 중 …' 에서 멈춰 있다면 유튜브 스로틀입니다 → 쿠키 설정 필요"
+            exit 1
           fi
           echo "✅ job done — event tail:"; grep -E "^(event|data)" sse.log | tail -20
 
