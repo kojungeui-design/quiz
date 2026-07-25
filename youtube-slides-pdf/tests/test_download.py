@@ -7,6 +7,7 @@
 """
 from __future__ import annotations
 
+import io
 import json
 import os
 import shutil
@@ -17,7 +18,8 @@ import time
 import unittest
 from unittest import mock
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+HERE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(HERE_DIR))
 
 import youtube_to_pdf as y2p  # noqa: E402
 
@@ -256,6 +258,80 @@ class DownloadTest(unittest.TestCase):
         self.assertIn("--socket-timeout", argv)
         self.assertIn("--newline", argv)
         self.assertIn("__DLPROG__", argv)
+
+
+class ConsoleEncodingTest(unittest.TestCase):
+    """한국어 윈도우 콘솔(cp949)에서 출력하다 죽지 않아야 한다.
+
+    cp949 에는 '—'(em dash) 같은 글자가 없다.  그냥 print 하면
+    UnicodeEncodeError 로 프로그램이 통째로 죽는다 — 실제로 다운로드 재시도
+    메시지에서 터졌고, 콘솔이 UTF-8 인 환경에서는 드러나지 않았다.
+    """
+
+    def _cp949_stdout(self):
+        return io.TextIOWrapper(io.BytesIO(), encoding="cp949", errors="strict")
+
+    def test_safe_print_survives_unsupported_characters(self):
+        original = sys.stdout
+        sys.stdout = self._cp949_stdout()
+        try:
+            y2p._safe_print("다운로드 실패 — 다시 시도합니다 … ※ → ✅")
+        finally:
+            sys.stdout = original
+
+    def test_retry_message_prints_under_cp949(self):
+        """재시도 경로 전체가 cp949 콘솔에서 살아남아야 한다."""
+        tmp = tempfile.mkdtemp(prefix="y2p_cp949_")
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        saved = os.environ.get("YTDLP_BIN"), os.environ.get("YTDLP_ATTEMPTS")
+
+        os.environ["YTDLP_ATTEMPTS"] = "2"
+        os.environ["YTDLP_BIN"] = make_fake_ytdlp(tmp, """
+            import sys
+            print("ERROR: HTTP Error 403: Forbidden")
+            sys.exit(1)
+        """)
+        original = sys.stdout
+        sys.stdout = self._cp949_stdout()
+        try:
+            with self.assertRaises(RuntimeError):
+                y2p.download_video("https://example.invalid/v", tmp)
+        finally:
+            sys.stdout = original
+            for key, value in zip(("YTDLP_BIN", "YTDLP_ATTEMPTS"), saved):
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+
+    def test_all_output_goes_through_safe_print(self):
+        """새로 추가되는 print 도 반드시 _safe_print 를 거쳐야 한다.
+
+        직접 print 하면 cp949 콘솔에서 언젠가 또 죽는다.  허용되는 예외는
+        _safe_print 구현부와, 인자 없는 print()(줄바꿈만) 뿐이다.
+        """
+        root = os.path.dirname(HERE_DIR)
+        with open(os.path.join(root, "youtube_to_pdf.py"), encoding="utf-8") as f:
+            lines = f.read().split("\n")
+
+        inside_safe_print = False
+        offenders = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("def _safe_print("):
+                inside_safe_print = True
+                continue
+            if inside_safe_print and stripped.startswith("def "):
+                inside_safe_print = False
+            if inside_safe_print or stripped == "print()":
+                continue
+            if stripped.startswith("print("):
+                offenders.append(stripped)
+
+        self.assertEqual(
+            offenders, [],
+            "_safe_print 를 거치지 않는 print 가 있습니다 (cp949 에서 죽습니다)",
+        )
 
 
 class ParseTest(unittest.TestCase):

@@ -99,6 +99,23 @@ _COOKIE_HINT = (
 )
 
 
+def _safe_print(message: str = "", file=None) -> None:
+    """콘솔이 못 쓰는 글자가 있어도 죽지 않게 출력한다.
+
+    한국어 윈도우의 기본 콘솔 인코딩은 cp949 인데, 여기에는 '—'(em dash) 같은
+    글자가 없다.  그냥 print 하면 UnicodeEncodeError 로 프로그램이 통째로 죽는다.
+    (실제로 다운로드 재시도 메시지에서 터졌다.  콘솔이 UTF-8 인 환경에서는
+     드러나지 않아서 더 위험하다.)
+    """
+    stream = file or sys.stdout
+    try:
+        print(message, file=stream)
+    except UnicodeEncodeError:
+        encoding = getattr(stream, "encoding", None) or "utf-8"
+        print(message.encode(encoding, "replace").decode(encoding, "replace"),
+              file=stream)
+
+
 def _env_float(name: str, default: float) -> float:
     """환경변수를 양수 float 으로 읽는다. 비었거나 잘못됐으면 기본값."""
     try:
@@ -220,7 +237,7 @@ def _js_runtime(ytdlp: List[str]) -> Optional[str]:
             if version is None or version >= minimum:
                 found = name       # 버전을 못 읽으면 일단 써 본다
                 break
-            print(
+            _safe_print(
                 f"      [주의] {name} {'.'.join(map(str, version))} 은 너무 낮습니다 "
                 f"(yt-dlp 는 {'.'.join(map(str, minimum))} 이상 필요). 건너뜁니다."
             )
@@ -279,7 +296,7 @@ def download_video(
         )
 
     def emit(message: str) -> None:
-        print(message)
+        _safe_print(message)
         if log:
             log(message)
 
@@ -374,7 +391,7 @@ def download_video(
         if name.startswith("video.") and not name.endswith(
             (".part", ".ytdl", ".json")
         ):
-            print(f"      완료 → {name}")
+            _safe_print(f"      완료 → {name}")
             return Download(
                 path=os.path.join(workdir, name),
                 time_offset=time_offset,
@@ -587,7 +604,7 @@ def detect_slides(
     duration = total / fps if fps else 0
     if end is None or end <= 0:
         end = duration
-    print(
+    _safe_print(
         f"[2/3] 화면 변화 감지 중 …  (길이 {fmt_timestamp(duration)}, "
         f"{interval}s 간격 샘플링)"
     )
@@ -624,7 +641,7 @@ def detect_slides(
             )
             slides.append(Slide(time_sec=abs_t, image_path=img_path))
             last_captured_sig = sig
-            print(f"      + 슬라이드 {idx:02d}  @ {fmt_timestamp(abs_t)}")
+            _safe_print(f"      + 슬라이드 {idx:02d}  @ {fmt_timestamp(abs_t)}")
 
         if progress and end > start:
             frac = min(1.0, (t - start) / (end - start))
@@ -639,7 +656,7 @@ def detect_slides(
         t += interval
 
     cap.release()
-    print(f"      감지된 슬라이드: {len(slides)}장")
+    _safe_print(f"      감지된 슬라이드: {len(slides)}장")
     return slides
 
 
@@ -740,7 +757,7 @@ def build_pdf(
         )
 
     def emit(message: str) -> None:
-        print(message)
+        _safe_print(message)
         if log:
             log(message)
 
@@ -922,7 +939,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             print()
             return 1
     if not url and not args.video:
-        print("URL 이 필요합니다.", file=sys.stderr)
+        _safe_print("URL 이 필요합니다.", file=sys.stderr)
         return 1
 
     workdir = tempfile.mkdtemp(prefix="yt2pdf_")
@@ -952,12 +969,12 @@ def main(argv: Optional[List[str]] = None) -> int:
                     s.image_path,
                     os.path.join(args.keep_images, os.path.basename(s.image_path)),
                 )
-            print(f"      이미지 보관 → {args.keep_images}")
+            _safe_print(f"      이미지 보관 → {args.keep_images}")
 
-        print("\n✅ 완료!")
+        _safe_print("\n✅ 완료!")
         return 0
     except (RuntimeError, KeyboardInterrupt) as e:
-        print(f"\n[오류] {e}", file=sys.stderr)
+        _safe_print(f"\n[오류] {e}", file=sys.stderr)
         return 1
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
