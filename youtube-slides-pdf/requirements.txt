@@ -1,3 +1,5 @@
+# yt-dlp 는 항상 최신을 쓰세요. YouTube 가 자주 바꾸기 때문에 오래되면 바로 막힙니다.
+# --js-runtimes 옵션도 최신 버전에만 있습니다(없으면 코드가 알아서 안 넘깁니다).
 yt-dlp>=2024.1.0
 opencv-python-headless>=4.8.0
 Pillow>=10.0.0
