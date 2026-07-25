@@ -197,7 +197,7 @@ def lan_ip() -> str:
 def main():
     ap = argparse.ArgumentParser(description="YouTube→슬라이드 PDF 웹 서버")
     ap.add_argument("--host", default="0.0.0.0")
-    ap.add_argument("--port", type=int, default=8000)
+    ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", 8000)))
     args = ap.parse_args()
 
     ip = lan_ip()

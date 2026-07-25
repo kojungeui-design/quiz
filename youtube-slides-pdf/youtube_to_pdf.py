@@ -92,17 +92,27 @@ def download_video(
         "--no-playlist",
         "--retries", "3",
         "-o", out_tmpl,
-        url,
     ]
+    # 클라우드 서버는 YouTube 가 IP 를 막는 경우가 많다.  쿠키 파일이 주어지면
+    # (환경변수 YTDLP_COOKIES) 로그인 세션으로 우회한다.
+    cookies = os.environ.get("YTDLP_COOKIES")
+    if cookies and os.path.exists(cookies):
+        cmd += ["--cookies", cookies]
+    cmd.append(url)
+
     msg = f"[1/3] 영상 다운로드 중 …  ({url})"
     print(msg)
     if log:
         log(msg)
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        raise RuntimeError(
-            "영상 다운로드 실패:\n" + (result.stderr or result.stdout)
-        )
+        err = (result.stderr or result.stdout or "").strip()
+        if "Sign in to confirm" in err or "bot" in err.lower():
+            err += (
+                "\n\n※ YouTube 가 서버 IP 를 차단한 것 같습니다. "
+                "쿠키 파일(YTDLP_COOKIES)을 설정하면 해결됩니다. (DEPLOY.md 참고)"
+            )
+        raise RuntimeError("영상 다운로드 실패:\n" + err)
 
     for name in os.listdir(workdir):
         if name.startswith("video."):
