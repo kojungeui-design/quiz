@@ -243,7 +243,8 @@ def main():
     print(f"  이 PC에서       : http://127.0.0.1:{args.port}")
     print(f"  같은 WiFi 휴대폰: http://{ip}:{args.port}")
     print("=" * 56)
-    if shutil.which("yt-dlp") is None:
+    # PATH 에 없어도 `python -m yt_dlp` 로 돌 수 있으므로 which 대신 이쪽으로 확인한다.
+    if y2p._ytdlp_bin() is None:
         print("  [주의] yt-dlp 가 없습니다.  pip install -r requirements.txt")
     app.run(host=args.host, port=args.port, threaded=True)
 

@@ -154,8 +154,20 @@ def _ytdlp_bin() -> Optional[List[str]]:
                 return None
             return [str(x) for x in parsed] if parsed else None
         return [override] if os.path.exists(override) else None
+
     found = shutil.which("yt-dlp")
-    return [found] if found else None
+    if found:
+        return [found]
+
+    # 윈도우에서는 pip 가 yt-dlp.exe 를 PATH 밖(Scripts 폴더)에 두는 일이 흔하다.
+    # 그럴 때도 모듈로는 멀쩡히 돌아가므로 그쪽으로 실행한다.
+    try:
+        import importlib.util
+        if importlib.util.find_spec("yt_dlp") is not None:
+            return [sys.executable, "-m", "yt_dlp"]
+    except Exception:
+        pass
+    return None
 
 
 # yt-dlp 가 요구하는 최소 버전 (https://github.com/yt-dlp/yt-dlp/wiki/EJS).
