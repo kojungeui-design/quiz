@@ -164,10 +164,11 @@ const yurl=$("yurl"), loadBtn=$("load"), urlStatus=$("urlStatus"),
 let videoURL=null, slides=[], busy=false, srcTitle=null;
 
 // ==========================================================================
-//  YouTube 주소 → 재생 가능한 스트림  (공개 Piped 인스턴스 자동 순회)
+//  YouTube 주소 → 재생 가능한 스트림  (공개 우회망 자동 순회)
 //  브라우저 단독으론 YouTube 픽셀을 못 읽지만, CORS 를 열어둔 공개 프록시
-//  (Piped)의 스트림은 읽을 수 있다.  인스턴스는 자주 죽으므로 목록을
-//  동적으로 갱신하고 순서대로 시도한다.
+//  (Piped / Invidious)의 스트림은 읽을 수 있다.  인스턴스는 자주 죽으므로:
+//   - 내장 목록 + GitHub 공식 문서(raw, CORS 항상 허용)에서 최신 목록 보강
+//   - 전 인스턴스를 병렬로 확인해 응답하는 곳부터 시도
 // ==========================================================================
 const PIPED_INSTANCES = window.PIPED_INSTANCES_OVERRIDE || [
   "https://pipedapi.kavin.rocks",
@@ -181,7 +182,21 @@ const PIPED_INSTANCES = window.PIPED_INSTANCES_OVERRIDE || [
   "https://pipedapi.darkness.services",
   "https://pipedapi.leptons.xyz",
 ];
+const INVIDIOUS_INSTANCES = window.INVIDIOUS_INSTANCES_OVERRIDE || [
+  "https://inv.nadeko.net",
+  "https://invidious.nerdvpn.de",
+  "https://inv.thepixora.com",
+  "https://invidious.private.coffee",
+  "https://yewtu.be",
+  "https://yt.artemislena.eu",
+  "https://invidious.f5.si",
+  "https://iv.melmac.space",
+];
 const INSTANCE_DIRECTORY = "https://piped-instances.kavin.rocks/";
+const PIPED_DOCS =
+  "https://raw.githubusercontent.com/TeamPiped/documentation/main/content/docs/public-instances/index.md";
+const INVIDIOUS_DOCS =
+  "https://raw.githubusercontent.com/iv-org/documentation/master/docs/instances.md";
 
 function parseYouTubeId(u){
   try{
@@ -204,24 +219,71 @@ function fetchTO(url, ms, opts){
   return fetch(url, {...opts, signal:c.signal}).finally(()=>clearTimeout(t));
 }
 
-async function instanceList(){
-  let list=PIPED_INSTANCES.slice();
-  try{                                    // 살아있는 목록을 동적으로 받아 앞에 배치
-    const r=await fetchTO(INSTANCE_DIRECTORY, 4000);
-    const dir=await r.json();
-    const fresh=dir.map(d=>d.api_url).filter(Boolean);
-    list=[...new Set([...fresh, ...list])];
-  }catch(e){ /* 디렉터리가 죽어도 내장 목록으로 진행 */ }
-  return list;
+async function instanceLists(){
+  // 어떤 소스가 죽어도 나머지로 진행한다.  세 소스를 동시에 시도.
+  let piped=PIPED_INSTANCES.slice(), invid=INVIDIOUS_INSTANCES.slice();
+  const jobs=[
+    fetchTO(INSTANCE_DIRECTORY,4000).then(r=>r.json()).then(dir=>{
+      piped=[...new Set([...dir.map(d=>d.api_url).filter(Boolean), ...piped])];
+    }),
+    fetchTO(PIPED_DOCS,5000).then(r=>r.text()).then(md=>{
+      const found=[...md.matchAll(/https:\/\/[a-z0-9.-]+\.[a-z]{2,}/gi)]
+        .map(m=>m[0]).filter(u=>{try{return /api/.test(new URL(u).hostname)}catch(e){return false}});
+      piped=[...new Set([...piped, ...found])];
+    }),
+    fetchTO(INVIDIOUS_DOCS,5000).then(r=>r.text()).then(md=>{
+      const bad=/github|invidious\.io|matrix|libera|liberapay|paypal|patreon|ko-?fi|status|uptime|toot|mastodon/i;
+      const found=[...md.matchAll(/https:\/\/[a-z0-9.-]+\.[a-z]{2,}/gi)]
+        .map(m=>m[0]).filter(u=>!bad.test(u));
+      invid=[...new Set([...invid, ...found])];
+    }),
+  ];
+  await Promise.allSettled(jobs);
+  return {piped:piped.slice(0,20), invid:invid.slice(0,15)};
 }
 
-function pickStreams(j){
+const hostOf=u=>{try{return new URL(u).hostname}catch(e){return u}};
+const qNum=q=>parseInt(q)||0;
+
+function pickPiped(j){
   // 진행형(오디오 포함) mp4 우선, 다음 videoOnly mp4/webm — 720p 이하 중 최고화질
-  const ok=(j.videoStreams||[]).filter(s=>s.url && /mp4|webm/i.test(s.mimeType||s.format||""));
-  const ph=s=>parseInt(s.quality)||0;
-  const prog=ok.filter(s=>!s.videoOnly && ph(s)<=720).sort((a,b)=>ph(b)-ph(a));
-  const vonly=ok.filter(s=>s.videoOnly && ph(s)<=720).sort((a,b)=>ph(b)-ph(a));
+  const ok=(j.videoStreams||[]).filter(s=>s.url && /mp4|webm/i.test(s.mimeType||s.format||""))
+    .map(s=>({url:s.url, quality:s.quality||"", videoOnly:!!s.videoOnly}));
+  const prog=ok.filter(s=>!s.videoOnly && qNum(s.quality)<=720).sort((a,b)=>qNum(b.quality)-qNum(a.quality));
+  const vonly=ok.filter(s=>s.videoOnly && qNum(s.quality)<=720).sort((a,b)=>qNum(b.quality)-qNum(a.quality));
   return [...prog, ...vonly].slice(0,3);
+}
+
+function pickInvidious(j, base){
+  const abs=u=>{try{return new URL(u, base).href}catch(e){return u}};
+  const prog=(j.formatStreams||[]).filter(s=>s.url)
+    .map(s=>({url:abs(s.url), quality:s.qualityLabel||s.resolution||""}))
+    .sort((a,b)=>qNum(b.quality)-qNum(a.quality));
+  const ad=(j.adaptiveFormats||[]).filter(s=>s.url && /^video\/(mp4|webm)/.test(s.type||"") && qNum(s.qualityLabel)<=720)
+    .map(s=>({url:abs(s.url), quality:s.qualityLabel||""}))
+    .sort((a,b)=>qNum(b.quality)-qNum(a.quality));
+  return [...prog, ...ad].slice(0,3);
+}
+
+async function probePiped(api, id){
+  const r=await fetchTO(`${api}/streams/${id}`, 7000);
+  if(!r.ok) throw 0;
+  const j=await r.json();
+  if(j.error || !j.videoStreams) throw 0;
+  const candidates=pickPiped(j);
+  if(!candidates.length) throw 0;
+  return {host:hostOf(api), title:j.title, candidates};
+}
+
+async function probeInvidious(base, id){
+  // local=true: 스트림 URL 을 인스턴스 프록시 경유로 재작성 → CORS 가능성 확보
+  const r=await fetchTO(`${base}/api/v1/videos/${id}?local=true`, 7000);
+  if(!r.ok) throw 0;
+  const j=await r.json();
+  if(j.error || !(j.formatStreams||j.adaptiveFormats)) throw 0;
+  const candidates=pickInvidious(j, base);
+  if(!candidates.length) throw 0;
+  return {host:hostOf(base), title:j.title, candidates};
 }
 
 const MAX_DOWNLOAD = 1500 * 1024 * 1024;   // 1.5GB 안전 상한
@@ -263,33 +325,51 @@ function loadIntoVideo(objUrl){
 async function loadFromYouTube(rawUrl){
   const id=parseYouTubeId(rawUrl);
   if(!id) throw new Error("유튜브 주소 형식이 아니에요.");
-  urlStatus.textContent="우회 서버 목록 확인 중…";
-  const list=await instanceList();
-  for(const api of list){
-    const host=api.replace(/^https?:\/\//,"");
-    urlStatus.textContent=`시도 중: ${host} …`;
-    let j;
-    try{
-      const r=await fetchTO(`${api}/streams/${id}`, 8000);
-      if(!r.ok) throw 0;
-      j=await r.json();
-      if(j.error) throw 0;
-    }catch(e){ continue; }               // 이 인스턴스 실패 → 다음
-    for(const s of pickStreams(j)){
+
+  urlStatus.textContent="우회 서버 목록 갱신 중…";
+  const {piped, invid}=await instanceLists();
+  const total=piped.length+invid.length;
+
+  // 1단계: 전 인스턴스 병렬 확인 (가벼운 JSON 조회만)
+  let done=0; const okResults=[];
+  const track=p=>p.then(r=>{ okResults.push(r); }).catch(()=>{}).finally(()=>{
+    done++;
+    urlStatus.textContent=`우회 서버 확인 중 … ${done}/${total} (응답 ${okResults.length}곳)`;
+  });
+  await Promise.all([
+    ...piped.map(a=>track(probePiped(a, id))),
+    ...invid.map(a=>track(probeInvidious(a, id))),
+  ]);
+
+  if(!okResults.length){
+    throw new Error(
+      `우회 서버 ${total}곳을 확인했지만 모두 응답이 없어요. `
+      +"잠시 후 다시 시도하거나, 영상을 파일로 저장해 아래에서 선택해 주세요."
+    );
+  }
+
+  // 2단계: 응답한 곳부터 순서대로 실제 영상 다운로드 시도
+  let tries=0;
+  for(const res of okResults){
+    for(const s of res.candidates){
+      tries++;
       try{
-        const objUrl=await downloadStream(s.url,(got,total)=>{
+        const objUrl=await downloadStream(s.url,(got,tot)=>{
           const mb=(got/1048576).toFixed(1);
-          const pct=total? ` (${Math.round(got/total*100)}%)` : "";
-          urlStatus.textContent=`영상 받는 중 ${mb}MB${pct} — ${host}, ${s.quality||""}`;
+          const pct=tot? ` (${Math.round(got/tot*100)}%)` : "";
+          urlStatus.textContent=`영상 받는 중 ${mb}MB${pct} — ${res.host}, ${s.quality||""}`;
         });
         await loadIntoVideo(objUrl);
         if(videoURL) URL.revokeObjectURL(videoURL);
         videoURL=objUrl;
-        return {title:j.title||id, instance:host};
+        return {title:res.title||id, instance:res.host};
       }catch(e){ /* 다음 스트림/인스턴스 */ }
     }
   }
-  throw new Error("모든 우회 서버가 응답하지 않아요. 영상을 파일로 저장해 아래에서 선택해 주세요.");
+  throw new Error(
+    `서버 ${okResults.length}곳이 응답했지만 영상 다운로드가 모두 차단됐어요(${tries}회 시도). `
+    +"영상을 파일로 저장해 아래에서 선택해 주세요."
+  );
 }
 
 // ---- 슬라이더 표시 --------------------------------------------------------
