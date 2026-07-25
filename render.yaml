@@ -1,0 +1,16 @@
+# Render(무료 호스팅) 블루프린트.
+# 사용법: Render 대시보드 → New → Blueprint → 이 저장소 선택.
+# (또는 New → Web Service 로 만들고 Root Directory 를 youtube-slides-pdf 로 지정)
+services:
+  - type: web
+    name: youtube-slides-pdf
+    runtime: docker
+    rootDir: youtube-slides-pdf
+    dockerfilePath: ./Dockerfile
+    plan: free
+    autoDeploy: true
+    envVars:
+      # YouTube 봇 차단 우회용 쿠키 파일 경로(선택).  DEPLOY.md 참고.
+      # 값은 Render 의 Secret Files 로 올린 파일 경로를 넣으세요.
+      - key: YTDLP_COOKIES
+        sync: false
