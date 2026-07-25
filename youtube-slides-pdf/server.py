@@ -55,6 +55,19 @@ def sensitivity_to_thresholds(sensitivity: float):
     return change, settle
 
 
+# UI 의 'PDF 용량' 선택지 → (가로폭 px, JPEG 화질, 목표 용량 MB)
+# 강의 슬라이드는 글자만 읽히면 되므로 기본값도 꽤 과감하게 줄여 둔다.
+SIZE_MODES = {
+    "light":  (1100, 62, 5.0),
+    "normal": (1600, 80, 15.0),
+    "sharp":  (1920, 90, None),
+}
+
+
+def size_mode_settings(mode: str):
+    return SIZE_MODES.get(mode, SIZE_MODES["normal"])
+
+
 def run_job(job_id: str, params: dict) -> None:
     job = JOBS[job_id]
     q: queue.Queue = job["queue"]
@@ -69,6 +82,7 @@ def run_job(job_id: str, params: dict) -> None:
 
     try:
         change, settle = sensitivity_to_thresholds(params["sensitivity"])
+        max_width, quality, max_mb = size_mode_settings(params["size_mode"])
         slides = y2p.generate(
             params["url"],
             out_pdf,
@@ -80,13 +94,17 @@ def run_job(job_id: str, params: dict) -> None:
             start=params["start"],
             end=params["end"] or None,
             add_timestamp=params["timestamp"],
+            max_width=max_width,
+            quality=quality,
+            max_mb=max_mb,
             log=log,
             progress=progress,
         )
         job["pdf"] = out_pdf
         job["count"] = len(slides)
         job["done_at"] = time.time()
-        q.put(("done", json.dumps({"count": len(slides)})))
+        size_mb = round(os.path.getsize(out_pdf) / (1024 * 1024), 1)
+        q.put(("done", json.dumps({"count": len(slides), "mb": size_mb})))
     except Exception as e:  # noqa: BLE001  사용자에게 원인 전달
         job["error"] = str(e)
         q.put(("error", str(e)))
@@ -127,6 +145,7 @@ def create_job():
         "timestamp": bool(data.get("timestamp", True)),
         "start": max(0.0, float(data.get("start", 0) or 0)),
         "end": float(data.get("end", 0) or 0),
+        "size_mode": str(data.get("size_mode") or "normal"),
     }
 
     job_id = uuid.uuid4().hex[:12]

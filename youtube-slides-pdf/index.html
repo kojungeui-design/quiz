@@ -49,6 +49,12 @@
   .fld input{background:var(--bg); border:1px solid var(--line); border-radius:8px; color:var(--text); padding:8px; font-size:.9rem}
   .chk{display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--text); margin-top:6px}
   .chk input{width:18px; height:18px; accent-color:var(--accent)}
+  .seg{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:4px}
+  .seg button{margin:0; width:auto; padding:10px 6px; font-size:.85rem; font-weight:600; line-height:1.25;
+    color:var(--text); background:var(--card2); border:1px solid var(--line); border-radius:12px; cursor:pointer}
+  .seg button small{display:block; font-size:.68rem; font-weight:400; color:var(--muted); margin-top:2px}
+  .seg button.on{color:#04121f; background:linear-gradient(180deg,var(--accent),var(--accent2)); border-color:transparent}
+  .seg button.on small{color:#0b3b56}
 
   button{
     width:100%; border:none; border-radius:12px; padding:14px; font-size:1rem; font-weight:700;
@@ -121,6 +127,16 @@
     </div>
     <input type="range" id="iv" min="0.3" max="3" step="0.1" value="1">
     <div class="sub">간격이 짧을수록 꼼꼼하지만 처리 시간이 늘어요</div>
+
+    <div class="row" style="margin-top:18px">
+      <span class="lab">PDF 용량</span>
+    </div>
+    <div class="seg" id="sizeSeg">
+      <button type="button" data-v="light">가볍게<small>글자 위주</small></button>
+      <button type="button" data-v="normal" class="on">보통<small>권장</small></button>
+      <button type="button" data-v="sharp">선명하게<small>용량 큼</small></button>
+    </div>
+    <div class="sub">가볍게로 두면 PDF 가 대략 절반 이하로 줄어요</div>
 
     <details class="adv">
       <summary>고급 옵션</summary>
@@ -438,22 +454,120 @@ function waitMeta(){
   });
 }
 
-// ---- 지문 계산 (축소 컬러 썸네일의 평균 절대차, 0~100) ---------------------
+// ---- 지문 계산 (0~100) -----------------------------------------------------
+// 한 채널만으로는 강의 화면을 못 가린다.
+//   color  : 32x32 컬러. 배경·테마가 통째로 바뀌는 전환에 강하다. 하지만 흰 배경에
+//            글자만 바뀌는 전환은 32x32 로 줄이는 순간 글자가 묻혀 전혀 못 잡는다.
+//   ink    : 96x96 윤곽 밀도. 글자·코드가 바뀌면 '잉크가 있는 칸'의 분포가 달라진다.
+//            잉크가 옅은 칸은 세지 않아 압축 잡음에 흔들리지 않는다.
+//   region : 64x64 컬러. 막대그래프·사진처럼 넓은 면이 바뀌는 경우를 잡되, 변화가
+//            화면 전체에 퍼져 있는지를 함께 따져 구석의 발표자 오버레이와 구분한다.
+// (파이썬판 youtube_to_pdf.py 의 frame_signature/signature_diff 와 같은 규칙.
+//  다만 여기서는 캔버스로 먼저 축소한 뒤 윤곽을 구하므로 잉크 값의 크기가 달라서
+//  INK_FLOOR/REL/SCALE 은 브라우저 파이프라인 기준으로 따로 실측해 맞췄다.
+//  파이썬 값을 그대로 가져오면 발표자 움직임·압축 잡음을 전환으로 오해한다.)
+const INK_GRID=96, INK_FLOOR=40, INK_REL=0.45, INK_SCALE=3.6;
+const REGION_GRID=64, REGION_DELTA=12, REGION_SCALE=26;
+
 const sigCtx=sig.getContext("2d",{willReadFrequently:true});
+const inkCv=document.createElement("canvas"); inkCv.width=inkCv.height=INK_GRID;
+const inkCtx=inkCv.getContext("2d",{willReadFrequently:true});
+const regCv=document.createElement("canvas"); regCv.width=regCv.height=REGION_GRID;
+const regCtx=regCv.getContext("2d",{willReadFrequently:true});
+// 윤곽 계산용: 그리드보다 조금 크게 받아서 라플라시안을 구한 뒤 칸 단위로 평균낸다.
+const EDGE_W=INK_GRID*4, EDGE_H=INK_GRID*4;
+const edgeCv=document.createElement("canvas"); edgeCv.width=EDGE_W; edgeCv.height=EDGE_H;
+const edgeCtx=edgeCv.getContext("2d",{willReadFrequently:true});
+
+// 순수 함수로 떼어 둔다 — tests/test_browser_detection.py 가 이 함수를 그대로
+// 뽑아 파이썬판과 같은 슬라이드로 검증한다. 캔버스/DOM 을 참조하지 말 것.
+function inkMapFromPixels(px, EDGE_W, EDGE_H, INK_GRID){
+  const gray=new Float32Array(EDGE_W*EDGE_H);
+  for(let i=0,j=0;i<px.length;i+=4,j++) gray[j]=(px[i]*0.299+px[i+1]*0.587+px[i+2]*0.114);
+
+  // 4-이웃 라플라시안의 절댓값을 칸별로 합산 → 평균
+  const cell=EDGE_W/INK_GRID, out=new Float32Array(INK_GRID*INK_GRID), cnt=new Float32Array(INK_GRID*INK_GRID);
+  for(let y=1;y<EDGE_H-1;y++){
+    const gy=(y/cell)|0;
+    for(let x=1;x<EDGE_W-1;x++){
+      const i=y*EDGE_W+x;
+      const lap=Math.abs(4*gray[i]-gray[i-1]-gray[i+1]-gray[i-EDGE_W]-gray[i+EDGE_W]);
+      const k=gy*INK_GRID+((x/cell)|0);
+      out[k]+=lap; cnt[k]++;
+    }
+  }
+  for(let k=0;k<out.length;k++) out[k]=cnt[k]?out[k]/cnt[k]:0;
+  return out;
+}
+
+function inkMap(){
+  edgeCtx.drawImage(video,0,0,EDGE_W,EDGE_H);
+  return inkMapFromPixels(edgeCtx.getImageData(0,0,EDGE_W,EDGE_H).data, EDGE_W, EDGE_H, INK_GRID);
+}
+
 function frameSignature(){
   sigCtx.drawImage(video,0,0,32,32);
-  return sigCtx.getImageData(0,0,32,32).data; // RGBA
+  regCtx.drawImage(video,0,0,REGION_GRID,REGION_GRID);
+  return {
+    color: sigCtx.getImageData(0,0,32,32).data,
+    ink: inkMap(),
+    region: regCtx.getImageData(0,0,REGION_GRID,REGION_GRID).data
+  };
 }
+
 function sigDiff(a,b){
+  // 1) 컬러 썸네일 평균 절대차
   let sum=0,n=0;
-  for(let i=0;i<a.length;i+=4){ sum+=Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]); n+=3; }
-  return sum/n/255*100;
+  for(let i=0;i<a.color.length;i+=4){
+    sum+=Math.abs(a.color[i]-b.color[i])+Math.abs(a.color[i+1]-b.color[i+1])+Math.abs(a.color[i+2]-b.color[i+2]);
+    n+=3;
+  }
+  const color=sum/n/255*100;
+
+  // 2) 잉크가 실질적으로 바뀐 칸의 비율
+  let inkChanged=0;
+  for(let k=0;k<a.ink.length;k++){
+    const scale=Math.max(a.ink[k], b.ink[k], INK_FLOOR);
+    if(Math.abs(a.ink[k]-b.ink[k])/scale > INK_REL) inkChanged++;
+  }
+  const ink=inkChanged/a.ink.length*100*INK_SCALE;
+
+  // 3) 넓은 면의 색이 바뀐 칸의 비율 × 그 변화가 퍼진 정도
+  const rows=new Uint8Array(REGION_GRID), cols=new Uint8Array(REGION_GRID);
+  let regChanged=0;
+  for(let y=0;y<REGION_GRID;y++){
+    for(let x=0;x<REGION_GRID;x++){
+      const i=(y*REGION_GRID+x)*4;
+      const d=(Math.abs(a.region[i]-b.region[i])+Math.abs(a.region[i+1]-b.region[i+1])+Math.abs(a.region[i+2]-b.region[i+2]))/3;
+      if(d>REGION_DELTA){ regChanged++; rows[y]=1; cols[x]=1; }
+    }
+  }
+  let region=0;
+  if(regChanged){
+    let nr=0,nc=0;
+    for(let i=0;i<REGION_GRID;i++){ nr+=rows[i]; nc+=cols[i]; }
+    const spread=(nr/REGION_GRID)*(nc/REGION_GRID);
+    region=regChanged/(REGION_GRID*REGION_GRID)*spread*100*REGION_SCALE;
+  }
+
+  return Math.min(100, Math.max(color, ink, region));
 }
 
 // ---- 전체 프레임 캡처 → JPEG dataURL --------------------------------------
 const workCtx=work.getContext("2d");
+
+// PDF 용량 선택 → (가로폭 px, JPEG 화질).  강의 슬라이드는 글자만 읽히면 되므로
+// '가볍게' 를 꽤 과감하게 잡아도 실사용에 지장이 없다.
+const SIZE_MODES={ light:[1000,0.62], normal:[1280,0.82], sharp:[1600,0.92] };
+let sizeMode="normal";
+document.getElementById("sizeSeg").addEventListener("click", e=>{
+  const b=e.target.closest("button[data-v]"); if(!b) return;
+  sizeMode=b.dataset.v;
+  for(const el of b.parentElement.children) el.classList.toggle("on", el===b);
+});
+
 function captureFrame(t, drawTs){
-  const MAXW=1280;
+  const [MAXW, Q]=SIZE_MODES[sizeMode]||SIZE_MODES.normal;
   let w=video.videoWidth||1280, h=video.videoHeight||720;
   if(w>MAXW){ h=Math.round(h*MAXW/w); w=MAXW; }
   work.width=w; work.height=h;
@@ -468,7 +582,7 @@ function captureFrame(t, drawTs){
     workCtx.fillStyle="#fff"; workCtx.textBaseline="top";
     workCtx.fillText(label, x+pad, y+pad);
   }
-  return work.toDataURL("image/jpeg",0.88);
+  return work.toDataURL("image/jpeg",Q);
 }
 
 // ---- 메인 처리 ------------------------------------------------------------
