@@ -9,15 +9,22 @@ BTS-600 이 export 한 CSV 를 **사용자님이 손으로 만들던 "○○ - �
 
 ## 실행 방법
 
+### ⭐ 무설치(권장) — 파이썬 없이, AutoIt + Excel 만으로
+그 PC에 이미 있는 **AutoIt(자동추출용)과 Excel** 로 동작한다. 파이썬 설치 불필요.
 - **가장 쉬움**: `make_report.bat` 에 CSV 파일을 마우스로 **끌어다 놓기**
-  → 같은 폴더에 `파일이름 - 표시.xlsx` 생성
+  → AutoIt 이 CSV 를 읽어 표시할 행을 계산 → Excel 이 그 행을 노랗게 칠하고
+  같은 폴더에 `파일이름 - 표시.xlsx` 저장
 - **폴더 통째로**: `make_report.bat` 더블클릭 → `E:\bts_csv` 안 모든 CSV 처리
-- **명령창**:
-  ```
-  python make_display_report.py  파일.csv
-  python make_display_report.py  E:\bts_csv          (폴더 전체)
-  python make_display_report.py  수명시험.csv --cyc 5  (N사이클 간격 표시)
-  ```
+- 파일: `make_report.au3`(핵심), `make_report.bat`(실행 래퍼)
+- ※ Excel 이 설치되어 있어야 함(리포트를 여는 그 엑셀).
+
+### (선택) 파이썬 버전 — 별도 PC/서버에서 대량 처리할 때
+```
+python make_display_report.py  파일.csv
+python make_display_report.py  E:\bts_csv          (폴더 전체)
+python make_display_report.py  수명시험.csv --cyc 5  (N사이클 간격 표시)
+```
+표시 규칙·결과는 무설치 버전과 동일(Excel 없이 openpyxl 로 생성).
 
 ## 표시(노란색) 규칙
 

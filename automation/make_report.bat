@@ -1,44 +1,25 @@
 @echo off
 setlocal
 rem ============================================================
-rem  Make "display" Excel report from BTS-600 CSV
+rem  Make "display" Excel report from BTS-600 CSV  (NO Python)
+rem  Uses AutoIt + Excel (both already on this PC).
 rem  - Drag a CSV file onto this .bat, OR
 rem  - Double-click to process every CSV in E:\bts_csv
 rem ============================================================
 
-set "PY=python"
-if exist "%~dp0python\python.exe" set "PY=%~dp0python\python.exe"
-set "SCRIPT=%~dp0make_display_report.py"
+set "AUTOIT=C:\Program Files (x86)\AutoIt3\AutoIt3.exe"
+if not exist "%AUTOIT%" set "AUTOIT=C:\Program Files\AutoIt3\AutoIt3.exe"
+if not exist "%AUTOIT%" goto noau
 
-rem --- check Python is available ---
-%PY% --version >nul 2>&1
-if errorlevel 1 goto nopy
-
-if "%~1"=="" goto folder
-
-rem --- files were dragged onto this bat ---
-:loop
-echo Processing "%~1"
-%PY% "%SCRIPT%" "%~1"
-shift
-if not "%~1"=="" goto loop
+"%AUTOIT%" "%~dp0make_report.au3" %*
 goto done
 
-rem --- no file dragged: process the whole folder ---
-:folder
-echo Processing folder E:\bts_csv
-%PY% "%SCRIPT%" "E:\bts_csv"
-goto done
-
-:nopy
+:noau
 echo.
-echo [ERROR] Python was not found on this PC.
-echo Please install Python 3 and run:  pip install openpyxl
-echo (or ask your administrator)
+echo [ERROR] AutoIt not found. Please install AutoIt3
+echo (same tool used for auto-export).
 echo.
+pause
 
 :done
-echo.
-echo Done. Press any key to close.
-pause >nul
 endlocal
