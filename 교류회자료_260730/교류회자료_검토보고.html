@@ -1,0 +1,897 @@
+<title>기술/영업 교류회 자료 검토 — 2026.07.30</title>
+<style>
+:root{
+  --paper:#F7F8F9; --card:#FFFFFF; --card-2:#F0F3F6;
+  --ink:#14202A; --ink-2:#5A6B78; --ink-3:#8496A3;
+  --line:#DDE3E8; --rule:#C6D0D8;
+  --brand:#17485F; --brand-2:#2C6B87;
+  --copper:#A2542A; --copper-soft:#FAF0E8;
+  --hi:#9E2B25; --hi-bg:#FBEAE7;
+  --mid:#8A6012; --mid-bg:#FAF2E0;
+  --low:#4E6273; --low-bg:#EDF1F4;
+  --ok:#2A6B4F;  --ok-bg:#E6F2EC;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"D2Coding","Malgun Gothic",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#0E161D; --card:#16212B; --card-2:#1C2833;
+    --ink:#E4EAEF; --ink-2:#92A3B0; --ink-3:#6E808D;
+    --line:#2A3945; --rule:#3A4B58;
+    --brand:#6FADC8; --brand-2:#8CC2D9;
+    --copper:#D9915E; --copper-soft:#33241A;
+    --hi:#E88F86; --hi-bg:#36211F;
+    --mid:#DDB463; --mid-bg:#332B18;
+    --low:#9FB2C0; --low-bg:#1D2831;
+    --ok:#6BC49B;  --ok-bg:#172C24;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E161D; --card:#16212B; --card-2:#1C2833;
+  --ink:#E4EAEF; --ink-2:#92A3B0; --ink-3:#6E808D;
+  --line:#2A3945; --rule:#3A4B58;
+  --brand:#6FADC8; --brand-2:#8CC2D9;
+  --copper:#D9915E; --copper-soft:#33241A;
+  --hi:#E88F86; --hi-bg:#36211F;
+  --mid:#DDB463; --mid-bg:#332B18;
+  --low:#9FB2C0; --low-bg:#1D2831;
+  --ok:#6BC49B;  --ok-bg:#172C24;
+}
+:root[data-theme="light"]{
+  --paper:#F7F8F9; --card:#FFFFFF; --card-2:#F0F3F6;
+  --ink:#14202A; --ink-2:#5A6B78; --ink-3:#8496A3;
+  --line:#DDE3E8; --rule:#C6D0D8;
+  --brand:#17485F; --brand-2:#2C6B87;
+  --copper:#A2542A; --copper-soft:#FAF0E8;
+  --hi:#9E2B25; --hi-bg:#FBEAE7;
+  --mid:#8A6012; --mid-bg:#FAF2E0;
+  --low:#4E6273; --low-bg:#EDF1F4;
+  --ok:#2A6B4F;  --ok-bg:#E6F2EC;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans);
+  line-height:1.62; font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:44px 24px 96px;}
+
+/* ---- masthead ---- */
+.masthead{border-bottom:2px solid var(--rule); padding-bottom:26px; margin-bottom:38px;}
+.kicker{font-size:12px; font-weight:700; letter-spacing:.14em; color:var(--copper); margin-bottom:12px;}
+h1{margin:0 0 14px; font-size:clamp(25px,3.6vw,34px); font-weight:800; letter-spacing:-0.02em; color:var(--brand); text-wrap:balance;}
+.byline{display:flex; flex-wrap:wrap; gap:6px 20px; font-size:13.5px; color:var(--ink-2);}
+.byline b{color:var(--ink); font-weight:650;}
+.abstract{margin:18px 0 0; max-width:70ch; font-size:14.5px; color:var(--ink-2);}
+.abstract b{color:var(--ink);}
+.caveat{
+  margin-top:16px; font-size:12.5px; color:var(--ink-2); background:var(--card-2);
+  border-radius:7px; padding:11px 14px; max-width:76ch;
+}
+
+/* ---- tally ---- */
+.tally{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
+  border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:26px 0 0;}
+@media(max-width:620px){.tally{grid-template-columns:repeat(2,1fr);}}
+.tally div{background:var(--card); padding:15px 16px;}
+.tally .n{font-size:29px; font-weight:800; letter-spacing:-0.03em; line-height:1.1;}
+.tally .l{font-size:12px; color:var(--ink-2); margin-top:3px; font-weight:600;}
+.tally .n.hi{color:var(--hi);} .tally .n.mid{color:var(--mid);} .tally .n.low{color:var(--low);}
+
+/* ---- sections ---- */
+section{margin-top:56px;}
+.sec-head{display:flex; align-items:center; gap:11px; margin-bottom:7px; flex-wrap:wrap;}
+.sec-mark{font-family:var(--mono); font-size:12px; font-weight:700; color:var(--card);
+  background:var(--brand); padding:3px 8px; border-radius:4px; letter-spacing:.04em;}
+h2{margin:0; font-size:20.5px; font-weight:800; letter-spacing:-0.015em;}
+.sec-note{margin:0 0 24px; font-size:14px; color:var(--ink-2); max-width:74ch;}
+
+/* ---- finding card ---- */
+.finding{background:var(--card); border:1px solid var(--line); border-radius:11px;
+  padding:19px 21px 21px; margin-bottom:15px;}
+.f-top{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:9px;}
+.f-id{font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--ink-3); letter-spacing:.04em;}
+.sev{font-size:11px; font-weight:800; padding:3px 9px; border-radius:4px; letter-spacing:.03em;}
+.sev.hi{color:var(--hi); background:var(--hi-bg);}
+.sev.mid{color:var(--mid); background:var(--mid-bg);}
+.sev.low{color:var(--low); background:var(--low-bg);}
+.f-loc{font-family:var(--mono); font-size:11.5px; color:var(--ink-3); margin-left:auto;}
+.f-title{margin:0 0 10px; font-size:16.5px; font-weight:750; letter-spacing:-0.012em;}
+.f-title span{color:var(--brand-2); font-weight:800; margin-right:7px;}
+.f-claim{font-size:14px; color:var(--ink); margin:0 0 15px; padding-left:13px;
+  border-left:2px solid var(--copper); max-width:80ch;}
+
+.panels{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+@media(max-width:740px){.panels{grid-template-columns:1fr;}}
+.panel{background:var(--card-2); border-radius:8px; padding:12px 14px 13px; min-width:0;}
+.p-src{font-size:10.5px; font-weight:750; letter-spacing:.06em; color:var(--ink-2);
+  margin-bottom:8px; display:flex; align-items:center; gap:7px;}
+.p-src .tag{font-family:var(--mono); font-size:10px; font-weight:700; color:var(--brand);
+  background:var(--card); border:1px solid var(--line); padding:1px 6px; border-radius:3px; letter-spacing:0;}
+.q{font-family:var(--mono); font-size:12.5px; line-height:1.72; margin:0; white-space:pre-wrap;
+  word-break:break-word; color:var(--ink);}
+.q mark{background:var(--hi-bg); color:var(--hi); font-weight:700; padding:0 3px; border-radius:3px;}
+.q em{font-style:normal; color:var(--ink-3);}
+
+/* ---- gantt strip ---- */
+.gantt-box{margin-top:12px; background:var(--card-2); border-radius:8px; padding:12px 14px 14px; overflow-x:auto;}
+.gantt-cap{font-size:10.5px; font-weight:750; letter-spacing:.06em; color:var(--ink-2); margin-bottom:9px;}
+.gantt{display:grid; gap:2px; min-width:600px;}
+.gantt .hd{font-size:10px; font-weight:700; color:var(--ink-3); text-align:center; padding-bottom:3px;}
+.gantt .cell{background:var(--card); border:1px solid var(--line); border-radius:3px;
+  min-height:26px; font-size:10.5px; display:flex; align-items:center; justify-content:center;
+  text-align:center; line-height:1.2; padding:2px 1px; color:var(--ink-3);}
+.gantt .cell.on{background:var(--brand); border-color:var(--brand); color:var(--paper); font-weight:700;}
+.gantt .cell.bad{background:var(--hi); border-color:var(--hi); color:var(--paper); font-weight:700;}
+.gantt .cell.want{background:transparent; border:1.5px dashed var(--ok); color:var(--ok); font-weight:700;}
+.gantt-legend{display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:9px; font-size:11px; color:var(--ink-2);}
+.gantt-legend i{width:10px; height:10px; border-radius:2px; display:inline-block; margin-right:5px; vertical-align:-1px;}
+
+/* ---- fix block ---- */
+.fix{margin-top:14px; background:var(--copper-soft); border-radius:8px; padding:13px 16px;}
+.fix .lbl{font-size:10.5px; font-weight:800; letter-spacing:.08em; color:var(--copper); display:block; margin-bottom:5px;}
+.fix p{margin:0; font-size:13.8px; line-height:1.65; color:var(--ink);}
+.fix p + p{margin-top:7px;}
+.fix b{font-weight:700;}
+
+/* ---- systematic tables ---- */
+.tbl-box{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--card);}
+table{border-collapse:collapse; width:100%; min-width:640px;}
+th,td{text-align:left; padding:11px 15px; border-bottom:1px solid var(--line); font-size:13.2px; vertical-align:top;}
+th{background:var(--card-2); font-size:11px; font-weight:750; letter-spacing:.05em; color:var(--ink-2);}
+tr:last-child td{border-bottom:none;}
+td.k{font-weight:700; color:var(--brand-2); white-space:nowrap;}
+td code{font-family:var(--mono); font-size:12.3px; background:var(--card-2); padding:1px 5px; border-radius:3px;}
+td .bad{color:var(--hi); font-weight:700;}
+
+/* ---- project cards ---- */
+.proj{background:var(--card); border:1px solid var(--line); border-radius:11px; padding:18px 20px 20px; margin-bottom:14px;}
+.proj-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px;}
+.proj-top h3{margin:0; font-size:16px; font-weight:750; letter-spacing:-0.01em;}
+.proj-top h3 span{color:var(--brand-2); font-weight:800; margin-right:7px;}
+.chips{display:flex; gap:5px; flex-wrap:wrap;}
+.chip{font-size:11px; font-weight:600; color:var(--ink-2); background:var(--card-2);
+  padding:2px 8px; border-radius:4px;}
+.state{font-size:11.5px; font-weight:750; padding:3px 10px; border-radius:999px; margin-left:auto;}
+.state.done{color:var(--ok); background:var(--ok-bg);}
+.state.run{color:var(--brand-2); background:var(--low-bg);}
+.state.late{color:var(--mid); background:var(--mid-bg);}
+.grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:15px; border-top:1px solid var(--line); padding-top:14px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:540px){.grid4{grid-template-columns:1fr;}}
+.col h4{margin:0 0 7px; font-size:10.5px; font-weight:750; letter-spacing:.07em; color:var(--ink-2);}
+.col.next h4{color:var(--brand-2);}
+.col ul{margin:0; padding-left:15px; font-size:13.2px;}
+.col li{margin-bottom:5px;}
+.col .none{font-size:12.5px; color:var(--ink-3); font-style:italic;}
+.col.ask{background:var(--copper-soft); border-radius:7px; padding:10px 12px; margin:-10px -12px 0;}
+.col.ask h4{color:var(--copper);}
+
+/* ---- fup ---- */
+.fup{display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:13px;}
+.fup-c{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:15px 17px;}
+.fup-c h4{margin:0 0 5px; font-size:14px; font-weight:750;}
+.fup-c .who{font-size:11.5px; color:var(--ink-3); margin-bottom:8px;}
+.fup-c p{margin:0; font-size:13.2px; color:var(--ink-2);}
+.fup-c .need{margin-top:9px; font-size:12.5px; font-weight:650; color:var(--copper);
+  background:var(--copper-soft); padding:6px 10px; border-radius:6px;}
+
+footer{margin-top:60px; padding-top:20px; border-top:1px solid var(--line); font-size:12.3px; color:var(--ink-3);}
+a{color:var(--brand-2);}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--copper); outline-offset:2px;}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="kicker">기술 · 영업 교류회 자료 검토</div>
+  <h1>요약표와 세부 슬라이드 대조 결과 및 프로젝트별 진행 정리</h1>
+  <div class="byline">
+    <span>회의일 <b>2026년 7월 30일</b></span>
+    <span>원본 <b>기술/영업 교류회 PPT · 17슬라이드</b></span>
+    <span>대상 <b>신제품 개발 12건 + DIN Type Punch 1건</b></span>
+  </div>
+  <p class="abstract">
+    2~3p 전체 요약표(간트·비고)와 5~17p 프로젝트별 세부 슬라이드를 <b>표·도형 단위로 전부 대조</b>했습니다.
+    개별 프로젝트에서 <b>13건</b>의 불일치가, 자료 전체에 걸쳐 <b>요청팀·시험항목·명칭 표기</b>의 체계적 불일치가 확인됐습니다.
+    각 건마다 양쪽 원문을 그대로 놓고 다른 부분을 표시했으며, 어떻게 고치면 좋을지 함께 적었습니다.
+  </p>
+  <p class="caveat">
+    슬라이드를 이미지로 캡처하려 했으나 이 환경의 PPT→이미지 변환 도구가 동작하지 않아,
+    <b>슬라이드 원문 텍스트를 그대로 발췌</b>하고 간트 차트는 원본 막대 위치를 재현하는 방식으로 대체했습니다.
+    인용문은 모두 원본 그대로이며 요약·의역하지 않았습니다.
+  </p>
+  <div class="tally">
+    <div><div class="n hi">8</div><div class="l">높음 · 진척 판단이 갈림</div></div>
+    <div><div class="n mid">3</div><div class="l">중간 · 확인 필요</div></div>
+    <div><div class="n low">2</div><div class="l">낮음 · 표기 정리</div></div>
+    <div><div class="n" style="color:var(--copper)">3</div><div class="l">전 자료 공통 불일치</div></div>
+  </div>
+</header>
+
+<!-- ═══════════ SECTION 1 ═══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-mark">01</span><h2>프로젝트별 대조 — 요약표(2~3p) ↔ 세부 슬라이드(5~17p)</h2></div>
+  <p class="sec-note">심각도 순으로 정렬했습니다. 왼쪽은 요약표 원문, 오른쪽은 세부 슬라이드 원문이며, 어긋나는 부분에 표시했습니다.</p>
+
+  <!-- F-01 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-01</span><span class="sev hi">높음</span><span class="f-loc">2p ↔ 7p</span></div>
+    <h3 class="f-title"><span>No.3</span>일본시장 ISS 증대 제품 (BOSCH JP용) · Q85 / S95 / T110</h3>
+    <p class="f-claim">요약표는 <b>“재검증 완료”</b>로 닫아두었으나, 세부는 <b>C20 용량이 불만족이라 9월까지 재검증 예정</b>입니다. 게다가 요약표 간트는 양산을 7월로 그렸는데 세부에는 <b>이미 4월부터 양산 완료</b>로 적혀 있습니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">2p</span></div><p class="q">1. DV 검증/개발완료(’25. 12)
+2. PV 결과 : 3종 중 2종 불만족
+    (ISS 수명 약 90% 수준)
+3. 2종(Q85,S95) <mark>재검증 완료</mark>
+    (ISS 만족, 기본성능 추가 개선 예정)</p></div>
+      <div class="panel"><div class="p-src">세부 · 진행내용 / 향후계획 <span class="tag">7p</span></div><p class="q">2) 2차 성능 검증 完
+  - ISS 수명 만족하였으나, C20 용량 불만족하여
+    <mark>재검증 진행 예정</mark>  └ Q85 : 98.6%
+  - <mark>강화된 품질 기준(95→103% 이상) 반영 요청(품질팀)</mark>
+양산 일정 : EFB Q85 베트남 GIA PHAT
+  <mark>양산 完(4月~, 440대, ISS 3만회 이상)</mark>
+향후 계획 : Q85 기본성능 재검증 : ~9月</p></div>
+    </div>
+    <div class="gantt-box">
+      <div class="gantt-cap">2p 간트 원본 — 26년</div>
+      <div class="gantt" style="grid-template-columns:repeat(12,1fr);">
+        <div class="hd">1월</div><div class="hd">2월</div><div class="hd">3월</div><div class="hd">4월</div><div class="hd">5월</div><div class="hd">6월</div><div class="hd">7월</div><div class="hd">8월</div><div class="hd">9월</div><div class="hd">10월</div><div class="hd">11월</div><div class="hd">12월</div>
+        <div class="cell on">샘플제작</div><div class="cell on">PV재검증</div><div class="cell"></div><div class="cell want">실제 양산</div><div class="cell"></div><div class="cell on">PV결과보고</div><div class="cell bad">양산</div><div class="cell"></div><div class="cell want">재검증</div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      </div>
+      <div class="gantt-legend">
+        <span><i style="background:var(--brand)"></i>요약표 간트 막대</span>
+        <span><i style="background:var(--hi)"></i>세부와 어긋남</span>
+        <span><i style="border:1.5px dashed var(--ok)"></i>세부 기준 실제 시점</span>
+      </div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> 비고 3번을 완료형에서 분리해 다시 쓰세요 — “2종(Q85,S95) ISS 수명 재검증 <b>만족</b> / C20 용량 <b>불만족(Q85 98.6%)</b>, 기본성능 재검증 진행 中(~9월)”.</p>
+      <p><b>②</b> 간트의 <b>7월 양산 막대를 4월로 옮기고</b>(베트남 GIA PHAT 440대 실적 반영), 9월에 재검증 막대를 추가하세요.</p>
+      <p><b>③</b> 세부에만 있는 <b>“강화된 품질기준 95→103% 반영 요청(품질팀)”</b>은 협의가 필요한 사안이므로 요약표 비고에도 올리는 것을 권장합니다.</p>
+    </div>
+  </article>
+
+  <!-- F-02 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-02</span><span class="sev hi">높음</span><span class="f-loc">2p ↔ 8p</span></div>
+    <h3 class="f-title"><span>No.4</span>중동향 SMART EFB 개발 · LN2~LN5 / D26 / D31</h3>
+    <p class="f-claim">요약표는 <b>“7종 中 6종 개발 完”</b>이라 했지만, 세부 슬라이드를 형명별로 세어 보면 <b>7종 전부 DV/PV 검증 完</b>으로 적혀 있습니다. 어느 쪽이 맞는지에 따라 잔여 개발 물량이 달라집니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">2p</span></div><p class="q">1. <mark>7종 中 6종 개발 完(26.5월)</mark>
+  - 3종 양산 중(2월~)
+2. LN4 개발 협의 完(기술/품질/영업)
+  - 현 수준으로 양산(목표 대비 99.3%)
+3. 양산 일정 변경 협의 完 : 4→6월(5/15)</p></div>
+      <div class="panel"><div class="p-src">세부 · 3. 샘플 및 성능 검증 <span class="tag">8p</span></div><p class="q">1) D26(S95), LN3, LBN4 : DV/PV 성능 검증 完
+   (목표 Spec. 만족), 양산 中(2월~)      <em>← 3종</em>
+2) LN2, LN4, LN5, D31(T110) : <mark>DV/PV 성능 검증 完</mark>  <em>← 4종</em>
+     ① LN4 : 99.3% 수준으로 조건부 合
+        - 現 설계 유지 양산 1차 협의 完(5/15)
+        - <mark>추가 개선 방안 협의(6/1, 기술/품질)</mark>
+4. 사양 발행 완료 : 6/10          <em>합계 7종</em></p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> 세부 기준으로는 7종 모두 검증이 끝났습니다. 요약표를 <b>“7종 全 DV/PV 검증 完 · 3종 양산 中(2월~), LN4는 조건부 合(99.3%)”</b>로 고치거나, 반대로 미완료 1종이 실제로 있다면 <b>어느 형명인지 세부 슬라이드에 명시</b>해야 합니다.</p>
+      <p><b>②</b> 세부의 <b>“추가 개선 방안 협의(6/1, 기술/품질)”</b>는 협의만 적혀 있고 <b>결론이 없습니다</b>. LN4를 현 설계로 갈지 개선안을 적용할지 이번 교류회에서 확정하고 결과를 양쪽에 반영하세요.</p>
+      <p><b>③</b> 요약표 간트는 LN2·LN4·LN5·D31의 양산을 6월로 그려두었으나 세부에는 사양 발행(6/10)까지만 있습니다. <b>6월 양산 실제 개시 여부</b>를 확인해 주세요.</p>
+    </div>
+  </article>
+
+  <!-- F-03 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-03</span><span class="sev hi">높음</span><span class="f-loc">3p ↔ 12p</span></div>
+    <h3 class="f-title"><span>No.8</span>BCI 65 PH Line-up 확대</h3>
+    <p class="f-claim">개발완료 시점이 <b>7월(요약표)</b>과 <b>26.06(세부)</b>로 한 달 다르고, 개발 종수도 <b>5종</b>과 <b>“전체 총 6종 개발완료”</b>로 어긋납니다. 시험 항목에서는 요약표에 없는 <b>J2801(8주) 수명시험</b>이 세부에만 있습니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 시험항목 / 비고 <span class="tag">3p</span></div><p class="q">주요 시험 : 용량(C20, RC), CCA (2주)   <em>← 수명시험 없음</em>
+형명 : <mark>BCI 65(5종)</mark> : 10만대/년
+1. 5종 中 3종 검증 完
+2. 2종(96% 수준) 품질팀 요구사항
+   (하한치 100%↑)로 추가 검증 中(~6월)
+3. <mark>개발 완료 일정 변경 (5 → 7월)</mark></p></div>
+      <div class="panel"><div class="p-src">세부 · 시험항목 / 진행내용 <span class="tag">12p</span></div><p class="q">주요 시험 : 용량(C20, RC), CCA (850A) <mark>J2801 (8주)</mark>
+2) 대상 : BCI 65 16매~21매, 총 5종
+   (기개발 완료된 21매 제외)
+3) 양산 가능 시점 : 개발완료 후(예상: 7월~)
+<em>3)</em> 진행 현황 : 1차 검증 완료   <em>← 번호 중복(4)이어야 함)</em>
+   ③ 2차 샘플 검증 및 <mark>개발완료(26.06)</mark>
+표 비고 : <mark>전체 총 6종 개발완료</mark></p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> 개발완료가 <b>6월인지 7월인지</b> 확정하세요. 세부의 “개발완료(26.06)”가 맞다면 요약표 비고 3번(5→7월)과 간트의 7월 개발완료 막대를 <b>6월로 앞당겨</b> 수정해야 합니다.</p>
+      <p><b>②</b> <b>5종 vs 6종</b>은 “기개발 완료된 21매”를 포함하느냐의 차이로 보입니다. 표 비고를 <b>“금차 개발 5종 + 기개발 1종 = 누적 6종”</b>처럼 풀어 쓰면 혼선이 없어집니다.</p>
+      <p><b>③</b> 요약표 시험항목에 <b>J2801(8주)</b>를 추가하고, 세부의 항목 번호 <b>“3)” 중복</b>을 4)로 고치세요.</p>
+      <p><b>④</b> 세부의 “양산 가능 시점 7월~”이 요약표 간트에 <b>양산 막대로 반영되어 있지 않습니다</b>.</p>
+    </div>
+  </article>
+
+  <!-- F-04 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-04</span><span class="sev hi">높음</span><span class="f-loc">3p ↔ 4p ↔ 16p</span></div>
+    <h3 class="f-title"><span>No.12</span>JIS 중형 D31 High Spec 제품 개발</h3>
+    <p class="f-claim">요약표는 <b>6/30 성능검증 완료·11월 개발완료 예상</b>이라는 낙관적 서술이지만, 세부는 <b>용량 103% 미달로 3차 시험이 8/14까지</b> 이어집니다. 여기에 더해 4p F/up에서 <b>영업(미주팀)이 “고스펙 수요 낮음”이라고 회신</b>했는데 세부는 여전히 고스펙 방향으로 진행 중입니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">3p</span></div><p class="q">1. <mark>성능 검증 (~6/30)</mark>
+2. 현 판매 제품 VC 표기치 만족을 위한
+   제품 설계 변경 협의(~6/12)
+3. <mark>개발 완료(12 →11월) 예상</mark></p></div>
+      <div class="panel"><div class="p-src">세부 · 진행내용 / 향후계획 <span class="tag">16p</span></div><p class="q">→ 당사 개선품 용량 평가 결과 <mark>103% 미달</mark>에 따라,
+   3차시험(하한치 제품 100% 만족) 진행 예정
+   <em>(표: 개선품 20Hr 97.3 = 102.4%)</em>
+향후 계획
+ 1) 극판 하한치 중량 선별(~7/22)
+ 2) 3차 개선샘플 생산(~7/24) 및
+    <mark>기본성능 검증(~8/14)</mark> 평가</p></div>
+    </div>
+    <div class="panels" style="margin-top:12px;">
+      <div class="panel" style="grid-column:1/-1;"><div class="p-src">이전 교류회 F/up · 영업 회신 <span class="tag">4p</span></div><p class="q">High Spec D31 개발 | 박진수 | 미주팀·AP팀·유럽팀
+5월 회의 결과 : 영업 확인 요청 — 동일 용량 대비 MCCA/CCA 고스펙 제품에 대한 시장 수요와 판매 가능성
+진행 내용 : 미주팀 — <mark>기존 제시된 기본성능 만족 위주 제품 개발 요청 (MCCA/CCA 고스펙 제품 시장 수요 낮음)</mark></p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> 요약표의 <b>“성능검증(~6/30)”·“개발완료 11월 예상”</b>을 세부 기준으로 갱신하세요 — “2차 시험 용량 미달(102.4%), 3차 개선샘플 기본성능 검증 ~8/14, 개발완료 시점 재산정”.</p>
+      <p><b>②</b> <b>영업 피드백이 개발 목표에 반영됐는지가 이번 교류회의 핵심 확인 사항</b>입니다. 미주팀이 “고스펙 수요 낮음, 기본성능 만족 위주”를 요청했는데 세부는 VARTA 대비 고스펙(용량 103%)을 계속 추격 중입니다. <b>목표를 103%로 유지할지, 기본성능 만족(100%)으로 하향할지</b> 확정해야 3차 시험의 합불 기준이 정해집니다.</p>
+      <p><b>③</b> 요약표에만 있는 <b>“VC 표기치 설계변경 협의(~6/12)”</b> 결과를 세부에 추가하세요.</p>
+      <p><b>④</b> 요약표 시험항목의 <b>J2801(10주)</b>가 세부 시험항목에는 빠져 있습니다(표에는 결과 11주가 있음).</p>
+    </div>
+  </article>
+
+  <!-- F-05 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-05</span><span class="sev hi">높음</span><span class="f-loc">3p ↔ 4p ↔ 14p</span></div>
+    <h3 class="f-title"><span>No.10</span>북미 트럭용 PH 31류 제품 개발 · BCI 31</h3>
+    <p class="f-claim">요약표와 세부의 <b>향후계획이 서로 다른 내용</b>입니다. 또 샘플 생산이 <b>6/10 목표 → 7/11 완료</b>로 한 달 지연됐는데 이 사실이 요약표·세부 어디에도 반영되지 않았고, 간트는 벤치마킹을 <b>4월 완료</b>로 그렸지만 실제로는 <b>7/30 결과보고 예정</b>입니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">3p</span></div><p class="q">3. PH 적용 샘플 제작(<mark>~6/10</mark>)
+4. <mark>신규 Interstate RFQ 목표 Spec 변경에
+   따른 개발 목표 협의 예정(~7/31)</mark>
+시험항목 : J2801(10주), J2185(8주)
+   <mark>※ 성능 영업 협의 필요</mark></p></div>
+      <div class="panel"><div class="p-src">세부 · 향후계획 <span class="tag">14p</span></div><p class="q">3) 개발 검토 결과 기안 상신 中(7/20~)
+향후 계획
+1) <mark>경쟁사(아트라스, DTR) 벤치마킹 결과 보고 : ~7/30</mark>
+2) 선행 검토 샘플 수명 시험 검증 : ~10/16
+   <em>(Interstate RFQ 관련 언급 없음 / 영업 협의 요청 항목 없음)</em></p></div>
+    </div>
+    <div class="panels" style="margin-top:12px;">
+      <div class="panel" style="grid-column:1/-1;"><div class="p-src">이전 교류회 F/up <span class="tag">4p</span></div><p class="q">BCI 31 제품 개발 | 이교행 | 미주팀
+5월 회의 결과 : 선행 검토 샘플 생산(~6/10) / 검토 결과 송부 및 개발 목표 협의(~6/30)
+진행 내용 : 선행 검토 샘플 생산 <mark>完(7/11)</mark>, 기본성능 및 수명 성능 검증 中 / 개발 검토 결과 기안 상신 中</p></div>
+    </div>
+    <div class="gantt-box">
+      <div class="gantt-cap">3p 간트 원본 — 25년 11월 ~ 26년 12월</div>
+      <div class="gantt" style="grid-template-columns:repeat(14,1fr);">
+        <div class="hd">11월</div><div class="hd">12월</div><div class="hd">1월</div><div class="hd">2월</div><div class="hd">3월</div><div class="hd">4월</div><div class="hd">5월</div><div class="hd">6월</div><div class="hd">7월</div><div class="hd">8월</div><div class="hd">9월</div><div class="hd">10월</div><div class="hd">11월</div><div class="hd">12월</div>
+        <div class="cell">–</div><div class="cell"></div><div class="cell"></div><div class="cell on">Spec협의</div><div class="cell on">선행검토</div><div class="cell bad">벤치마킹</div><div class="cell"></div><div class="cell bad">검토결과송부</div><div class="cell on">샘플제작</div><div class="cell on">DV검증</div><div class="cell"></div><div class="cell want">수명검증</div><div class="cell on">개발완료</div><div class="cell"></div>
+      </div>
+      <div class="gantt-legend">
+        <span><i style="background:var(--brand)"></i>요약표 간트 막대</span>
+        <span><i style="background:var(--hi)"></i>실제 진행과 어긋남</span>
+        <span><i style="border:1.5px dashed var(--ok)"></i>세부 기준 실제 시점(~10/16)</span>
+      </div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> 향후계획을 한쪽으로 합치세요. 두 과제가 모두 유효하다면 세부 향후계획에 <b>“3) Interstate RFQ 목표 Spec 변경 협의(~7/31)”</b>를 추가하고, 대체된 계획이라면 요약표 비고 4번을 삭제하세요.</p>
+      <p><b>②</b> 샘플 생산이 <b>6/10 → 7/11로 지연</b>된 사실을 요약표 비고와 간트에 반영하세요(현재 간트의 6월 “검토결과송부”는 7/20~ 기안 상신이 실제입니다).</p>
+      <p><b>③</b> 간트의 <b>4월 벤치마킹 막대를 7월로</b> 옮기고, 수명시험(~10/16)을 10월 구간에 추가해야 11월 개발완료 막대가 현실적으로 읽힙니다.</p>
+      <p><b>④</b> 요약표 시험항목의 <b>“※ 성능 영업 협의 필요”</b>가 세부에 요청사항으로 옮겨져 있지 않습니다 — 세부에 요청사항 항목을 신설해 명시하세요.</p>
+    </div>
+  </article>
+
+  <!-- F-06 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-06</span><span class="sev hi">높음</span><span class="f-loc">2p ↔ 4p ↔ 11p</span></div>
+    <h3 class="f-title"><span>No.7</span>마린용 고용량 제품 개발 · M27</h3>
+    <p class="f-claim">요약표는 <b>“개발 완료(3월)”</b>인데 세부는 <b>“자체 성능 검증 진행 中”</b>입니다. 더 중요한 것은 4p F/up에서 <b>6/30까지 회신하기로 한 Century Yuasa 검증 결과</b>가 세부 어디에도 없다는 점입니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">2p</span></div><p class="q">1. <mark>개발 완료(3월)</mark>
+2. <mark>바이어 샘플 검증 결과 확인 요청(영업)</mark>
+3. 바이어/양산 시점/물량 회신 요청(영업)
+<em>간트 : DV검증 1월 · 개발완료 3월 · PV검증 4월
+      · 결과보고 6월 · 양산 9월</em></p></div>
+      <div class="panel"><div class="p-src">세부 · 진행현황 / 요청사항 <span class="tag">11p</span></div><p class="q">1) 진행 현황
+  - 호주 Century Yuasa社 검증용 샘플 送 完(3대, 12/30)
+  - <mark>자체 성능 검증 진행 中(DV, PV 完)</mark>
+향후 계획 : 1) 양산 : 9월 예상
+요청 사항
+  1) 바이어/양산 시점/물량 회신 요청(AP팀)
+  2) <mark>Century 外 추가 바이어 공급 가능성 확인 필요</mark>
+  <em>(Century Yuasa 검증 결과 회신 내용 없음)</em></p></div>
+    </div>
+    <div class="panels" style="margin-top:12px;">
+      <div class="panel" style="grid-column:1/-1;"><div class="p-src">이전 교류회 F/up <span class="tag">4p</span></div><p class="q">마린용 고용량 M27 개발 | 문병호 | AP팀
+5월 회의 결과 : 기술팀 — Century Yuasa 송부 샘플 시험 진행 현황 확인 요청
+진행 내용 : AP팀 — <mark>Century Yuasa 검증 결과 리포트 회신(~6/30)</mark>  <em>← 이후 결과가 어디에도 없음</em></p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> <b>6/30 기한이던 Century Yuasa 검증 결과 리포트가 회신됐는지</b>가 가장 먼저 확인할 사항입니다. 회신됐다면 세부 진행현황에 결과를 추가하고, 미회신이라면 요청사항으로 올려 기한을 다시 잡으세요.</p>
+      <p><b>②</b> 세부 문장 <b>“자체 성능 검증 진행 中(DV, PV 完)”</b>은 그 자체로 앞뒤가 맞지 않습니다. DV·PV가 끝났다면 “자체 성능 검증 完(DV, PV)”으로 고치고, 남은 시험이 있다면 그 항목명을 적으세요.</p>
+      <p><b>③</b> 요약표 “개발 완료(3월)”은 양산 미개시 상태와 혼동됩니다 — <b>“DV/PV 검증 完(3월) · 양산 9월 예상”</b>으로 완료된 것과 남은 것을 구분하세요.</p>
+      <p><b>④</b> 세부에만 있는 <b>“Century 外 추가 바이어 공급 가능성”</b>을 요약표 비고에 추가하고, 요청 대상 표기도 “영업”/“AP팀”으로 갈리므로 하나로 통일하세요.</p>
+    </div>
+  </article>
+
+  <!-- F-07 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-07</span><span class="sev hi">높음</span><span class="f-loc">4p ↔ 17p</span></div>
+    <h3 class="f-title"><span>별도</span>유럽향 절감형 DIN Type 중형 Punch 제품 개발 (극판 박판화)</h3>
+    <p class="f-claim">17p 표에는 <b>DOD 50% 수명이 50cycle로 VARTA(92cycle)의 절반 수준</b>이라는 중대한 미달이 적혀 있는데, 4p F/up에는 <b>“수명성능 평가 진행 中”</b>이라고만 되어 있어 미달 사실이 드러나지 않습니다. 원가 수치도 기준이 뒤섞여 있습니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">F/up · 진행 내용 <span class="tag">4p</span></div><p class="q">유럽향 절감형 DIN Type 중형 Punch 제품 개발
+| 박지영 | 유럽팀
+5월 회의 결과 : 샘플 생산완료(’26.05) 및
+  기본 성능 검증 진행 中 / 결과 공유 예정(~6/15)
+진행 내용 : 기본성능 검증 결과 <mark>유럽팁</mark> 공유 완료
+  <mark>수명성능 평가 진행 中(~8월)</mark>
+  <em>← 미달 사실 없음 / “유럽팀” 오타</em></p></div>
+      <div class="panel"><div class="p-src">세부 · 성능 검증 결과 표 <span class="tag">17p</span></div><p class="q">수명 성능
+ SAE J2801(75℃ 고온 내구) : VARTA 5주 / 진행 中(~8/30)
+ EN DOD 50% : VARTA 92cycle
+   → 당사 <mark>50Cycle(수명종료 원인 분석 中)</mark>
+원가 : 당사 Expand <mark>37.924</mark>(100%)  <em>← 37,924 오타</em>
+   0.70t 40,124(<mark>105.8%</mark>) / 0.95t 41,421(109.2%)
+본문 ③ : 0.70t 적용시 기존 양산 PN류(0.95t)
+   원가 대비 <mark>96.8% 수준</mark>   <em>← 기준이 다른 두 %가 병기</em></p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> F/up의 “수명성능 평가 진행 中”을 <b>“EN DOD 50% 50cycle로 VARTA(92cycle) 대비 미달, 수명종료 원인 분석 中 / J2801 ~8/30 진행”</b>으로 고쳐, 리스크가 요약 단계에서 보이도록 하세요. 박판화 채택 여부를 가르는 항목입니다.</p>
+      <p><b>②</b> 원가는 <b>기준을 하나로 통일</b>하세요. 표의 %는 Expand(37,924) 기준이고 본문 ③의 96.8%는 0.95t 기준이라 서로 다른 잣대입니다. 표에 “<b>0.95t 대비</b>” 열을 추가하거나 본문에 기준을 명시하면 해결됩니다.</p>
+      <p><b>③</b> 오탈자 2건 — <b>“유럽팁 → 유럽팀”</b>(4p), <b>“37.924 → 37,924”</b>(17p).</p>
+      <p><b>④</b> 슬라이드 제목이 <b>“1. 유럽향 절감형…”</b>인데 표지(1p) 목차에서는 <b>2번</b> 항목입니다 — 제목 번호를 2로 고치세요.</p>
+    </div>
+  </article>
+
+  <!-- F-08 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-08</span><span class="sev hi">높음</span><span class="f-loc">3p ↔ 15p</span></div>
+    <h3 class="f-title"><span>No.11</span>JIS 소형 B24 High Spec 제품 개발</h3>
+    <p class="f-claim">요약표 시험항목에는 <b>J2801(7주) 수명시험</b>이 있는데, 세부에는 시험항목에도 검증결과 표에도 <b>수명 항목이 아예 없습니다</b>. 그 상태로 <b>개발완료(07.20)</b>가 선언돼 있어 근거가 비어 있습니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 시험항목 / 비고 <span class="tag">3p</span></div><p class="q">주요 시험 항목 : 용량(C20, RC), CCA (2주)
+                 <mark>J 2801 (7주)</mark>
+요청팀 : 자체 (밸류맵)
+1. 개발완료(07.20)
+2. 양산 가능 바이어 확인 요청 (영업, <mark>~7/30</mark>)</p></div>
+      <div class="panel"><div class="p-src">세부 · 시험항목 / 검증결과 <span class="tag">15p</span></div><p class="q">주요 시험 항목 : C20 / CCA   <mark>← J2801 없음</mark>
+요청팀 : <mark>-</mark>
+검증결과 : C20 59.99(103.4%) / RC 99~101Min / CCA 39~46sec
+          <mark>← 수명(J2801) 결과 행 없음</mark>
+5) 성능 평가 및 개발완료(07/20)
+요청 사항 : 양산 가능 바이어 확인 필요 <em>(기한 없음)</em>
+표 : Dekor社(75B24LS)  <mark>← Delkor 오타</mark></p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> <b>J2801 수명시험을 실시했는지</b> 먼저 확인하세요. 했다면 세부 검증결과 표에 결과 행을 추가하고, 하지 않았다면 “개발완료(07.20)”는 <b>기본성능 한정 완료</b>임을 명시해야 합니다(수명시험만 7주 소요).</p>
+      <p><b>②</b> 세부의 요청팀 공란을 <b>“자체(밸류맵)”</b>로 채우고, 요청사항에 요약표의 기한 <b>“~7/30”</b>을 함께 적으세요.</p>
+      <p><b>③</b> 오탈자 — <b>“Dekor社 → Delkor社”</b>(4p에서는 Delkor로 올바르게 표기).</p>
+      <p><b>④</b> 요약표 간트는 벤치마킹을 25년 11월에 두었지만 세부는 <b>벤치마킹 결과보고 04/13</b>입니다 — 간트 막대를 4월로 옮기세요.</p>
+    </div>
+  </article>
+
+  <!-- F-09 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-09</span><span class="sev mid">중간</span><span class="f-loc">2p ↔ 4p ↔ 6p</span></div>
+    <h3 class="f-title"><span>No.2</span>일본시장 충전제어용 제품 · K42 / M42 / N55</h3>
+    <p class="f-claim">바이어 미팅 시점이 <b>8월 中</b>과 <b>~7/31</b>로 다르고, 요청팀이 <b>OE개발팀</b>과 <b>AP팀</b>으로 갈립니다. 개선안도 세부에서 <b>첨가제 → 기판변경 포함</b>으로 확대됐는데 요약표에는 그 내용과 <b>원가 상승 0.6%</b>가 없습니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">2p</span></div><p class="q">요청팀 : <mark>OE 개발팀</mark>
+시험항목 : … <mark>EFB_ISS수명(7주)</mark>
+1. 요구 스펙 적정성 검토 협의 (5/27)
+   2) 추가 개선안 검증 : ~9월
+2. DV 결과보고: ~9월
+3. 벤치마킹 결과 기안 작성 : ~7/29
+4. 바이어 미팅 진행 예정 : <mark>8월 中</mark></p></div>
+      <div class="panel"><div class="p-src">세부 · 진행내용 / 향후계획 <span class="tag">6p</span></div><p class="q">요청팀 : <mark>AP팀</mark>   시험항목 : <mark>ISS수명 항목 없음</mark>
+1) DV 검증 결과 : 불만족(요구 Spec. 대비 80% 수준)
+   - 개선안 : 음극 신규 카본 첨가제 적용
+     (<mark>원가 상승 약 0.6%</mark>)
+3) ① M42 개선 샘플 4種(<mark>음극 기판변경 및 첨가제 변경</mark>)
+      샘플 생산 完(7/14)
+   ② 기본성능 평가 中, 충전수입성 평가 예정(~7/28)
+4) ② 영업팀 : BSJP 미팅 후 요구 Spec 재확인(<mark>~7/31</mark>)</p></div>
+    </div>
+    <div class="panels" style="margin-top:12px;">
+      <div class="panel" style="grid-column:1/-1;"><div class="p-src">이전 교류회 F/up — 같은 과제 <span class="tag">4p</span></div><p class="q">JIS 소형 EFB 충전수입성 증대 개발 | 박진수·주준용 | OE개발 김지연
+5월 회의 결과 : 벤치마킹(M42, <mark>Delkor 社</mark>, 2EA) / 기본성능: <mark>~6/15</mark> / 충전수입성능: <mark>~6/19</mark>
+진행 내용 : 개발 방향성 회의 진행(5/27) / 벤치마킹 후 BSJP 협의 예정
+<em>→ 6p 벤치마킹 표의 경쟁사는 ATLAS · PANASONIC · ENERGYWITH · GS YUASA (Delkor 표기 없음),
+   6p 기본성능·충전수입성 일정은 ~7/28 (약 5~6주 지연)</em></p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> <b>요청팀을 확정</b>하세요(OE개발팀 / AP팀). 요청 주체가 다르면 회신 책임도 달라집니다.</p>
+      <p><b>②</b> BSJP 미팅 시점을 <b>~7/31 또는 8월 中</b> 중 하나로 통일하세요. 세부가 더 최근 갱신본으로 보입니다.</p>
+      <p><b>③</b> 요약표 비고의 “추가 개선안 검증”을 <b>“음극 신규 카본 첨가제 + 기판 변경, 원가 +0.6%”</b>로 구체화하세요. 원가 상승은 영업 판단이 필요한 정보입니다.</p>
+      <p><b>④</b> 기본성능·충전수입성 일정이 <b>~6/19에서 ~7/28로 밀린 사유</b>를 F/up에 적어 주세요. 지연이 요약 어디에도 드러나지 않습니다.</p>
+      <p><b>⑤</b> 벤치마킹 대상 표기를 통일하세요 — 4p “Delkor 社”, 6p 표 “ENERGYWITH”가 동일 대상인지 확인 후 한 이름으로.</p>
+      <p><b>⑥</b> 시험항목의 <b>EFB_ISS수명(7주)</b>가 세부에 빠져 있습니다.</p>
+    </div>
+  </article>
+
+  <!-- F-10 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-10</span><span class="sev mid">중간</span><span class="f-loc">2p ↔ 9p</span></div>
+    <h3 class="f-title"><span>No.5</span>JIS 중형 필드수명 개선품 개발 · D26 / D31</h3>
+    <p class="f-claim">요약표에만 있는 <b>영업 관련 액션 2건(6/12, 6/20)</b>이 세부에 없고, 2/24에 <b>개발 목표가 “고중량·High MCCA”로 변경</b>됐는데 요약표 시험항목에는 반영되지 않았습니다. 간트의 샘플생산 막대도 지연 전 위치 그대로입니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">2p</span></div><p class="q">시험항목 : 용량(C20, RC), CCA (2주) / J 2801 (10주)
+   <em>(▼MCCA·제품중량 목표 없음)</em>
+1.설계 및 양산 일정 협의完(5/13)
+2.<mark>바이어 홍보자료 송부(기술, ~6/12)</mark>
+3.<mark>바이어 송부용 배터리 수량 확인 요청(영업, ~6/20)</mark>
+4. 샘플 생산 지연 JIS 1종(기술, ~7/27)
+5. 기본성능(~8/20)</p></div>
+      <div class="panel"><div class="p-src">세부 · 진행내용 / 타임라인 <span class="tag">9p</span></div><p class="q">시험항목 : … J2801 (10주) / <mark>▼ MCCA · 제품 중량</mark>
+1) ② 2차(2/24) : <mark>개발 목표 변경 — 고중량, High MCCA, 장수명</mark>
+2) 대상 : JIS D26, D31 각 2종 총 4종
+4) DV/PV 샘플 및 바이어 송부용 생산(6/30 →7/27)
+   <mark>4종 中 1종</mark> 생산 지시 / 생산라인 변경에 따른 지연
+타임라인 : 극판 ~6/15 → 샘플 ~7/27 → 기본성능 ~8/20
+          → 수명성능 ~10/20 → 양산 11월~
+   <em>(홍보자료·수량 확인 항목 없음)</em></p></div>
+    </div>
+    <div class="gantt-box">
+      <div class="gantt-cap">2p 간트 원본 — 26년</div>
+      <div class="gantt" style="grid-template-columns:repeat(12,1fr);">
+        <div class="hd">1월</div><div class="hd">2월</div><div class="hd">3월</div><div class="hd">4월</div><div class="hd">5월</div><div class="hd">6월</div><div class="hd">7월</div><div class="hd">8월</div><div class="hd">9월</div><div class="hd">10월</div><div class="hd">11월</div><div class="hd">12월</div>
+        <div class="cell on">벤치마킹·설계검토</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell bad">샘플생산</div><div class="cell want">샘플 ~7/27</div><div class="cell want">기본성능</div><div class="cell"></div><div class="cell on">개발완료</div><div class="cell on">양산</div><div class="cell"></div>
+      </div>
+      <div class="gantt-legend">
+        <span><i style="background:var(--brand)"></i>요약표 간트 막대</span>
+        <span><i style="background:var(--hi)"></i>지연 미반영(실제 7/27)</span>
+        <span><i style="border:1.5px dashed var(--ok)"></i>세부 타임라인 기준</span>
+      </div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> <b>“바이어 홍보자료 송부(~6/12)”·“배터리 수량 확인 요청(~6/20)”</b>의 완료 여부를 확인해, 완료면 세부 진행내용에 추가하고 미완료면 협의 필요 항목으로 올리세요. 현재는 6월 기한이 지났는데 추적이 끊겨 있습니다.</p>
+      <p><b>②</b> 2/24에 바뀐 개발 목표(<b>고중량·High MCCA</b>)를 요약표 시험항목에도 반영하세요. 목표가 다르면 합불 판정이 달라집니다.</p>
+      <p><b>③</b> 간트의 <b>6월 샘플생산 막대를 7월로</b> 옮기세요(비고에는 지연을 적어두고 막대는 그대로입니다).</p>
+      <p><b>④</b> 세부의 <b>“4종 中 1종만 생산”</b>에서 나머지 3종의 생산 일정이 없습니다 — 3종 일정을 명시해야 11월 양산이 검증 가능합니다.</p>
+    </div>
+  </article>
+
+  <!-- F-11 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-11</span><span class="sev mid">중간</span><span class="f-loc">3p ↔ 13p</span></div>
+    <h3 class="f-title"><span>No.9</span>BCI 24, 27 PH Line-up 확대</h3>
+    <p class="f-claim">회신 대기 중인 서류의 이름이 <b>“PPCN 양식”</b>과 <b>“제품 교체 Data sheet 송부용 양식”</b>으로 다르고, 요약표 간트에서 <b>BCI 27은 4월 DV검증에서 끊긴 채</b> 이후 일정이 비어 있습니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">3p</span></div><p class="q">요청팀 : 미주팀   시험항목 : 용량(C20), CCA (2주) / <mark>J2801(10주)</mark>
+수명 성능 검증 完   <em>(24·27 어느 쪽인지 불명확)</em>
+기본성능 검증: <mark>~7/30</mark>
+DV, PV 결과보고: ~8/14
+<mark>PPCN 양식</mark> 요청, 회신 대기 中(6/24~)</p></div>
+      <div class="panel"><div class="p-src">세부 · 현황 / 향후계획 <span class="tag">13p</span></div><p class="q">요청팀 : <mark>-</mark>   시험항목 : C20 / CCA <mark>← J2801 없음</mark>
+- BCI 24 기본성능 進 完, J2801 수명성능 完 (Spec. 合)
+- BCI 27 기본성능 진행 중(<mark>~7/31</mark>), J2801 수명성능 完 (Spec. 合)
+① BCI 27 DV, PV 검증 : ~7/31
+③ <mark>Interstate社 제품 교체 Data sheet 송부용 양식</mark>
+   회신 대기 中(6/24~) └ 담당자 휴가로 회신 지연 中</p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> 서류 명칭을 하나로 통일하세요 — <b>“PPCN(Interstate 제품 교체 Data sheet) 양식”</b>처럼 병기하면 양쪽 표현을 모두 살릴 수 있습니다. 요약표에는 <b>Interstate라는 상대처가 빠져</b> 있습니다.</p>
+      <p><b>②</b> 기본성능 검증 기한을 <b>~7/31</b>로 통일하세요(요약표 7/30).</p>
+      <p><b>③</b> 요약표의 <b>“수명 성능 검증 完”</b>은 BCI 24·27 <b>둘 다</b>가 맞습니다(세부 기준) — “BCI 24·27 J2801 수명성능 完(Spec. 合)”으로 명확히 쓰세요.</p>
+      <p><b>④</b> 간트에서 <b>BCI 27 행에 개발완료·양산 막대를 추가</b>하세요. 현재 4월 DV검증 이후가 공백이라 BCI 24 대비 일정이 없어 보입니다.</p>
+      <p><b>⑤</b> 세부 요청팀 공란을 <b>“미주팀”</b>으로 채우고, 시험항목에 <b>J2801(10주)</b>를 추가하세요(표에는 결과가 있습니다).</p>
+    </div>
+  </article>
+
+  <!-- F-12 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-12</span><span class="sev low">낮음</span><span class="f-loc">2p ↔ 10p</span></div>
+    <h3 class="f-title"><span>No.6</span>EN 중형 필드수명 개선품 개발 · LBN3 / LN4</h3>
+    <p class="f-claim">요약표 비고가 <b>통째로 공란</b>입니다. 세부에는 진행내용이 상세히 있고, 그 안에 <b>“각 2종 … 총 3종”</b>이라는 숫자 오류가 있습니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">2p</span></div><p class="q"><mark>(공란)</mark>
+
+<em>간트 : 1월 벤치마킹·설계검토 / 6월 샘플생산
+       7월 DV검증 / 10월 개발완료 / 11월 양산</em></p></div>
+      <div class="panel"><div class="p-src">세부 · 진행내용 <span class="tag">10p</span></div><p class="q">2) 대상 : EN LBN3, LN4 <mark>각 2종(스탠다드, 프리미엄) 총 3종</mark>
+   <em>← 2형명 × 2종 = 4종이어야 함 (No.5는 “총 4종”)</em>
+3) 설계 및 양산 적용 일정 확정(5/13)
+4) DV/PV 샘플 및 바이어 송부용 생산 <mark>完</mark>
+5) 기본성능 검증 진행 中
+향후 계획 : 기본성능 검증(~8/20)</p></div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> 요약표 비고를 <b>“설계·양산 일정 확정(5/13) / DV·PV 샘플 생산 完 / 기본성능 검증 진행 中(~8/20)”</b>으로 채우세요. 짝 프로젝트인 No.5만 비고가 있고 No.6은 비어 있어 진척이 없어 보입니다.</p>
+      <p><b>②</b> <b>“각 2종 … 총 3종”</b>을 4종으로 고치거나, 실제로 3종이라면 어느 형명이 1종만인지 밝히세요.</p>
+      <p><b>③</b> No.5는 샘플생산이 7/27로 지연인데 No.6은 “생산 完”입니다. <b>완료 일자를 명시</b>하고 간트의 6월 막대와 맞는지 확인하세요.</p>
+    </div>
+  </article>
+
+  <!-- F-13 -->
+  <article class="finding">
+    <div class="f-top"><span class="f-id">F-13</span><span class="sev low">낮음</span><span class="f-loc">2p ↔ 5p</span></div>
+    <h3 class="f-title"><span>No.1</span>일본향 xEV용 제품개발 (PH제품) · LN0 / LN1 / LN2</h3>
+    <p class="f-claim">요약표 비고 번호가 <b>1 → 2 → 4</b>로 건너뛰어 3번이 비었고, 간트에는 <b>7월 PV와 8월 라인업 일원화 검증</b>이 그려져 있지 않습니다.</p>
+    <div class="panels">
+      <div class="panel"><div class="p-src">요약표 · 비고 <span class="tag">2p</span></div><p class="q">시험항목 : 용량(C20, RC), CCA (2주)
+   <mark>충전수입성, DoD 50%(4주)</mark>
+1. 6종 중 6종 개발 完(26.6월)
+2. PV 결과보고(품질, ~7/31)
+<mark>4.</mark> 바이어/양산 시점/물량 회신 요청(영업)</p></div>
+      <div class="panel"><div class="p-src">세부 · 진행내용 / 향후계획 <span class="tag">5p</span></div><p class="q">시험항목 : <mark>충전수입성 20% Up (3주) / DoD 50% 80cyc↑(5주)</mark>
+3) DV 6종 中 6종 完, <mark>PV 1종 진행 중</mark>
+4) 향후 계획 및 요청 사항
+  ① <mark>LN1 라인업 일원화 검증(라우팅 통합) : ~8/20</mark>
+  ② PV 결과 보고: ~7/31
+  ③ 바이어 협의 상황 공유 요청(라인업 전환 협의: 하반기)
+표 : LN1 Standard DOD50% 63cyc <mark>추가 검증 진행(~7/31)</mark></p></div>
+    </div>
+    <div class="gantt-box">
+      <div class="gantt-cap">2p 간트 원본 — 26년</div>
+      <div class="gantt" style="grid-template-columns:repeat(12,1fr);">
+        <div class="hd">1월</div><div class="hd">2월</div><div class="hd">3월</div><div class="hd">4월</div><div class="hd">5월</div><div class="hd">6월</div><div class="hd">7월</div><div class="hd">8월</div><div class="hd">9월</div><div class="hd">10월</div><div class="hd">11월</div><div class="hd">12월</div>
+        <div class="cell on">샘플제작</div><div class="cell on">DV검증</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell on">DV결과보고</div><div class="cell want">PV·결과보고</div><div class="cell want">라인업 일원화</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      </div>
+      <div class="gantt-legend">
+        <span><i style="background:var(--brand)"></i>요약표 간트 막대</span>
+        <span><i style="border:1.5px dashed var(--ok)"></i>세부에 있으나 간트에 없음</span>
+      </div>
+    </div>
+    <div class="fix"><span class="lbl">수정안</span>
+      <p><b>①</b> 빠진 3번 자리에 세부 ①을 넣어 <b>“3. LN1 라인업 일원화 검증(라우팅 통합, ~8/20)”</b>으로 채우면 번호가 1~4로 맞습니다.</p>
+      <p><b>②</b> 간트에 <b>7월 PV·결과보고</b>와 <b>8월 라인업 일원화 검증</b> 막대를 추가하세요. 현재는 6월 DV 결과보고에서 끝나 완료된 과제처럼 보입니다.</p>
+      <p><b>③</b> 시험항목을 세부 기준으로 <b>“충전수입성 20% Up(3주) / DoD 50% 80cyc↑(5주)”</b>로 분리 표기하세요(요약표는 4주로 합쳐 놓아 소요기간이 실제보다 짧게 읽힙니다).</p>
+      <p><b>④</b> 세부 표의 <b>LN1 Standard DOD50% 63cyc 추가 검증(~7/31)</b>이 요약표에 없습니다 — 미결 항목이므로 비고에 추가를 권장합니다.</p>
+    </div>
+  </article>
+</section>
+
+<!-- ═══════════ SECTION 2 ═══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-mark">02</span><h2>자료 전체에 걸친 체계적 불일치</h2></div>
+  <p class="sec-note">개별 프로젝트 문제가 아니라 요약표와 세부 슬라이드의 작성 규칙이 서로 달라 생긴 것들입니다. 항목별로 한 번에 정리하면 다음 자료부터 반복되지 않습니다.</p>
+
+  <h3 style="font-size:15px; font-weight:750; margin:0 0 10px;">2-1. 요청팀 표기 — 6건</h3>
+  <div class="tbl-box" style="margin-bottom:26px;">
+    <table>
+      <thead><tr><th style="width:18%">프로젝트</th><th style="width:22%">요약표 2~3p</th><th style="width:22%">세부 5~17p</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td class="k">No.2 충전제어</td><td><code>OE 개발팀</code></td><td><code>AP팀</code></td><td><span class="bad">실질 차이</span> — 요청 주체가 다르면 회신 책임도 달라집니다. 확정 필요</td></tr>
+        <tr><td class="k">No.3 ISS 증대</td><td><code>OE 개발팀</code></td><td><code>AP팀</code></td><td><span class="bad">실질 차이</span> — 위와 동일</td></tr>
+        <tr><td class="k">No.4 SMART EFB</td><td><code>중동팀</code></td><td><code>중동 아프리카팀</code></td><td>표기 차이 — 정식 팀명으로 통일</td></tr>
+        <tr><td class="k">No.9 BCI 24/27</td><td><code>미주팀</code></td><td><code>-</code> (공란)</td><td>세부 공란 — 미주팀으로 채우기</td></tr>
+        <tr><td class="k">No.11 B24</td><td><code>자체(밸류맵)</code></td><td><code>-</code> (공란)</td><td>세부 공란 — 자체(밸류맵)으로 채우기</td></tr>
+        <tr><td class="k">No.12 D31</td><td><code>자체(밸류맵)</code></td><td><code>-</code> (공란)</td><td>세부 공란 — 자체(밸류맵)으로 채우기</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:15px; font-weight:750; margin:0 0 10px;">2-2. 주요 시험 항목 — 8건</h3>
+  <p class="sec-note" style="margin-bottom:12px;">특히 <b>수명시험(J2801) 누락</b>은 소요기간을 4~10주 짧게 보이게 해 일정 판단을 왜곡합니다.</p>
+  <div class="tbl-box" style="margin-bottom:26px;">
+    <table>
+      <thead><tr><th style="width:18%">프로젝트</th><th style="width:33%">요약표 2~3p</th><th style="width:33%">세부 5~17p</th><th>차이</th></tr></thead>
+      <tbody>
+        <tr><td class="k">No.1</td><td><code>충전수입성, DoD 50%(4주)</code></td><td><code>충전수입성 20%Up(3주) / DoD 50% 80cyc↑(5주)</code></td><td><span class="bad">4주 → 8주</span></td></tr>
+        <tr><td class="k">No.2</td><td><code>EFB_ISS수명(7주)</code> 포함</td><td>해당 항목 없음</td><td>세부 누락</td></tr>
+        <tr><td class="k">No.3</td><td><code>ISS 수명 (9 →15주)</code></td><td><code>ISS 수명 (4~5개월)</code></td><td><span class="bad">15주 vs 약 17~21주</span></td></tr>
+        <tr><td class="k">No.5 · No.6</td><td>MCCA·중량 목표 없음</td><td><code>▼ MCCA / 제품 중량</code></td><td>2/24 목표 변경 미반영</td></tr>
+        <tr><td class="k">No.8</td><td><code>용량, CCA(2주)</code></td><td><code>CCA(850A), J2801(8주)</code></td><td><span class="bad">수명시험 누락</span></td></tr>
+        <tr><td class="k">No.9</td><td><code>J2801(10주)</code> 포함</td><td><code>C20 / CCA</code>만</td><td>세부 누락(표엔 결과 있음)</td></tr>
+        <tr><td class="k">No.11</td><td><code>J2801(7주)</code> 포함</td><td><code>C20 / CCA</code>만</td><td><span class="bad">결과표에도 없음 → F-08</span></td></tr>
+        <tr><td class="k">No.12</td><td><code>J2801(10주)</code> 포함</td><td><code>C20 / CCA</code>만</td><td>세부 누락(표엔 11주 결과 있음)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:15px; font-weight:750; margin:0 0 10px;">2-3. 대분류 · 소분류 명칭 — 전 항목</h3>
+  <p class="sec-note" style="margin-bottom:12px;">요약표는 <code>FLD(EN)</code>처럼 제품군+규격을 함께 쓰고 세부는 규격만 씁니다. 소분류 명칭도 대부분 다릅니다. 검색·대조가 어려우니 한쪽 표기를 정본으로 정하세요.</p>
+  <div class="tbl-box" style="margin-bottom:26px;">
+    <table>
+      <thead><tr><th style="width:10%">No</th><th style="width:45%">요약표 2~3p</th><th style="width:45%">세부 5~17p</th></tr></thead>
+      <tbody>
+        <tr><td class="k">1</td><td><code>FLD (EN)</code> · 일본향 xEV용 제품개발<b>(PH제품)</b></td><td><code>EN</code> · 일본향 xEV용 제품개발</td></tr>
+        <tr><td class="k">2</td><td><code>FLD/EFB (JIS)</code> · 일본시장 제품(충전 제어 용)</td><td><code>FLD EFB</code> · 일본시장 충전제어용</td></tr>
+        <tr><td class="k">3</td><td><code>EFB (JIS)</code></td><td><code>EFB</code></td></tr>
+        <tr><td class="k">4</td><td><code>EFB (EN, JIS)</code> · SMART EFB 개발</td><td><code>EN JIS</code> · <b>중동향</b> SMART EFB 개발</td></tr>
+        <tr><td class="k">5 · 6</td><td><code>FLD (JIS)</code> / <code>FLD (EN)</code></td><td><code>JIS</code> / <code>EN</code></td></tr>
+        <tr><td class="k">7</td><td><code>FLD (BCI)</code> · 마린용 고용량 제품 개발</td><td><code>BCI</code> · 마린용 고용량 <b>M27</b> 개발</td></tr>
+        <tr><td class="k">8</td><td><code>FLD (BCI)</code> · BCI 65 PH Line up 확대</td><td><code>BCI</code> · <b>65 type</b></td></tr>
+        <tr><td class="k">9</td><td>BCI <b>24,27</b> PH Line up 확대</td><td>BCI PH Line up 확대</td></tr>
+        <tr><td class="k">10</td><td>북미 트럭용 PH <b>31류</b> 제품 개발</td><td>북미 트럭용 PH 제품개발</td></tr>
+        <tr><td class="k">11 · 12</td><td><b>JIS 소형</b> B24 / <b>JIS 중형</b> D31 High Spec 제품 개발</td><td>High Spec B24 개발 / High Spec D31 개발</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:15px; font-weight:750; margin:0 0 10px;">2-4. 오탈자 · 표기 오류 — 6건</h3>
+  <div class="tbl-box">
+    <table>
+      <thead><tr><th style="width:12%">위치</th><th style="width:38%">현재</th><th>수정</th></tr></thead>
+      <tbody>
+        <tr><td class="k">1p ↔ 17p</td><td>표지 목차는 <code>2. 유럽향 절감형…</code>인데 17p 제목은 <code>1. 유럽향 절감형…</code></td><td>17p 제목을 <b>2.</b>로</td></tr>
+        <tr><td class="k">2p</td><td>No.1 비고 번호 <code>1 → 2 → 4</code></td><td><b>3번</b> 항목 채우기 (F-13 참조)</td></tr>
+        <tr><td class="k">4p</td><td><code>기본성능 검증 결과 유럽<b>팁</b> 공유 완료</code></td><td>유럽<b>팀</b></td></tr>
+        <tr><td class="k">10p</td><td><code>LBN3, LN4 각 2종 … 총 <b>3종</b></code></td><td><b>4종</b> (또는 실제 종수 명시)</td></tr>
+        <tr><td class="k">12p</td><td>항목 번호 <code>3)</code>이 연속 두 번</td><td>두 번째를 <b>4)</b>로</td></tr>
+        <tr><td class="k">15p · 17p</td><td><code>Dekor社</code> / 원가 <code>37<b>.</b>924</code></td><td><b>Delkor社</b> / <b>37,924</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 3 ═══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-mark">03</span><h2>프로젝트별 6월 · 7월 진행 / 향후계획 / 협의 필요사항</h2></div>
+  <p class="sec-note">신제품 개발 12건과 유럽향 DIN Type Punch 개발 1건입니다. 세부 슬라이드를 기준으로 정리하고, 요약표에만 있던 항목은 협의 필요사항에 반영했습니다.</p>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.1</span>일본향 xEV용 제품개발 (PH제품)</h3><span class="state run">PV 검증 중</span></div>
+    <div class="chips"><span class="chip">FLD(EN)</span><span class="chip">AP팀</span><span class="chip">LN0 · LN1 · LN2 / 6종</span><span class="chip">25만대/년</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>DV 6종 中 6종 개발 完 (26.6월)</li><li>Standard·Premium 라인업 Spec 협의 完</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>PV 1종 진행 中</li><li>LN1 Standard DOD50% 63cyc — 추가 검증 진행(~7/31)</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>PV 결과보고 ~7/31</li><li>LN1 라인업 일원화(라우팅 통합) 검증 ~8/20</li><li>라인업 전환 협의 — 하반기</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>바이어 협의 상황 공유 요청 (영업)</li><li>바이어 / 양산 시점 / 물량 회신 요청 (영업)</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.2</span>일본시장 충전제어용 제품</h3><span class="state late">DV 미충족 · 개선 중</span></div>
+    <div class="chips"><span class="chip">FLD/EFB(JIS)</span><span class="chip">요청팀 확정 필요</span><span class="chip">K42 · M42 · N55</span><span class="chip">기존품 대체</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>DV 검증 불만족 확인 — 요구 Spec 대비 80% 수준</li><li>개선안 도출 : 음극 신규 카본 첨가제 (원가 +0.6%)</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>경쟁사 벤치마킹 실시 完 (7/10)</li><li>M42 개선샘플 4종 생산 完 (7/14) — 음극 기판변경 + 첨가제</li><li>기본성능 평가 中, 충전수입성 평가 ~7/28</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>벤치마킹 결과 기안 상신 7/29</li><li>추가 개선안 검증 ~9월</li><li>DV 결과보고 ~9월</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>영업팀 — BSJP 미팅 후 요구 Spec 재확인 (~7/31 또는 8월, 시점 확정 필요)</li><li>원가 +0.6% 수용 가능 여부 영업 판단</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.3</span>일본시장 ISS 증대 제품 (BOSCH JP용)</h3><span class="state late">재검증 필요</span></div>
+    <div class="chips"><span class="chip">EFB(JIS)</span><span class="chip">요청팀 확정 필요</span><span class="chip">Q85 · S95 · T110</span><span class="chip">10만대/년</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>2차 성능검증 完 — ISS 수명 만족</li><li>C20 용량 불만족 확인 (Q85 98.6%)</li><li>베트남 GIA PHAT 양산 지속 (4월~, 440대)</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li class="none">별도 진행 사항 기재 없음 — 재검증 준비 단계</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>Q85 기본성능 재검증 ~9월</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>강화된 품질기준 (95 → 103% 이상) 반영 여부 — 품질팀 협의</li><li>요약표 “재검증 완료” 표기와 실제 상태 확인</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.4</span>중동향 SMART EFB 개발</h3><span class="state run">3종 양산 중</span></div>
+    <div class="chips"><span class="chip">EN · JIS</span><span class="chip">중동아프리카팀</span><span class="chip">LN2~LN5 · D26 · D31 / 7종</span><span class="chip">8만대/년</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>LN4 추가 개선방안 협의 (6/1, 기술·품질)</li><li>사양 발행 완료 (6/10)</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li class="none">특이사항 없음 — D26·LN3·LBN4 2월~ 양산 지속</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li class="none">별도 기재 없음 — 현 설계 유지 양산</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>LN4 조건부 合(99.3%) — 현 설계 유지 vs 개선안 적용 결론 필요</li><li>개발 완료 종수 6종 / 7종 확정</li><li>LN2·LN4·LN5·D31 6월 양산 개시 여부</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.5</span>JIS 중형 필드수명 개선품 개발</h3><span class="state late">샘플 생산 지연</span></div>
+    <div class="chips"><span class="chip">FLD(JIS)</span><span class="chip">AP팀</span><span class="chip">D26 · D31 / 4종</span><span class="chip">4.5만대/년</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>극판 생산 (~6/15)</li><li>샘플 생산 6/30 목표 → 7/27로 순연</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>DV/PV 및 바이어 송부용 샘플 생산 (~7/27) — 생산라인 변경으로 지연</li><li>4종 中 1종만 생산 지시</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>기본성능 검증 ~8/20</li><li>수명성능 검증 ~10/20</li><li>양산 11월~</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>바이어 홍보자료 송부 (기술, ~6/12) — 완료 여부</li><li>바이어 송부용 배터리 수량 확인 (영업, ~6/20) — 회신 필요</li><li>잔여 3종 생산 일정</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.6</span>EN 중형 필드수명 개선품 개발</h3><span class="state run">기본성능 검증 중</span></div>
+    <div class="chips"><span class="chip">FLD(EN)</span><span class="chip">AP팀</span><span class="chip">LBN3 · LN4</span><span class="chip">4.5만대/년</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>극판 생산 (~6/15)</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>DV/PV 및 바이어 송부용 샘플 생산 完</li><li>기본성능 검증 진행 中</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>기본성능 검증 ~8/20</li><li>수명성능 검증 ~10/20</li><li>양산 11월~</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>요약표 비고 공란 — 진행내용 반영 필요</li><li>개발 종수 3종 / 4종 확정</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.7</span>마린용 고용량 제품 개발</h3><span class="state run">자체 검증 완료</span></div>
+    <div class="chips"><span class="chip">FLD(BCI)</span><span class="chip">AP팀</span><span class="chip">M27</span><span class="chip">3만대/년</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>자체 성능검증 DV·PV 完 (C20 100.1~101.3%, 수명 164·209cyc)</li><li>Century Yuasa 결과 리포트 회신 기한 (~6/30)</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li class="none">별도 진행 사항 기재 없음</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>양산 9월 예상</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>Century Yuasa 검증 결과 리포트 회신 여부 (6/30 기한 경과)</li><li>바이어 / 양산 시점 / 물량 회신 (AP팀)</li><li>Century 外 추가 바이어 공급 가능성</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.8</span>BCI 65 PH Line-up 확대</h3><span class="state done">개발 완료</span></div>
+    <div class="chips"><span class="chip">FLD(BCI)</span><span class="chip">미주팀</span><span class="chip">BCI 65 / 5종</span><span class="chip">10만대/년</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>108매·120매 (+)활물질 3g 증대 후 재검증</li><li>2차 샘플 검증 및 개발완료 (26.06)</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li class="none">개발 종료 — 양산 협의 단계</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>양산 가능 시점 7월~ (Exp/Punch 듀얼 코드 판매)</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>개발완료에 따른 양산 시점 · 물량 협의</li><li>개발완료 시점 6월 / 7월 확정</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.9</span>BCI 24, 27 PH Line-up 확대</h3><span class="state run">DV / PV 검증 중</span></div>
+    <div class="chips"><span class="chip">FLD(BCI)</span><span class="chip">미주팀</span><span class="chip">BCI 24 · BCI 27</span><span class="chip">10만대/년</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>BCI 24 기본성능 完, J2801 수명 完 (Spec. 合)</li><li>BCI 27 J2801 수명 完 (Spec. 合)</li><li>활물질 +3g 증대용 극판 · 샘플 제작 完</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>BCI 27 기본성능 진행 中 (~7/31)</li><li>BCI 27 2차 샘플 검증 (~7/31)</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>BCI 27 DV·PV 검증 ~7/31</li><li>DV·PV 결과보고 ~8/14</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>Interstate社 제품교체 Data sheet 양식 회신 대기 中 (6/24~, 담당자 휴가로 지연) — 영업 협조</li><li>BCI 27 개발완료 · 양산 일정 확정</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.10</span>북미 트럭용 PH 31류 제품 개발</h3><span class="state late">선행 검토 · 지연</span></div>
+    <div class="chips"><span class="chip">FLD(BCI)</span><span class="chip">미주팀</span><span class="chip">BCI 31 / 기본 · 장수명</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>PH 적용 샘플 제작 목표 (~6/10) → 미달</li><li>검토 결과 송부 · 개발목표 협의 (~6/30) → 미달</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>선행 검토 샘플 생산 完 (7/11, 약 1개월 지연)</li><li>기본성능 · 수명성능 검증 中 (J2801 4주, J2185 4주 시점)</li><li>개발 검토 결과 기안 상신 中 (7/20~)</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>경쟁사(아트라스·DTR) 벤치마킹 결과보고 ~7/30</li><li>선행 검토 샘플 수명시험 검증 ~10/16</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>성능 목표 영업 협의 필요 (요약표 시험항목 명시)</li><li>신규 Interstate RFQ 목표 Spec 변경에 따른 개발목표 협의 (~7/31)</li><li>지연 반영 후 11월 개발완료 가능 여부</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.11</span>JIS 소형 B24 High Spec 제품 개발</h3><span class="state done">개발 완료 (07/20)</span></div>
+    <div class="chips"><span class="chip">FLD(JIS)</span><span class="chip">자체 · 밸류맵</span><span class="chip">B24</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li class="none">별도 기재 없음 — 성능평가 단계</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>성능 평가 및 개발완료 (07/20)</li><li>C20 59.99(103.4%) · RC 99~101Min · CCA 39~46sec</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li class="none">개발 종료 — 양산 바이어 확보 단계</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>양산 가능 바이어 확인 요청 (영업, ~7/30)</li><li>J2801(7주) 수명시험 실시 여부 — 결과 없이 완료 선언됨</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>No.12</span>JIS 중형 D31 High Spec 제품 개발</h3><span class="state late">3차 시험 진행</span></div>
+    <div class="chips"><span class="chip">FLD(JIS)</span><span class="chip">자체 · 밸류맵</span><span class="chip">D31</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>2차 시험 결과 용량 목표(103%) 미달 — 개선품 97.3Ah(102.4%)</li><li>VC 표기치 만족 설계변경 협의 (~6/12)</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>극판 하한치 중량 선별 (~7/22)</li><li>3차 개선샘플 생산 (~7/24)</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>3차 샘플 기본성능 검증 ~8/14</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>미주팀 회신(고스펙 수요 낮음, 기본성능 만족 위주)의 개발목표 반영 여부 — 목표 103% 유지 / 100% 하향 확정</li><li>개발완료 11월 예상 재산정</li></ul></div>
+    </div>
+  </article>
+
+  <article class="proj">
+    <div class="proj-top"><h3><span>별도</span>유럽향 절감형 DIN Type 중형 Punch 개발 (극판 박판화)</h3><span class="state late">수명 미달 · 원인 분석</span></div>
+    <div class="chips"><span class="chip">유럽팀</span><span class="chip">담당 박지영</span><span class="chip">DIN Type LN2</span><span class="chip">0.70t 검토</span></div>
+    <div class="grid4" style="margin-top:12px;">
+      <div class="col"><h4>6월 진행</h4><ul><li>기판 두께별 기본성능 검증 完 — 0.70t에서 MCCA 611A, EN CCA 540A 만족</li><li>기본성능 결과 유럽팀 공유 완료 (~6/15)</li></ul></div>
+      <div class="col"><h4>7월 진행</h4><ul><li>SAE J2801 수명시험 진행 中 (~8/30)</li><li>EN DOD 50% 50cycle — VARTA 92cycle 대비 미달, 수명종료 원인 분석 中</li></ul></div>
+      <div class="col next"><h4>향후계획</h4><ul><li>J2801 수명성능 검증 완료 ~8/30</li><li>DOD 50% 원인 분석 후 설계 재검토</li></ul></div>
+      <div class="col ask"><h4>협의 · 요청</h4><ul><li>PH 0.7T 제품 개발 검토를 위한 목표 사양 요청 (LN1~LN6) — 유럽팀 회신 필요</li><li>DOD 50% 미달 리스크 공유 및 채택 여부 판단</li></ul></div>
+    </div>
+  </article>
+</section>
+
+<!-- ═══════════ SECTION 4 ═══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-mark">04</span><h2>세부 슬라이드가 없는 F/up 항목 — 회신 지연 3건</h2></div>
+  <p class="sec-note">4p F/up 표에는 있으나 5~17p 세부 슬라이드로 이어지지 않은 항목입니다. 세 건 모두 영업 측 회신 지연으로 표기되어 있어, 이번 교류회에서 기한을 다시 잡는 것이 좋겠습니다.</p>
+  <div class="fup">
+    <div class="fup-c">
+      <h4>GB LN1-PN 제품 카바 디자인 변경</h4>
+      <div class="who">기술 윤민국 · 영업기획</div>
+      <p>ECR 송부 完(3/26) 이후 <b>4개월째</b> 영업 회신 지연 中</p>
+      <div class="need">바이어별 변경 가능 여부 회신 기한 재설정</div>
+    </div>
+    <div class="fup-c">
+      <h4>바이어별 전해액 혼합치구 대응 적합성 검토</h4>
+      <div class="who">기술 문병호 · 영업기획</div>
+      <p>혼합치구 삭제 가능 여부 · 코드 변경 확인 지속 업데이트 中, 영업팀별 회신·수합 지연 中</p>
+      <div class="need">팀별 회신 취합 및 삭제 적용 바이어 현황 확정</div>
+    </div>
+    <div class="fup-c">
+      <h4>저비중 제품 비중 변경 검토 (SG6 → SG8)</h4>
+      <div class="who">기술 고정의 · 영업기획</div>
+      <p>AMS 차량 점유율 조사(~3/27) 이후 팀별·바이어별 최종 의견 회신 필요, 수합 지연 中</p>
+      <div class="need">저비중 → 일반비중 변경 최종 의견 회신</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  원본 : 「기술/영업 교류회」 PPT · 2026년 7월 30일 · 17슬라이드 (표지 1p / 요약표 2~3p / F/up 4p / 세부 5~17p)<br>
+  인용문은 모두 원본 슬라이드의 표·텍스트 상자에서 그대로 발췌했으며, 간트 차트는 원본 막대의 월 위치를 재현한 것입니다.
+</footer>
+
+</div>
