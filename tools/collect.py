@@ -156,18 +156,33 @@ def parse_specs(text, limit=400, loose=False):
 
 
 # ── 파일 처리 ────────────────────────────────────────────────────────────
-def pdf_text(path):
-    try:
-        from pypdf import PdfReader
-    except ImportError:
+def _pdf_reader():
+    """pypdf 를 불러온다.  없으면 None.
+
+    ImportError 만 잡으면 안 된다.  pypdf 가 의존하는 cryptography 가 깨진
+    PC 에서는 pyo3 의 PanicException 이 올라오는데, 이건 Exception 이 아니라
+    BaseException 상속이라 그냥 두면 수집 전체가 멈춘다.  본문 추출은 못 해도
+    PDF 를 받아 해시·페이지수를 남기는 일은 계속돼야 한다."""
+    for mod in ('pypdf', 'PyPDF2'):
         try:
-            from PyPDF2 import PdfReader
-        except ImportError:
-            return None
+            return __import__(mod, fromlist=['PdfReader']).PdfReader
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException:
+            continue
+    return None
+
+
+def pdf_text(path):
+    PdfReader = _pdf_reader()
+    if PdfReader is None:
+        return None
     try:
         reader = PdfReader(path)
         return '\n'.join((p.extract_text() or '') for p in reader.pages)
-    except Exception:
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException:
         return None
 
 
