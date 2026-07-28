@@ -1,0 +1,1832 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="전세계 SLI 납축전지(AGM·EFB·일반액식) 카달로그 성능·차량적합성·판매지역 통합 관리">
+<title>글로벌 SLI 배터리 카달로그 · 성능/적합성 관리</title>
+<style>
+  :root{--navy:#14263d;--blue:#1473e6;--blue2:#eaf3ff;--green:#16845b;--amber:#c67700;--red:#c63d4c;
+    --purple:#6b4bd6;--ink:#1b2735;--muted:#667487;--line:#dfe5ec;--bg:#f4f7fa;--card:#fff;
+    --shadow:0 8px 28px rgba(20,38,61,.08)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif;font-size:13.5px;line-height:1.5}
+  button,input,select,textarea{font:inherit}button{cursor:pointer}
+  a{color:var(--blue)}
+  .app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+  .side{position:sticky;top:0;height:100vh;background:var(--navy);color:#fff;padding:22px 14px;display:flex;flex-direction:column;overflow-y:auto}
+  .brand{padding:0 10px 20px}
+  .brand small{display:block;color:#8fb4dd;letter-spacing:.12em;font-size:10px}
+  .brand strong{display:block;font-size:18px;line-height:1.3;margin-top:5px}
+  .pill{display:inline-flex;margin-top:9px;padding:4px 9px;border-radius:99px;background:#21466f;color:#dcecff;font-size:11px}
+  nav{display:grid;gap:4px}
+  .navbtn{border:0;background:transparent;color:#b9c9db;text-align:left;padding:10px 12px;border-radius:9px;display:flex;gap:9px;align-items:center;font-size:13px}
+  .navbtn:hover,.navbtn.active{background:#24415f;color:#fff}
+  .navbtn .cnt{margin-left:auto;font-size:10.5px;color:#8fb4dd}
+  .side-foot{margin-top:auto;padding:16px 10px 0;border-top:1px solid #2a435e;color:#9db0c4;font-size:11px}
+  main{min-width:0}
+  .top{min-height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 26px;position:sticky;top:0;z-index:20;gap:14px;flex-wrap:wrap}
+  .top h1{font-size:19px;margin:0}.top p{margin:2px 0 0;color:var(--muted);font-size:12px}
+  .top-actions{display:flex;gap:7px;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 12px;border-radius:8px;font-weight:700;font-size:12.5px}
+  .btn:hover{border-color:#9fb7cf}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btn.ghost{background:#f6f9fc}.btn.danger{color:var(--red);border-color:#f0c9ce}
+  .btn.sm{padding:5px 9px;font-size:11.5px}
+  .content{padding:22px 26px 60px;max-width:1680px;margin:auto}
+  .view{display:none}.view.active{display:block}
+  .banner{background:#fff4e2;border:1px solid #f0c894;border-left:5px solid var(--amber);color:#6b4a09;border-radius:10px;padding:11px 14px;margin-bottom:16px;font-size:12.5px;line-height:1.65}
+  .banner b{color:#5b3f07}
+  .banner.info{background:var(--blue2);border-color:#b9d6fb;border-left-color:var(--blue);color:#1a4c86}
+  .sh{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+  .sh h2{font-size:19px;margin:0}.sh p{color:var(--muted);font-size:12.5px;margin:3px 0 0}
+  .grid{display:grid;gap:12px}
+  .g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}
+  @media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.g3,.g2{grid-template-columns:1fr}}
+  @media(max-width:760px){.app{grid-template-columns:1fr}.side{position:static;height:auto}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+  .kpi .l{color:var(--muted);font-size:11.5px}
+  .kpi .n{font-size:25px;font-weight:800;margin-top:4px}
+  .kpi .s{font-size:11px;color:var(--muted);margin-top:3px}
+  .kpi.green .n{color:var(--green)}.kpi.red .n{color:var(--red)}.kpi.amber .n{color:var(--amber)}
+  .kpi.blue .n{color:var(--blue)}.kpi.purple .n{color:var(--purple)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px}
+  .card h3{font-size:14.5px;margin:0 0 12px}
+  .card h3 .sub{font-weight:400;color:var(--muted);font-size:11.5px;margin-left:6px}
+  .bar{height:9px;border-radius:6px;background:#e7edf3;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--blue);border-radius:6px}
+  .barrow{display:grid;grid-template-columns:130px 1fr 62px;gap:9px;align-items:center;margin-bottom:7px;font-size:12px}
+  .barrow .v{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+  table{width:100%;border-collapse:collapse;font-size:12.3px}
+  th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+  th{background:#f7fafd;color:var(--muted);font-weight:700;font-size:11.5px;position:sticky;top:0;z-index:1;cursor:pointer;user-select:none}
+  th.no-sort{cursor:default}
+  tbody tr:hover{background:#f9fcff}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .tw{overflow:auto;max-height:620px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .tag{display:inline-block;padding:2px 7px;border-radius:99px;font-size:10.5px;font-weight:700;white-space:nowrap}
+  .t-agm{background:#eee9ff;color:#5636c4}.t-efb{background:#e3f4ec;color:#0f6b49}
+  .t-fld{background:#eef2f7;color:#4a5b70}.t-own{background:#fde9ec;color:#a8283a}
+  .t-ok{background:#e3f4ec;color:#0f6b49}.t-warn{background:#fff2db;color:#8a5400}
+  .t-est{background:#fdeee2;color:#9a5316}.t-pub{background:var(--blue2);color:#14559f}
+  .t-std{background:#eef2f7;color:#4a5b70}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .filters input[type=search],.filters input[type=text],.filters select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:120px}
+  .filters input[type=search]{min-width:230px}
+  .chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:11.5px}
+  .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .muted{color:var(--muted)}
+  .right{text-align:right}
+  .drawer{position:fixed;top:0;right:0;width:520px;max-width:94vw;height:100vh;background:#fff;box-shadow:-10px 0 40px rgba(20,38,61,.18);padding:22px 24px;overflow-y:auto;z-index:60;display:none}
+  .drawer.open{display:block}
+  .drawer h3{margin:0 0 4px;font-size:17px}
+  .backdrop{position:fixed;inset:0;background:rgba(20,38,61,.35);z-index:55;display:none}
+  .backdrop.open{display:block}
+  .kv{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:12.5px;margin:12px 0}
+  .kv dt{color:var(--muted)}.kv dd{margin:0;font-weight:600}
+  .form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .form label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:3px}
+  .form input,.form select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px}
+  @media(max-width:900px){.form{grid-template-columns:repeat(2,1fr)}.drawer{width:100%}}
+  .score{display:inline-block;min-width:38px;padding:2px 7px;border-radius:6px;font-weight:800;font-size:11.5px;text-align:center}
+  .s-a{background:#e3f4ec;color:#0f6b49}.s-b{background:var(--blue2);color:#14559f}
+  .s-c{background:#fff2db;color:#8a5400}.s-d{background:#fdeaec;color:#a8283a}
+  .slider{display:grid;grid-template-columns:120px 1fr 40px;gap:9px;align-items:center;font-size:12px;margin-bottom:6px}
+  .slider input{width:100%}
+  .empty{padding:26px;text-align:center;color:var(--muted);font-size:12.5px}
+  .legend{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.7}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:99px;margin-right:5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <small>GLOBAL SLI BATTERY</small>
+      <strong>납축전지 카달로그<br>성능 관리</strong>
+      <span class="pill">AGM · EFB · 일반액식</span>
+    </div>
+    <nav id="nav">
+      <button class="navbtn active" data-v="dash">📊 대시보드</button>
+      <button class="navbtn" data-v="cat">📚 카달로그 <span class="cnt" id="cntCat"></span></button>
+      <button class="navbtn" data-v="fit">🚗 차량 적합성 <span class="cnt" id="cntFit"></span></button>
+      <button class="navbtn" data-v="cmp">⚖️ 성능 비교 <span class="cnt" id="cntCmp"></span></button>
+      <button class="navbtn" data-v="xref">🔀 규격 크로스레퍼런스</button>
+      <button class="navbtn" data-v="rgn">🌍 판매지역</button>
+      <button class="navbtn" data-v="src">🏭 제조사·수집관리 <span class="cnt" id="cntSrc"></span></button>
+      <button class="navbtn" data-v="data">💾 데이터 관리</button>
+    </nav>
+    <div class="side-foot">
+      브라우저 저장소에 자동 저장됩니다.<br>
+      사내 데이터는 이 파일에 포함되지 않고<br>내 PC 브라우저에만 남습니다.
+      <div style="margin-top:8px" id="storeInfo"></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div><h1 id="vTitle">대시보드</h1><p id="vDesc">전세계 SLI 배터리 카달로그 현황</p></div>
+      <div class="top-actions">
+        <button class="btn ghost sm" id="btnHelp">사용법</button>
+        <button class="btn ghost sm" onclick="exportJSON()">JSON 백업</button>
+        <button class="btn primary sm" onclick="go('data')">＋ 데이터 올리기</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- 대시보드 -->
+      <section class="view active" id="v-dash">
+        <div class="banner" id="seedNotice"></div>
+        <div class="grid g4" id="kpis"></div>
+        <div class="grid g2">
+          <div class="card"><h3>기술별 구성 <span class="sub">AGM / EFB / 일반액식</span></h3><div id="chTech"></div></div>
+          <div class="card"><h3>용도별 구성</h3><div id="chApp"></div></div>
+        </div>
+        <div class="grid g2">
+          <div class="card"><h3>판매지역별 모델 수</h3><div id="chRgn"></div></div>
+          <div class="card"><h3>규격체계별 모델 수 <span class="sub">JIS / DIN·EN / BCI</span></h3><div id="chSys"></div></div>
+        </div>
+        <div class="grid g2">
+          <div class="card"><h3>제조사별 등록 모델 <span class="sub">상위 12</span></h3><div id="chMk"></div></div>
+          <div class="card">
+            <h3>용도군별 평균 성능 <span class="sub">CCA 는 EN 환산 기준</span></h3>
+            <div class="tw" style="max-height:none"><table id="tbAvg"></table></div>
+            <p class="legend">CCA/Ah = 시동성능 밀도, Wh/kg = 중량 에너지밀도. 용도가 다르면 직접 비교하지 말 것.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>수집이 필요한 카달로그 <span class="sub">등록 모델이 없거나 상태가 미수집인 소스</span></h3>
+          <div class="tw" style="max-height:320px"><table id="tbTodo"></table></div>
+        </div>
+      </section>
+
+      <!-- 카달로그 -->
+      <section class="view" id="v-cat">
+        <div class="sh">
+          <div><h2>카달로그</h2><p>제조사·유통사 카달로그에서 수집한 SLI 모델 성능. 행을 클릭하면 상세와 동일 규격 경쟁 모델을 볼 수 있다.</p></div>
+          <div class="top-actions">
+            <button class="btn sm" onclick="exportCSV()">현재 목록 CSV</button>
+            <button class="btn sm primary" onclick="openEdit(null)">＋ 모델 추가</button>
+          </div>
+        </div>
+        <div class="filters" id="catFilters"></div>
+        <div class="tw"><table id="tbCat"></table></div>
+        <p class="legend" id="catLegend"></p>
+      </section>
+
+      <!-- 차량 적합성 -->
+      <section class="view" id="v-fit">
+        <div class="sh">
+          <div><h2>차량 적합성</h2><p>차종이 요구하는 규격·용량·CCA·기술을 기준으로 우리/타사 모델이 적합한지 자동 매칭한다.</p></div>
+          <div class="top-actions"><button class="btn sm primary" onclick="openFitEdit(null)">＋ 차종 추가</button></div>
+        </div>
+        <div class="banner">
+          <b>반드시 원본 대조.</b> 같은 차종도 연식·트림·사양(ISG 유무, 엔진, 사양별 옵션)에 따라 요구 배터리가 달라진다.
+          여기 값은 업계 통용 기준으로 정리한 <b>1차 후보</b>이며, 최종 적용은 OEM 매뉴얼·정품 피트먼트 가이드로 확인해야 한다.
+        </div>
+        <div class="filters" id="fitFilters"></div>
+        <div class="tw"><table id="tbFit"></table></div>
+      </section>
+
+      <!-- 성능 비교 -->
+      <section class="view" id="v-cmp">
+        <div class="sh">
+          <div><h2>성능 비교</h2><p>카달로그에서 담은 모델을 나란히 비교한다. 점수는 <b>같은 용도군 안에서</b> 상대 위치(0~100)로 환산한 값이다.</p></div>
+          <div class="top-actions"><button class="btn sm danger" onclick="clearCart()">비교함 비우기</button></div>
+        </div>
+        <div class="card">
+          <h3>가중치 <span class="sub">종합점수 계산 비중</span></h3>
+          <div class="grid g2"><div id="weights"></div>
+          <div>
+            <div class="slider"><span>SAE→EN 환산계수</span><input type="range" id="wSae" min="0.8" max="1.1" step="0.01"><span id="wSaeV"></span></div>
+            <p class="legend">EN(10초/7.5V)과 SAE(30초/7.2V)는 시험법이 달라 정확한 환산식이 없다. 표기 규격이 섞인 데이터를 한 축에서 비교하려고 쓰는 <b>근사 계수</b>이며 기본값 0.95다. 카달로그 대조 시에는 원 표기값을 그대로 봐야 한다.</p>
+          </div></div>
+        </div>
+        <div class="tw" style="max-height:none"><table id="tbCmp"></table></div>
+      </section>
+
+      <!-- 크로스레퍼런스 -->
+      <section class="view" id="v-xref">
+        <div class="sh">
+          <div><h2>규격 크로스레퍼런스</h2><p>같은 규격(사이즈)에서 각 사 스펙이 어디까지 나와 있는지, 자사 대비 격차는 얼마인지 본다.</p></div>
+        </div>
+        <div class="filters" id="xrefFilters"></div>
+        <div class="tw"><table id="tbXref"></table></div>
+        <p class="legend">갭 = (자사 최고 스펙 − 타사 최고 스펙) ÷ 타사 최고 스펙. 음수면 타사가 앞선다.</p>
+      </section>
+
+      <!-- 판매지역 -->
+      <section class="view" id="v-rgn">
+        <div class="sh">
+          <div><h2>판매지역</h2><p>지역별로 어떤 기술·용도·규격을 커버하고 있는지, 우리 라인업에 빈 곳은 어디인지 본다.</p></div>
+        </div>
+        <div class="grid g4" id="rgnKpis"></div>
+        <div class="card">
+          <h3>지역 × 기술 커버리지</h3>
+          <div class="tw" style="max-height:none"><table id="tbRgnTech"></table></div>
+        </div>
+        <div class="grid g2">
+          <div class="card"><h3>지역별 자사 모델 vs 타사 모델</h3><div id="chRgnOwn"></div></div>
+          <div class="card"><h3>지역별 진출 제조사 수</h3><div id="chRgnMk"></div></div>
+        </div>
+        <div class="card">
+          <h3>지역별 상세</h3>
+          <div class="tw" style="max-height:none"><table id="tbRgn"></table></div>
+        </div>
+      </section>
+
+      <!-- 제조사·수집관리 -->
+      <section class="view" id="v-src">
+        <div class="sh">
+          <div><h2>제조사 · 카달로그 수집관리</h2><p>어느 회사 카달로그를 받았고, 어떤 버전인지, 다음에 뭘 받아야 하는지 관리한다.</p></div>
+          <div class="top-actions"><button class="btn sm primary" onclick="openMakerEdit(null)">＋ 제조사/유통사 추가</button></div>
+        </div>
+        <div class="banner info">
+          카달로그 URL 은 제조사 공식 사이트를 넣어둔 상태이고 <b>링크 유효성은 확인하지 않았다.</b>
+          실제 카달로그(PDF/제품표)를 받으면 URL·판(edition)·수집일을 갱신하고 상태를 <b>수집완료</b>로 바꿔서 쓴다.
+        </div>
+        <div class="filters" id="srcFilters"></div>
+        <div class="tw"><table id="tbSrc"></table></div>
+      </section>
+
+      <!-- 데이터 관리 -->
+      <section class="view" id="v-data">
+        <div class="sh"><div><h2>데이터 관리</h2><p>사내 제품 리스트(CSV) 올리기, 백업, 품질 점검.</p></div></div>
+        <div class="banner">
+          <b>사내 데이터는 이 파일에 저장되지 않는다.</b> 이 저장소는 공개 저장소라서 고객품번·납품처·오더량 같은 영업 정보는
+          커밋하지 않았다. CSV 로 올린 데이터는 지금 쓰는 <b>브라우저에만</b> 저장되고, 다른 PC 에서 보려면 그 PC 에서 다시 올려야 한다.
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <h3>CSV 가져오기</h3>
+            <p class="muted" style="font-size:12.5px;margin:0 0 10px">
+              엑셀에서 <b>CSV UTF-8</b> 로 저장해 올린다. 사내 일본 제품 엑셀은
+              <code>tools/gb_japan_to_catalog_csv.py</code> 로 변환하면 이 형식이 된다.
+            </p>
+            <input type="file" id="fileCsv" accept=".csv,text/csv">
+            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+              <label class="chip"><input type="radio" name="impMode" value="merge" checked> 기존 임포트에 합치기</label>
+              <label class="chip"><input type="radio" name="impMode" value="replace"> 임포트 데이터 교체</label>
+            </div>
+            <div id="impResult" style="margin-top:12px"></div>
+            <p class="legend">필수 열: 제조사·모델. 나머지는 있으면 쓰고 없으면 비워둔다.
+              열 이름: 구분/제조사/브랜드/모델/규격그룹/규격체계/기술/용도/전압/C20용량/RC분/CCA_SAE/CCA_EN/판매지역/유통사/고객품번/표기_C20/표기_RC/표기_CCA_SAE/표기_CCA_EN/스펙판정/오더23/오더24/오더25/판매25/판매26/검증상태/출처/비고</p>
+            <div style="margin-top:10px"><button class="btn sm" onclick="downloadTemplate()">빈 양식 CSV 받기</button></div>
+          </div>
+          <div class="card">
+            <h3>백업 · 복원 · 초기화</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+              <button class="btn sm" onclick="exportJSON()">전체 JSON 백업</button>
+              <button class="btn sm" onclick="document.getElementById('fileJson').click()">JSON 복원</button>
+              <button class="btn sm" onclick="exportCSV(true)">전체 CSV 내보내기</button>
+              <button class="btn sm danger" onclick="resetAll()">시드 상태로 초기화</button>
+            </div>
+            <input type="file" id="fileJson" accept=".json" style="display:none">
+            <div id="storeStat"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>카달로그 원본(PDF) 근거 등록</h3>
+          <p class="muted" style="font-size:12.5px;margin:0 0 10px">
+            <code>tools/fetch_catalogs.py</code> 를 사내 PC 에서 돌리면 카달로그 PDF 를 <code>catalogs/</code> 에 받고
+            <code>catalog_registry.csv</code>(파일명 · 판 · 발행연도 · SHA-256 · 페이지수 · 수집일)를 만들어 준다.
+            그 CSV 를 여기에 올리면 제조사별 근거 기록이 채워진다.
+          </p>
+          <input type="file" id="fileMk" accept=".csv,text/csv">
+          <div id="mkImpResult" style="margin-top:10px"></div>
+          <p class="legend">열: 제조사키/제조사/카달로그명/판/발행연도/PDF_URL/파일명/SHA256/페이지수/수집일/상태/비고 —
+            PDF 원본은 제조사 저작물이라 이 저장소에 커밋하지 않는다(<code>catalogs/</code> 는 .gitignore 처리).</p>
+        </div>
+        <div class="card">
+          <h3>데이터 품질 점검</h3>
+          <div id="quality"></div>
+        </div>
+        <div class="card">
+          <h3>임포트한 사내 데이터 <span class="sub">브라우저에만 저장</span></h3>
+          <div id="impSummary"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="backdrop" id="backdrop" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer"></div>
+<script>
+/* ===========================================================================
+   시드 데이터 — 대상은 SLI(시동용) 배터리.  기술은 FLD(일반액식) / EFB / AGM.
+   전부 공개 자료(규격 표준·제조사 공개 스펙) 기준이며 사내 영업 데이터는
+   여기에 넣지 않는다.  자사 실데이터는 CSV 임포트로만 올린다.
+   ver: std=규격 표준값 / pub=제조사 공개 스펙 / est=추정(원본 카달로그 대조 필요)
+   =========================================================================== */
+const SEED_VERSION = 4;
+
+const TECHS = ['FLD', 'EFB', 'AGM', 'AGM나선형'];
+const APPS = ['승용SLI', '스타트스톱', '상용차', '마린/듀얼'];
+
+const REGIONS = [
+  {k:'KR', n:'한국'},      {k:'JP', n:'일본'},      {k:'CN', n:'중화권'},
+  {k:'SEA',n:'동남아'},    {k:'IN', n:'인도'},      {k:'EU', n:'유럽'},
+  {k:'NA', n:'북미'},      {k:'LAT',n:'중남미'},    {k:'MEA',n:'중동/아프리카'},
+  {k:'OCE',n:'오세아니아'},{k:'ETC',n:'기타'}
+];
+/* 임포트 CSV 의 한글 지역명 → 지역 키 */
+const REGION_ALIAS = {
+  '일본':'JP','한국':'KR','중국':'CN','대만':'CN','홍콩':'CN',
+  '말레이시아':'SEA','인도네시아':'SEA','태국':'SEA','베트남':'SEA','필리핀':'SEA','싱가포르':'SEA',
+  '인도':'IN','유럽':'EU','북미':'NA','미국':'NA','캐나다':'NA','중남미':'LAT','브라질':'LAT',
+  '중동':'MEA','아프리카':'MEA','호주':'OCE','오세아니아':'OCE'
+};
+
+/* --- 규격(사이즈) 마스터.  치수 mm, 높이는 총고 기준 --------------------- */
+const SPECS = [
+  /* JIS 승용 */
+  {k:'B17', sys:'JIS', L:167,W:127,H:227, ah:'28~34', note:'경차·소형'},
+  {k:'B19', sys:'JIS', L:187,W:127,H:227, ah:'28~40', note:'34B19~44B19'},
+  {k:'B20', sys:'JIS', L:197,W:129,H:227, ah:'30~40', note:'ISS M-42 베이스'},
+  {k:'B24', sys:'JIS', L:238,W:129,H:227, ah:'36~48', note:'46B24~65B24'},
+  {k:'D20', sys:'JIS', L:202,W:173,H:225, ah:'40~48', note:''},
+  {k:'D23', sys:'JIS', L:232,W:173,H:225, ah:'52~68', note:'55D23~90D23'},
+  {k:'D26', sys:'JIS', L:260,W:173,H:225, ah:'60~80', note:'80D26~115D26'},
+  {k:'D31', sys:'JIS', L:306,W:173,H:225, ah:'80~100',note:'95D31~130D31'},
+  {k:'E41', sys:'JIS', L:410,W:176,H:233, ah:'92~110',note:'소형상용 N100'},
+  {k:'F51', sys:'JIS', L:505,W:182,H:240, ah:'100~130',note:'중형트럭 N120'},
+  {k:'G51', sys:'JIS', L:508,W:222,H:240, ah:'140~160',note:'대형트럭 N150'},
+  {k:'H52', sys:'JIS', L:521,W:277,H:246, ah:'190~210',note:'대형트럭·버스 N200'},
+  /* JIS 아이들링스톱(ISS) 전용 */
+  {k:'K-42',sys:'JIS-ISS', L:187,W:127,H:227, ah:'34~38', note:'B19 베이스 EFB'},
+  {k:'M-42',sys:'JIS-ISS', L:197,W:129,H:227, ah:'36~40', note:'B20 베이스 EFB'},
+  {k:'N-55',sys:'JIS-ISS', L:238,W:129,H:227, ah:'42~48', note:'B24 베이스 EFB'},
+  {k:'Q-85',sys:'JIS-ISS', L:232,W:173,H:225, ah:'56~65', note:'D23 베이스 EFB'},
+  {k:'S-95',sys:'JIS-ISS', L:260,W:173,H:225, ah:'64~80', note:'D26 베이스 EFB'},
+  {k:'T-110',sys:'JIS-ISS',L:306,W:173,H:225, ah:'80~90', note:'D31 베이스 EFB'},
+  /* 유럽 LN(총고 190) / LBN(저상 175) */
+  {k:'LN0', sys:'DIN/EN', L:175,W:175,H:190, ah:'38~45', note:'H3'},
+  {k:'LN1', sys:'DIN/EN', L:207,W:175,H:190, ah:'44~55', note:'H4'},
+  {k:'LN2', sys:'DIN/EN', L:242,W:175,H:190, ah:'56~65', note:'H5 = BCI 47'},
+  {k:'LN3', sys:'DIN/EN', L:278,W:175,H:190, ah:'68~78', note:'H6 = BCI 48'},
+  {k:'LN4', sys:'DIN/EN', L:315,W:175,H:190, ah:'78~85', note:'H7 = BCI 94R'},
+  {k:'LN5', sys:'DIN/EN', L:353,W:175,H:190, ah:'88~105',note:'H8 = BCI 49'},
+  {k:'LN6', sys:'DIN/EN', L:393,W:175,H:190, ah:'105~115',note:'H9'},
+  {k:'LBN1',sys:'DIN/EN', L:207,W:175,H:175, ah:'40~50', note:'저상 L1'},
+  {k:'LBN2',sys:'DIN/EN', L:242,W:175,H:175, ah:'50~60', note:'저상 L2'},
+  {k:'LBN3',sys:'DIN/EN', L:278,W:175,H:175, ah:'62~72', note:'저상 L3'},
+  {k:'LBN4',sys:'DIN/EN', L:315,W:175,H:175, ah:'72~85', note:'저상 L4'},
+  {k:'EN A',sys:'DIN/EN', L:513,W:189,H:195, ah:'110~135',note:'상용 A'},
+  {k:'EN B',sys:'DIN/EN', L:513,W:189,H:223, ah:'135~180',note:'상용 B'},
+  {k:'EN C',sys:'DIN/EN', L:513,W:223,H:223, ah:'180~230',note:'상용 C'},
+  {k:'EN D',sys:'DIN/EN', L:518,W:276,H:242, ah:'200~240',note:'상용 D'},
+  /* 북미 BCI */
+  {k:'BCI 24', sys:'BCI', L:260,W:173,H:225, ah:'60~75', note:'24 / 24F'},
+  {k:'BCI 25', sys:'BCI', L:230,W:175,H:225, ah:'55~65', note:''},
+  {k:'BCI 27', sys:'BCI', L:306,W:173,H:225, ah:'85~100',note:'27 / 27F'},
+  {k:'BCI 31', sys:'BCI', L:330,W:173,H:240, ah:'95~115',note:'상용·마린 주력'},
+  {k:'BCI 34', sys:'BCI', L:260,W:173,H:200, ah:'50~60', note:''},
+  {k:'BCI 35', sys:'BCI', L:230,W:175,H:225, ah:'55~65', note:'일본계 승용'},
+  {k:'BCI 47', sys:'BCI', L:242,W:175,H:190, ah:'56~65', note:'H5 = LN2'},
+  {k:'BCI 48', sys:'BCI', L:278,W:175,H:190, ah:'68~75', note:'H6 = LN3'},
+  {k:'BCI 49', sys:'BCI', L:353,W:175,H:190, ah:'88~95', note:'H8 = LN5'},
+  {k:'BCI 51R',sys:'BCI', L:238,W:129,H:223, ah:'40~50', note:'혼다계'},
+  {k:'BCI 58', sys:'BCI', L:255,W:183,H:175, ah:'55~65', note:''},
+  {k:'BCI 65', sys:'BCI', L:306,W:192,H:192, ah:'70~80', note:'포드 픽업'},
+  {k:'BCI 75', sys:'BCI', L:230,W:179,H:186, ah:'55~65', note:'측면단자'},
+  {k:'BCI 78', sys:'BCI', L:260,W:179,H:196, ah:'65~75', note:'측면단자'},
+  {k:'BCI 94R',sys:'BCI', L:315,W:175,H:190, ah:'75~85', note:'H7 = LN4'},
+  {k:'8D',    sys:'BCI', L:527,W:283,H:250, ah:'200~250',note:'대형 상용'}
+];
+
+/* --- 제조사 / 유통사 레지스트리 ----------------------------------------- */
+/* t: M=제조사, D=유통사 / st: 카달로그 수집상태 */
+const MAKERS = [
+  {k:'sebang',   n:'세방전지 (Sebang Global Battery)', c:'한국', t:'M', rg:['KR','JP','SEA','NA','EU','MEA'], br:'Rocket, GB, Global Battery', site:'https://www.globalbattery.com', st:'수집완료', ed:'사내 제품리스트'},
+  {k:'clarios',  n:'Clarios',                c:'미국/독일', t:'M', rg:['EU','NA','CN','KR','LAT'], br:'VARTA, Bosch, OPTIMA, Delkor, LTH, Heliar', site:'https://www.clarios.com', st:'미수집', ed:''},
+  {k:'exide',    n:'Exide Technologies',     c:'독일/유럽', t:'M', rg:['EU','MEA'],      br:'Exide, Tudor, Centra, Fulmen, DETA', site:'https://www.exidegroup.com/eu/en/downloads-documents', st:'미수집', ed:''},
+  {k:'eastpenn', n:'East Penn Manufacturing',c:'미국',   t:'M', rg:['NA','LAT'],      br:'Deka, Duracell, Intimidator', site:'https://www.dekabatteries.com', st:'미수집', ed:''},
+  {k:'enersys',  n:'EnerSys',                c:'미국',   t:'M', rg:['NA','EU','SEA'], br:'Odyssey, Hawker, Genesis', site:'https://www.enersys.com', st:'미수집', ed:''},
+  {k:'northstar',n:'NorthStar (Ecobat)',     c:'미국/스웨덴', t:'M', rg:['NA','EU'],  br:'NorthStar', site:'https://www.northstarbattery.com', st:'미수집', ed:''},
+  {k:'gsyuasa',  n:'GS Yuasa',               c:'일본',   t:'M', rg:['JP','SEA','EU','OCE'], br:'GS, Yuasa, ECO.R, YBX', site:'https://www.gs-yuasa.com', st:'미수집', ed:''},
+  {k:'panasonic',n:'Panasonic Energy',       c:'일본',   t:'M', rg:['JP','SEA','MEA'],br:'caos, Blue Battery, circla', site:'https://panasonic.jp/car/battery/', st:'미수집', ed:''},
+  {k:'furukawa', n:'Furukawa Battery',       c:'일본',   t:'M', rg:['JP','SEA'],      br:'FB, Altica, Ecuno', site:'https://www.furukawadenchi.co.jp', st:'미수집', ed:''},
+  {k:'atlasbx',  n:'한국앤컴퍼니 (AtlasBX)',  c:'한국',   t:'M', rg:['KR','NA','EU','MEA'], br:'Atlas, AtlasBX, Hankook', site:'https://www.hankookncompany.com', st:'미수집', ed:''},
+  {k:'delkor',   n:'델코 (Clarios Korea)',    c:'한국',   t:'M', rg:['KR','OCE','SEA'],br:'Delkor', site:'https://www.delkor.co.kr', st:'미수집', ed:''},
+  {k:'solite',   n:'현대성우쏠라이트',        c:'한국',   t:'M', rg:['KR','MEA','SEA'],br:'Solite, Sooner', site:'https://www.sungwoosolite.co.kr', st:'미수집', ed:''},
+  {k:'amararaja',n:'Amara Raja Energy & Mobility', c:'인도', t:'M', rg:['IN','MEA','SEA'], br:'Amaron, PowerZone', site:'https://www.amararaja.com', st:'미수집', ed:''},
+  {k:'exideind', n:'Exide Industries',       c:'인도',   t:'M', rg:['IN','MEA','SEA'],br:'Exide, SF Sonic, Dynex', site:'https://www.exideindustries.com', st:'미수집', ed:''},
+  {k:'livguard', n:'Livguard',               c:'인도',   t:'M', rg:['IN'],            br:'Livguard', site:'https://www.livguard.com', st:'미수집', ed:''},
+  {k:'camel',    n:'Camel Group (骆驼)',      c:'중국',   t:'M', rg:['CN','SEA','MEA'],br:'Camel', site:'https://www.camelgroup.com', st:'미수집', ed:''},
+  {k:'fengfan',  n:'Fengfan (风帆)',          c:'중국',   t:'M', rg:['CN','MEA'],      br:'Sail/Fengfan', site:'http://www.fengfan.com.cn', st:'미수집', ed:''},
+  {k:'leoch',    n:'Leoch International',    c:'중국',   t:'M', rg:['CN','EU','NA','MEA'], br:'Leoch, Xtreme', site:'https://www.leoch.com', st:'미수집', ed:''},
+  {k:'banner',   n:'Banner Batterien',       c:'오스트리아', t:'M', rg:['EU'],        br:'Power Bull, Running Bull, Buffalo Bull', site:'https://www.bannerbatterien.com', st:'미수집', ed:''},
+  {k:'moll',     n:'Moll Batterien',         c:'독일',   t:'M', rg:['EU'],            br:'M3 plus, start|stop plus, Kamina', site:'https://www.moll-batterien.de', st:'미수집', ed:''},
+  {k:'fiamm',    n:'FIAMM Energy Technology',c:'이탈리아', t:'M', rg:['EU','MEA'],    br:'FIAMM, Titanium, ecoForce', site:'https://www.fiamm.com', st:'미수집', ed:''},
+  {k:'monbat',   n:'Monbat Group',           c:'불가리아', t:'M', rg:['EU','MEA'],    br:'Monbat, START', site:'https://www.monbat.com', st:'미수집', ed:''},
+  {k:'midac',    n:'Midac Batteries',        c:'이탈리아', t:'M', rg:['EU'],          br:'Midac', site:'https://www.midacbatteries.com', st:'미수집', ed:''},
+  {k:'rombat',   n:'Rombat',                 c:'루마니아', t:'M', rg:['EU'],          br:'Tornada, Pilot', site:'https://www.rombat.ro', st:'미수집', ed:''},
+  {k:'tab',      n:'TAB Batteries',          c:'슬로베니아', t:'M', rg:['EU','MEA'],  br:'TAB, Topla', site:'https://www.tabbatteries.com', st:'미수집', ed:''},
+  {k:'autopart', n:'Autopart / Sznajder',    c:'폴란드', t:'M', rg:['EU'],            br:'Sznajder, Galaxy', site:'https://www.autopart.pl', st:'미수집', ed:''},
+  {k:'moura',    n:'Baterias Moura',         c:'브라질', t:'M', rg:['LAT'],           br:'Moura', site:'https://www.moura.com.br', st:'미수집', ed:''},
+  {k:'centuryy', n:'Century Yuasa',          c:'호주',   t:'M', rg:['OCE'],           br:'Century, Yuasa', site:'https://www.centuryyuasa.com.au', st:'미수집', ed:''},
+  {k:'mutlu',    n:'Mutlu Akü',              c:'터키',   t:'M', rg:['MEA','EU'],      br:'Mutlu', site:'https://www.mutlu.com.tr', st:'미수집', ed:''},
+  {k:'inci',     n:'İnci GS Yuasa',          c:'터키',   t:'M', rg:['MEA','EU'],      br:'İnci Akü', site:'https://www.incigsyuasa.com', st:'미수집', ed:''},
+  {k:'yigit',    n:'Yiğit Akü',              c:'터키',   t:'M', rg:['MEA','EU'],      br:'Yiğit, Platin', site:'https://www.yigitaku.com.tr', st:'미수집', ed:''},
+  {k:'rahim',    n:'Rahimafrooz',            c:'방글라데시', t:'M', rg:['IN','MEA'],  br:'Lucas, Spark', site:'https://www.rahimafrooz-batteries.com', st:'미수집', ed:''},
+  {k:'fnb',      n:'First National Battery', c:'남아공', t:'M', rg:['MEA'],           br:"Sabat, O'Brien", site:'https://www.battery.co.za', st:'미수집', ed:''},
+  {k:'metair',   n:'Metair (Willard)',       c:'남아공', t:'M', rg:['MEA'],           br:'Willard', site:'https://www.willardbatteries.co.za', st:'미수집', ed:''},
+  /* 유통사 */
+  {k:'interstate',n:'Interstate Batteries',  c:'미국',   t:'D', rg:['NA'],            br:'Interstate (OEM 조달)', site:'https://www.interstatebatteries.com', st:'미수집', ed:''},
+  {k:'ecobat',   n:'Ecobat Battery',         c:'미국/유럽', t:'D', rg:['NA','EU'],    br:'다브랜드 유통', site:'https://www.ecobat.com', st:'미수집', ed:''},
+  {k:'hella',    n:'HELLA',                 c:'독일',   t:'D', rg:['SEA','CN','EU'], br:'HELLA SLI 유통', site:'https://www.hella.com', st:'미수집', ed:''},
+  {k:'jpretail', n:'일본 카용품 리테일 체인',  c:'일본',   t:'D', rg:['JP'],            br:'PB 배터리 (OEM 조달)', site:'', st:'미수집', ed:''},
+  {k:'jpwhole',  n:'일본 애프터마켓 도매',     c:'일본',   t:'D', rg:['JP'],            br:'도매 유통 채널', site:'', st:'미수집', ed:''}
+];
+
+/* --- 글로벌 SLI 카달로그 시드 ------------------------------------------- */
+/* cs: CCA 규격 (EN / SAE).  grp 이 규격 마스터에 있으면 치수는 자동 계산.   */
+const MODELS = [
+/* ── 자사 (세방전지 / Rocket · GB) ─────────────────────────────────────── */
+{mk:'sebang',br:'Rocket',mdl:'SMF 40B19L',sz:'40B19L',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:33,rc:57,cca:330,cs:'SAE',wt:9.5,rg:['KR','JP','SEA','MEA'],ver:'pub'},
+{mk:'sebang',br:'Rocket',mdl:'SMF 55B24L',sz:'55B24L',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:430,cs:'SAE',wt:11.8,rg:['KR','JP','SEA','MEA'],ver:'pub'},
+{mk:'sebang',br:'Rocket',mdl:'SMF 80D23L',sz:'80D23L',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:68,rc:120,cca:580,cs:'SAE',wt:16.5,rg:['KR','JP','SEA','MEA'],ver:'pub'},
+{mk:'sebang',br:'Rocket',mdl:'SMF 90D23L',sz:'90D23L',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:63,rc:110,cca:550,cs:'SAE',wt:16.0,rg:['KR','JP','SEA'],ver:'pub'},
+{mk:'sebang',br:'Rocket',mdl:'SMF 85D26L',sz:'85D26L',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:68,rc:120,cca:600,cs:'SAE',wt:17.5,rg:['KR','JP','SEA','MEA'],ver:'pub'},
+{mk:'sebang',br:'Rocket',mdl:'SMF 115D31L',sz:'115D31L',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:85,rc:150,cca:720,cs:'SAE',wt:22.5,rg:['KR','JP','SEA','NA','MEA'],ver:'pub'},
+{mk:'sebang',br:'Rocket',mdl:'27MS-730 (마린)',sz:'BCI 27',grp:'BCI 27',tech:'FLD',app:'마린/듀얼',v:12,ah:85,rc:150,cca:720,cs:'SAE',wt:22.8,rg:['JP','NA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'78DT-108 (측면단자)',sz:'BCI 78',grp:'BCI 78',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:770,cs:'SAE',wt:19.5,rg:['NA','JP'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'65-108 (Group 65)',sz:'BCI 65',grp:'BCI 65',tech:'FLD',app:'승용SLI',v:12,ah:67,rc:115,cca:630,cs:'SAE',wt:19.0,rg:['NA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'31RA-108 (Group 31)',sz:'BCI 31',grp:'BCI 31',tech:'FLD',app:'상용차',v:12,ah:95,rc:180,cca:820,cs:'SAE',wt:26.5,rg:['NA','JP'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'DIN 54316',sz:'54316',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:43,rc:75,cca:420,cs:'EN',wt:11.0,rg:['KR','EU','MEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'DIN 56219',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:100,cca:480,cs:'EN',wt:15.0,rg:['KR','EU','MEA','SEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'DIN 57412',sz:'57412',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.8,rg:['KR','EU','MEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'DIN 58014',sz:'58014',grp:'LBN4',tech:'FLD',app:'승용SLI',v:12,ah:80,rc:140,cca:730,cs:'EN',wt:19.6,rg:['KR','EU','MEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'DIN 60044 (58827)',sz:'60044',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:800,cs:'EN',wt:23.5,rg:['KR','EU','MEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'DIN 61042 (110L6)',sz:'61042',grp:'LN6',tech:'FLD',app:'승용SLI',v:12,ah:110,rc:200,cca:880,cs:'EN',wt:25.8,rg:['KR','EU','MEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'EFB LN2 (60L)',sz:'EFB LN2',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:100,cca:600,cs:'EN',wt:15.8,cyc:1000,rg:['KR','EU','JP'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'EFB LN3 (70L)',sz:'EFB LN3',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:75,rc:130,cca:760,cs:'EN',wt:18.4,cyc:1000,rg:['KR','EU','JP'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'EFB Q-85 (D23)',sz:'Q-85',grp:'Q-85',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:105,cca:650,cs:'SAE',wt:17.2,cyc:1000,rg:['JP','SEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'EFB S-95 (D26)',sz:'S-95',grp:'S-95',tech:'EFB',app:'스타트스톱',v:12,ah:75,rc:130,cca:730,cs:'SAE',wt:19.8,cyc:1000,rg:['JP','SEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'EFB M-42',sz:'M-42',grp:'M-42',tech:'EFB',app:'스타트스톱',v:12,ah:38,rc:63,cca:400,cs:'SAE',wt:11.5,cyc:1000,rg:['JP','SEA'],ver:'pub'},
+{mk:'sebang',br:'Rocket',mdl:'AGM 70L (LN3)',sz:'AGM70L',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.4,cyc:1400,rg:['KR','EU'],ver:'est'},
+{mk:'sebang',br:'Rocket',mdl:'AGM 80L (LN4)',sz:'AGM80L',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.8,cyc:1400,rg:['KR','EU'],ver:'est'},
+{mk:'sebang',br:'GB',mdl:'N150 (G51)',sz:'N150',grp:'G51',tech:'FLD',app:'상용차',v:12,ah:150,rc:300,cca:950,cs:'SAE',wt:38.5,rg:['KR','JP','SEA','MEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'N200 (H52)',sz:'N200',grp:'H52',tech:'FLD',app:'상용차',v:12,ah:200,rc:430,cca:1200,cs:'SAE',wt:50.0,rg:['KR','JP','SEA','MEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'EN C 73011',sz:'73011',grp:'EN C',tech:'FLD',app:'상용차',v:12,ah:220,rc:430,cca:1300,cs:'EN',wt:52.0,rg:['EU','MEA'],ver:'pub'},
+{mk:'sebang',br:'GB',mdl:'EN B 67018',sz:'67018',grp:'EN B',tech:'FLD',app:'상용차',v:12,ah:160,rc:330,cca:950,cs:'EN',wt:39.0,rg:['EU','MEA'],ver:'pub'},
+/* ── VARTA / Bosch (Clarios) ──────────────────────────────────────────── */
+{mk:'clarios',br:'VARTA',mdl:'Black Dynamic A13',sz:'540 125 033',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:40,rc:64,cca:330,cs:'EN',wt:10.3,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Blue Dynamic B18',sz:'544 402 044',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:440,cs:'EN',wt:11.1,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Blue Dynamic C22',sz:'552 400 047',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:52,rc:85,cca:470,cs:'EN',wt:12.8,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Blue Dynamic D24',sz:'560 408 054',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.0,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Blue Dynamic E11',sz:'574 012 068',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:120,cca:680,cs:'EN',wt:17.9,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Silver Dynamic E44',sz:'577 400 078',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:77,rc:130,cca:780,cs:'EN',wt:18.4,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Silver Dynamic F18',sz:'585 200 080',grp:'LN4',tech:'FLD',app:'승용SLI',v:12,ah:85,rc:150,cca:800,cs:'EN',wt:20.1,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Silver Dynamic H3',sz:'600 402 083',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:830,cs:'EN',wt:22.9,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Blue Dynamic EFB N60',sz:'560 500 056',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:100,cca:560,cs:'EN',wt:15.5,cyc:1000,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Blue Dynamic EFB N72',sz:'572 501 076',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:72,rc:125,cca:760,cs:'EN',wt:18.3,cyc:1000,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Silver Dynamic AGM E39',sz:'570 901 076',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.4,cyc:1500,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Silver Dynamic AGM F21',sz:'580 901 080',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.9,cyc:1500,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Silver Dynamic AGM G14',sz:'595 901 085',grp:'LN5',tech:'AGM',app:'스타트스톱',v:12,ah:95,rc:170,cca:850,cs:'EN',wt:26.0,cyc:1500,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'VARTA',mdl:'Promotive HD K7',sz:'645 400 080',grp:'EN B',tech:'FLD',app:'상용차',v:12,ah:145,rc:270,cca:800,cs:'EN',wt:36.0,rg:['EU'],ver:'est'},
+{mk:'clarios',br:'VARTA',mdl:'Promotive HD N9',sz:'725 103 115',grp:'EN D',tech:'FLD',app:'상용차',v:12,ah:225,rc:430,cca:1150,cs:'EN',wt:53.0,rg:['EU'],ver:'est'},
+{mk:'clarios',br:'Bosch',mdl:'S4 008',sz:'574 012 068',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:120,cca:680,cs:'EN',wt:17.8,rg:['EU','MEA'],ver:'pub'},
+{mk:'clarios',br:'Bosch',mdl:'S5 013',sz:'600 402 083',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:830,cs:'EN',wt:22.8,rg:['EU','MEA'],ver:'pub'},
+{mk:'clarios',br:'Bosch',mdl:'S5 A08 AGM',sz:'570 901 076',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.3,cyc:1500,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'Bosch',mdl:'S4 E05 EFB',sz:'570 500 065',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:70,rc:120,cca:650,cs:'EN',wt:17.9,cyc:1000,rg:['EU'],ver:'pub'},
+{mk:'clarios',br:'OPTIMA',mdl:'RedTop 34',sz:'BCI 34',grp:'BCI 34',tech:'AGM나선형',app:'승용SLI',v:12,ah:50,rc:100,cca:800,cs:'SAE',wt:17.0,rg:['NA','EU'],ver:'pub'},
+{mk:'clarios',br:'OPTIMA',mdl:'YellowTop D34/78',sz:'BCI 34/78',grp:'BCI 78',tech:'AGM나선형',app:'마린/듀얼',v:12,ah:55,rc:120,cca:750,cs:'SAE',wt:19.5,cyc:300,rg:['NA'],ver:'pub'},
+{mk:'delkor',br:'Delkor',mdl:'56219',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.0,rg:['KR','OCE','SEA'],ver:'pub'},
+{mk:'delkor',br:'Delkor',mdl:'60038',sz:'60038',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:830,cs:'EN',wt:23.0,rg:['KR','OCE'],ver:'pub'},
+{mk:'delkor',br:'Delkor',mdl:'115D31R',sz:'115D31R',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:190,cca:800,cs:'SAE',wt:23.5,rg:['KR','OCE','SEA'],ver:'est'},
+{mk:'delkor',br:'Delkor',mdl:'AGM DIN80L',sz:'AGM80L',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.7,cyc:1400,rg:['KR'],ver:'est'},
+{mk:'delkor',br:'Delkor',mdl:'EFB DIN70L',sz:'EFB70L',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:70,rc:120,cca:680,cs:'EN',wt:17.9,cyc:1000,rg:['KR'],ver:'est'},
+/* ── Exide / Tudor ────────────────────────────────────────────────────── */
+{mk:'exide',br:'Exide',mdl:'Excell EB442',sz:'EB442',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:390,cs:'EN',wt:11.0,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Excell EB602',sz:'EB602',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.2,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Excell EB712',sz:'EB712',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:71,rc:120,cca:670,cs:'EN',wt:17.5,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Premium EA640',sz:'EA640',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:64,rc:110,cca:640,cs:'EN',wt:15.9,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Premium EA770',sz:'EA770',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:77,rc:130,cca:760,cs:'EN',wt:18.6,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Premium EA1000',sz:'EA1000',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:850,cs:'EN',wt:23.2,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Micro-Hybrid EFB EL600',sz:'EL600',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:100,cca:640,cs:'EN',wt:16.0,cyc:1000,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Micro-Hybrid EFB EL700',sz:'EL700',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:70,rc:120,cca:650,cs:'EN',wt:17.8,cyc:1000,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Micro-Hybrid AGM EK600',sz:'EK600',grp:'LN2',tech:'AGM',app:'스타트스톱',v:12,ah:60,rc:100,cca:680,cs:'EN',wt:17.6,cyc:1500,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Micro-Hybrid AGM EK700',sz:'EK700',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.0,cyc:1500,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'Micro-Hybrid AGM EK950',sz:'EK950',grp:'LN5',tech:'AGM',app:'스타트스톱',v:12,ah:95,rc:170,cca:850,cs:'EN',wt:26.5,cyc:1500,rg:['EU'],ver:'pub'},
+{mk:'exide',br:'Exide',mdl:'StrongPRO HDX EF1853',sz:'EF1853',grp:'EN C',tech:'FLD',app:'상용차',v:12,ah:185,rc:350,cca:1100,cs:'EN',wt:44.0,rg:['EU','MEA'],ver:'est'},
+{mk:'exide',br:'Tudor',mdl:'High-Tech TA770',sz:'TA770',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:77,rc:130,cca:760,cs:'EN',wt:18.6,rg:['EU'],ver:'est'},
+{mk:'exide',br:'Centra',mdl:'Futura CA770',sz:'CA770',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:77,rc:130,cca:760,cs:'EN',wt:18.6,rg:['EU'],ver:'est'},
+/* ── Banner / Moll / FIAMM / 기타 유럽 ────────────────────────────────── */
+{mk:'banner',br:'Banner',mdl:'Power Bull P4409',sz:'54459',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:360,cs:'EN',wt:11.2,rg:['EU'],ver:'pub'},
+{mk:'banner',br:'Banner',mdl:'Power Bull P6219',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:550,cs:'EN',wt:15.1,rg:['EU'],ver:'pub'},
+{mk:'banner',br:'Banner',mdl:'Power Bull P7412',sz:'57412',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:18.1,rg:['EU'],ver:'pub'},
+{mk:'banner',br:'Banner',mdl:'Power Bull P8009',sz:'58014',grp:'LBN4',tech:'FLD',app:'승용SLI',v:12,ah:80,rc:140,cca:700,cs:'EN',wt:19.4,rg:['EU'],ver:'pub'},
+{mk:'banner',br:'Banner',mdl:'Running Bull EFB 565 15',sz:'56515',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:65,rc:110,cca:650,cs:'EN',wt:16.6,cyc:1000,rg:['EU'],ver:'pub'},
+{mk:'banner',br:'Banner',mdl:'Running Bull EFB 570 11',sz:'57011',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:70,rc:120,cca:720,cs:'EN',wt:18.0,cyc:1000,rg:['EU'],ver:'pub'},
+{mk:'banner',br:'Banner',mdl:'Running Bull AGM 570 01',sz:'57001',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:720,cs:'EN',wt:20.1,cyc:1400,rg:['EU'],ver:'pub'},
+{mk:'banner',br:'Banner',mdl:'Running Bull AGM 580 01',sz:'58001',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.8,cyc:1400,rg:['EU'],ver:'pub'},
+{mk:'banner',br:'Banner',mdl:'Buffalo Bull SHD 640 35',sz:'64035',grp:'EN B',tech:'FLD',app:'상용차',v:12,ah:140,rc:260,cca:800,cs:'EN',wt:34.5,rg:['EU'],ver:'est'},
+{mk:'moll',br:'MOLL',mdl:'M3 plus K2 62',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:600,cs:'EN',wt:15.4,rg:['EU'],ver:'est'},
+{mk:'moll',br:'MOLL',mdl:'M3 plus 84',sz:'58435',grp:'LN4',tech:'FLD',app:'승용SLI',v:12,ah:84,rc:145,cca:800,cs:'EN',wt:20.4,rg:['EU'],ver:'est'},
+{mk:'moll',br:'MOLL',mdl:'start|stop plus EFB 70',sz:'57044',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:70,rc:120,cca:680,cs:'EN',wt:17.8,cyc:1000,rg:['EU'],ver:'est'},
+{mk:'moll',br:'MOLL',mdl:'start|stop plus AGM 80',sz:'58042',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.5,cyc:1400,rg:['EU'],ver:'est'},
+{mk:'fiamm',br:'FIAMM',mdl:'Titanium Pro L2 60',sz:'L2 60',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.3,rg:['EU'],ver:'est'},
+{mk:'fiamm',br:'FIAMM',mdl:'Titanium Pro L4 85',sz:'L4 85',grp:'LN4',tech:'FLD',app:'승용SLI',v:12,ah:85,rc:150,cca:800,cs:'EN',wt:20.5,rg:['EU'],ver:'est'},
+{mk:'fiamm',br:'FIAMM',mdl:'ecoForce AGM L3 70',sz:'L3 70 AGM',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.2,cyc:1400,rg:['EU'],ver:'est'},
+{mk:'fiamm',br:'FIAMM',mdl:'ecoForce EFB L2 65',sz:'L2 65 EFB',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:65,rc:110,cca:650,cs:'EN',wt:16.5,cyc:1000,rg:['EU'],ver:'est'},
+{mk:'monbat',br:'Monbat',mdl:'Formula 62',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.0,rg:['EU','MEA'],ver:'est'},
+{mk:'monbat',br:'Monbat',mdl:'START AGM 70',sz:'57001',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.3,cyc:1350,rg:['EU'],ver:'est'},
+{mk:'monbat',br:'Monbat',mdl:'START EFB 65',sz:'56515',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:65,rc:110,cca:640,cs:'EN',wt:16.4,cyc:1000,rg:['EU','MEA'],ver:'est'},
+{mk:'midac',br:'Midac',mdl:'Sprint 60',sz:'L2 60',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['EU'],ver:'est'},
+{mk:'midac',br:'Midac',mdl:'Start&Stop AGM 70',sz:'L3 70 AGM',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:720,cs:'EN',wt:20.0,cyc:1350,rg:['EU'],ver:'est'},
+{mk:'rombat',br:'Rombat',mdl:'Tornada Plus 62',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.2,rg:['EU'],ver:'est'},
+{mk:'rombat',br:'Rombat',mdl:'Pilot 100',sz:'60038',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:800,cs:'EN',wt:23.0,rg:['EU'],ver:'est'},
+{mk:'tab',br:'TAB',mdl:'Polar 62',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:600,cs:'EN',wt:15.3,rg:['EU','MEA'],ver:'est'},
+{mk:'tab',br:'TAB',mdl:'Magic AGM 70',sz:'57001',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.2,cyc:1400,rg:['EU'],ver:'est'},
+{mk:'tab',br:'Topla',mdl:'Energy 100',sz:'60038',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:850,cs:'EN',wt:23.1,rg:['EU'],ver:'est'},
+{mk:'autopart',br:'Sznajder',mdl:'Galaxy Plus 62',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:530,cs:'EN',wt:15.0,rg:['EU'],ver:'est'},
+{mk:'autopart',br:'Autopart',mdl:'Galaxy AGM 80',sz:'58001',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.6,cyc:1350,rg:['EU'],ver:'est'},
+/* ── 북미 ─────────────────────────────────────────────────────────────── */
+{mk:'eastpenn',br:'Deka',mdl:'8A31DTM Intimidator',sz:'BCI 31',grp:'BCI 31',tech:'AGM',app:'마린/듀얼',v:12,ah:105,rc:200,cca:800,cs:'SAE',wt:31.8,cyc:400,rg:['NA'],ver:'pub'},
+{mk:'eastpenn',br:'Deka',mdl:'65-950 (Group 65)',sz:'BCI 65',grp:'BCI 65',tech:'FLD',app:'승용SLI',v:12,ah:75,rc:150,cca:850,cs:'SAE',wt:20.4,rg:['NA'],ver:'est'},
+{mk:'eastpenn',br:'Deka',mdl:'9AGM48 (H6)',sz:'BCI 48',grp:'BCI 48',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'SAE',wt:20.6,cyc:1200,rg:['NA'],ver:'est'},
+{mk:'eastpenn',br:'Duracell',mdl:'Ultra Platinum AGM 94R',sz:'BCI 94R',grp:'BCI 94R',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:850,cs:'SAE',wt:23.6,cyc:1200,rg:['NA'],ver:'est'},
+{mk:'eastpenn',br:'Deka',mdl:'24F-660 (Group 24F)',sz:'BCI 24F',grp:'BCI 24',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:130,cca:660,cs:'SAE',wt:18.6,rg:['NA'],ver:'est'},
+{mk:'enersys',br:'Odyssey',mdl:'Extreme PC1500 (34R)',sz:'BCI 34R',grp:'BCI 34',tech:'AGM나선형',app:'마린/듀얼',v:12,ah:68,rc:135,cca:850,cs:'SAE',wt:22.2,cyc:400,rg:['NA','EU'],ver:'pub'},
+{mk:'enersys',br:'Odyssey',mdl:'ODX-AGM31 (Group 31)',sz:'BCI 31',grp:'BCI 31',tech:'AGM',app:'상용차',v:12,ah:100,rc:205,cca:1150,cs:'SAE',wt:34.5,cyc:400,rg:['NA'],ver:'pub'},
+{mk:'enersys',br:'Odyssey',mdl:'ODS-AGM65 (Group 65)',sz:'BCI 65',grp:'BCI 65',tech:'AGM',app:'승용SLI',v:12,ah:75,rc:145,cca:950,cs:'SAE',wt:26.3,cyc:400,rg:['NA'],ver:'est'},
+{mk:'northstar',br:'NorthStar',mdl:'ELT-AGM31',sz:'BCI 31',grp:'BCI 31',tech:'AGM',app:'상용차',v:12,ah:100,rc:200,cca:1150,cs:'SAE',wt:33.6,cyc:400,rg:['NA','EU'],ver:'est'},
+{mk:'northstar',br:'NorthStar',mdl:'ELT-AGM48 (H6)',sz:'BCI 48',grp:'BCI 48',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:125,cca:800,cs:'SAE',wt:21.0,cyc:1200,rg:['NA','EU'],ver:'est'},
+{mk:'interstate',br:'Interstate',mdl:'MTP-65',sz:'BCI 65',grp:'BCI 65',tech:'FLD',app:'승용SLI',v:12,ah:75,rc:150,cca:850,cs:'SAE',wt:20.9,rg:['NA'],ver:'est'},
+{mk:'interstate',br:'Interstate',mdl:'MTZ-48 (H6 AGM)',sz:'BCI 48',grp:'BCI 48',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'SAE',wt:20.5,cyc:1200,rg:['NA'],ver:'est'},
+{mk:'interstate',br:'Interstate',mdl:'MTP-51R',sz:'BCI 51R',grp:'BCI 51R',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:80,cca:500,cs:'SAE',wt:12.4,rg:['NA'],ver:'est'},
+{mk:'moura',br:'Moura',mdl:'M60GD',sz:'M60GD',grp:'BCI 25',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:480,cs:'SAE',wt:14.5,rg:['LAT'],ver:'est'},
+{mk:'moura',br:'Moura',mdl:'M100HE',sz:'M100HE',grp:'BCI 27',tech:'FLD',app:'상용차',v:12,ah:100,rc:180,cca:750,cs:'SAE',wt:23.5,rg:['LAT'],ver:'est'},
+/* ── 일본 ─────────────────────────────────────────────────────────────── */
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'ECO.R Standard 55B24L',sz:'55B24L',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:36,rc:60,cca:356,cs:'SAE',wt:11.0,rg:['JP','SEA'],ver:'est'},
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'ECO.R HighClass 80D23L',sz:'80D23L',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:582,cs:'SAE',wt:16.5,rg:['JP','SEA'],ver:'est'},
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'ECO.R Revolution Q-85R',sz:'Q-85R',grp:'Q-85',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:105,cca:650,cs:'SAE',wt:17.3,cyc:1000,rg:['JP'],ver:'est'},
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'ECO.R ENJ-375LN2-IS',sz:'LN2 EFB',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:65,rc:110,cca:600,cs:'EN',wt:16.8,cyc:1000,rg:['JP'],ver:'est'},
+{mk:'gsyuasa',br:'Yuasa',mdl:'YBX9096 (096 AGM)',sz:'LN4 AGM',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.8,cyc:1400,rg:['EU'],ver:'pub'},
+{mk:'gsyuasa',br:'Yuasa',mdl:'YBX7027 EFB',sz:'LN2 EFB',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:65,rc:110,cca:650,cs:'EN',wt:16.7,cyc:1000,rg:['EU'],ver:'est'},
+{mk:'gsyuasa',br:'Yuasa',mdl:'YBX3335 (335)',sz:'80D23L',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:65,rc:110,cca:570,cs:'EN',wt:16.4,rg:['EU','MEA'],ver:'est'},
+{mk:'panasonic',br:'Panasonic',mdl:'caos N-100D23L/C8',sz:'100D23L',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:620,cs:'SAE',wt:16.8,rg:['JP'],ver:'est'},
+{mk:'panasonic',br:'Panasonic',mdl:'caos N-125D26L/C8',sz:'125D26L',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:75,rc:130,cca:730,cs:'SAE',wt:19.6,rg:['JP'],ver:'est'},
+{mk:'panasonic',br:'Panasonic',mdl:'caos N-Q100/A4 (Q-85 대응)',sz:'Q-85',grp:'Q-85',tech:'EFB',app:'스타트스톱',v:12,ah:65,rc:110,cca:670,cs:'SAE',wt:17.5,cyc:1000,rg:['JP'],ver:'est'},
+{mk:'panasonic',br:'Panasonic',mdl:'caos N-S100/A4 (S-95 대응)',sz:'S-95',grp:'S-95',tech:'EFB',app:'스타트스톱',v:12,ah:75,rc:130,cca:730,cs:'SAE',wt:19.8,cyc:1000,rg:['JP'],ver:'est'},
+{mk:'panasonic',br:'Panasonic',mdl:'circla N-60B19L/CR',sz:'60B19L',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:34,rc:55,cca:390,cs:'SAE',wt:10.2,rg:['JP'],ver:'est'},
+{mk:'furukawa',br:'FB',mdl:'Altica Premium 115D31R',sz:'115D31R',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:88,rc:160,cca:760,cs:'SAE',wt:23.0,rg:['JP'],ver:'est'},
+{mk:'furukawa',br:'FB',mdl:'Altica High-Grade 90D23L',sz:'90D23L',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:63,rc:110,cca:600,cs:'SAE',wt:16.6,rg:['JP'],ver:'est'},
+{mk:'furukawa',br:'FB',mdl:'Ecuno EC 60B19L',sz:'60B19L',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:34,rc:55,cca:380,cs:'SAE',wt:10.0,rg:['JP'],ver:'est'},
+{mk:'furukawa',br:'FB',mdl:'Q-85R (ISS EFB)',sz:'Q-85R',grp:'Q-85',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:105,cca:650,cs:'SAE',wt:17.2,cyc:1000,rg:['JP'],ver:'est'},
+{mk:'furukawa',br:'FB',mdl:'M-42R (ISS EFB)',sz:'M-42R',grp:'M-42',tech:'EFB',app:'스타트스톱',v:12,ah:38,rc:63,cca:400,cs:'SAE',wt:11.5,cyc:1000,rg:['JP'],ver:'est'},
+/* ── 한국 ─────────────────────────────────────────────────────────────── */
+{mk:'atlasbx',br:'Atlas BX',mdl:'MF 55D23L',sz:'55D23L',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:550,cs:'SAE',wt:14.6,rg:['KR','NA','MEA'],ver:'est'},
+{mk:'atlasbx',br:'Atlas BX',mdl:'MF 90D26L',sz:'90D26L',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.2,rg:['KR','SEA','MEA'],ver:'est'},
+{mk:'atlasbx',br:'Atlas BX',mdl:'DIN 56219',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['KR','EU','NA'],ver:'est'},
+{mk:'atlasbx',br:'Atlas BX',mdl:'DIN 57412',sz:'57412',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.8,rg:['KR','EU','NA'],ver:'est'},
+{mk:'atlasbx',br:'Atlas BX',mdl:'AGM 70L (LN3)',sz:'AGM70L',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.4,cyc:1400,rg:['KR','EU'],ver:'est'},
+{mk:'atlasbx',br:'Atlas BX',mdl:'EFB 60L (LN2)',sz:'EFB60L',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:100,cca:600,cs:'EN',wt:15.7,cyc:1000,rg:['KR'],ver:'est'},
+{mk:'solite',br:'Solite',mdl:'MF 90D26L',sz:'90D26L',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.3,rg:['KR','MEA','SEA'],ver:'est'},
+{mk:'solite',br:'Solite',mdl:'DIN 60038',sz:'60038',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:800,cs:'EN',wt:23.2,rg:['KR','MEA'],ver:'est'},
+{mk:'solite',br:'Solite',mdl:'AGM 80L (LN4)',sz:'AGM80L',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.8,cyc:1400,rg:['KR'],ver:'est'},
+/* ── 중국 ─────────────────────────────────────────────────────────────── */
+{mk:'camel',br:'Camel',mdl:'6-QW-45 (L1-400)',sz:'L1-400',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:400,cs:'EN',wt:11.5,rg:['CN','SEA'],ver:'est'},
+{mk:'camel',br:'Camel',mdl:'6-QW-60 (L2-400)',sz:'L2-400',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.6,rg:['CN','SEA','MEA'],ver:'est'},
+{mk:'camel',br:'Camel',mdl:'6-QW-100 (L5-800)',sz:'L5-800',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:800,cs:'EN',wt:23.2,rg:['CN','SEA','MEA'],ver:'est'},
+{mk:'camel',br:'Camel',mdl:'AGM H6-70',sz:'H6 AGM',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:720,cs:'EN',wt:20.1,cyc:1200,rg:['CN'],ver:'est'},
+{mk:'camel',br:'Camel',mdl:'EFB 6-QWLZ-70',sz:'H6 EFB',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:70,rc:120,cca:680,cs:'EN',wt:18.0,cyc:1000,rg:['CN','SEA'],ver:'est'},
+{mk:'fengfan',br:'Fengfan',mdl:'6-QW-60',sz:'L2-400',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:500,cs:'EN',wt:14.5,rg:['CN','MEA'],ver:'est'},
+{mk:'fengfan',br:'Fengfan',mdl:'6-QW-200',sz:'6-QW-200',grp:'EN D',tech:'FLD',app:'상용차',v:12,ah:200,rc:390,cca:1000,cs:'EN',wt:48.0,rg:['CN','MEA'],ver:'est'},
+{mk:'leoch',br:'Leoch',mdl:'Xtreme 6-QW-70 (H6)',sz:'H6',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:120,cca:640,cs:'EN',wt:17.6,rg:['CN','MEA','SEA'],ver:'est'},
+{mk:'leoch',br:'Leoch',mdl:'AGM LN2-60',sz:'LN2 AGM',grp:'LN2',tech:'AGM',app:'스타트스톱',v:12,ah:60,rc:100,cca:680,cs:'EN',wt:17.5,cyc:1200,rg:['CN','EU'],ver:'est'},
+/* ── 인도 / 동남아 / 중동 / 아프리카 / 오세아니아 ─────────────────────── */
+{mk:'amararaja',br:'Amaron',mdl:'Hi-Life Pro DIN65',sz:'56530',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:65,rc:110,cca:580,cs:'EN',wt:16.0,rg:['IN','MEA','SEA'],ver:'est'},
+{mk:'amararaja',br:'Amaron',mdl:'Go 38B20L',sz:'38B20L',grp:'B20',tech:'FLD',app:'승용SLI',v:12,ah:35,rc:55,cca:330,cs:'SAE',wt:10.5,rg:['IN','SEA'],ver:'est'},
+{mk:'amararaja',br:'Amaron',mdl:'AGM DIN70',sz:'AGM70',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.3,cyc:1300,rg:['IN'],ver:'est'},
+{mk:'exideind',br:'Exide',mdl:'Mileage MLDIN55',sz:'MLDIN55',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:55,rc:90,cca:480,cs:'EN',wt:13.8,rg:['IN'],ver:'est'},
+{mk:'exideind',br:'Exide',mdl:'Matrix DIN74',sz:'MTDIN74',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['IN','MEA'],ver:'est'},
+{mk:'livguard',br:'Livguard',mdl:'LGZDIN60',sz:'LGZDIN60',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.6,rg:['IN'],ver:'est'},
+{mk:'centuryy',br:'Century',mdl:'DIN66LH MF',sz:'56638',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:66,rc:115,cca:620,cs:'EN',wt:16.5,rg:['OCE'],ver:'est'},
+{mk:'centuryy',br:'Century',mdl:'Overlander N70ZZ',sz:'N70ZZ',grp:'D31',tech:'FLD',app:'마린/듀얼',v:12,ah:90,rc:170,cca:700,cs:'SAE',wt:22.5,rg:['OCE'],ver:'est'},
+{mk:'centuryy',br:'Century',mdl:'Ultra Hi Performance AGM DIN75L',sz:'DIN75L AGM',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:800,cs:'EN',wt:22.9,cyc:1400,rg:['OCE'],ver:'est'},
+{mk:'mutlu',br:'Mutlu',mdl:'SFB 62',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.0,rg:['MEA','EU'],ver:'est'},
+{mk:'mutlu',br:'Mutlu',mdl:'Silver Evolution 100',sz:'60038',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:830,cs:'EN',wt:23.1,rg:['MEA','EU'],ver:'est'},
+{mk:'mutlu',br:'Mutlu',mdl:'AGM Start-Stop 70',sz:'57001',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:760,cs:'EN',wt:20.2,cyc:1350,rg:['MEA','EU'],ver:'est'},
+{mk:'inci',br:'İnci Akü',mdl:'Maraton Power 62',sz:'56219',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['MEA','EU'],ver:'est'},
+{mk:'inci',br:'İnci Akü',mdl:'Suprex 100',sz:'60038',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:100,rc:180,cca:800,cs:'EN',wt:23.0,rg:['MEA','EU'],ver:'est'},
+{mk:'yigit',br:'Yiğit Akü',mdl:'Platin 72',sz:'57219',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:72,rc:120,cca:640,cs:'EN',wt:17.6,rg:['MEA','EU'],ver:'est'},
+{mk:'rahim',br:'Lucas',mdl:'DIN55',sz:'55565',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:55,rc:90,cca:480,cs:'EN',wt:13.9,rg:['IN','MEA'],ver:'est'},
+{mk:'rahim',br:'Spark',mdl:'N150',sz:'N150',grp:'G51',tech:'FLD',app:'상용차',v:12,ah:150,rc:290,cca:900,cs:'SAE',wt:38.0,rg:['IN','MEA'],ver:'est'},
+{mk:'fnb',br:'Sabat',mdl:'646 (12V 60Ah)',sz:'646',grp:'BCI 25',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:500,cs:'SAE',wt:15.2,rg:['MEA'],ver:'est'},
+{mk:'metair',br:'Willard',mdl:'652 Fusion',sz:'652',grp:'BCI 25',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:520,cs:'SAE',wt:15.4,rg:['MEA'],ver:'est'},
+{mk:'metair',br:'Willard',mdl:'AGM 660',sz:'660 AGM',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:720,cs:'EN',wt:20.4,cyc:1300,rg:['MEA'],ver:'est'}
+];
+
+/* --- 차량 적합성 (피트먼트) --------------------------------------------- */
+/* isg: 아이들링스톱 여부, grp: 요구 규격그룹, ah/cca: 요구 최소치           */
+/* conf: 확신도 (H=업계 통용 표준, M=연식·트림별 편차 큼 → 원본 대조 필수)   */
+const FITMENT = [
+/* 한국 */
+{mkt:'KR',bd:'현대',mdl:'아반떼 CN7',yr:'2020~',eng:'1.6 가솔린',isg:1,grp:'LN2',ah:60,cca:560,tech:'AGM',alt:'비ISG 는 DIN60L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'아반떼 CN7',yr:'2020~',eng:'1.6 LPG',isg:0,grp:'LN2',ah:60,cca:540,tech:'FLD',alt:'DIN60L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'쏘나타 DN8',yr:'2019~',eng:'2.0 가솔린',isg:1,grp:'LN3',ah:70,cca:680,tech:'AGM',alt:'AGM70L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'그랜저 GN7',yr:'2022~',eng:'2.5 가솔린',isg:1,grp:'LN4',ah:80,cca:760,tech:'AGM',alt:'AGM80L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'그랜저 IG',yr:'2016~2022',eng:'3.0 LPI',isg:0,grp:'LN4',ah:80,cca:700,tech:'FLD',alt:'DIN80L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'투싼 NX4',yr:'2020~',eng:'1.6 T-GDI',isg:1,grp:'LN2',ah:60,cca:600,tech:'AGM',alt:'AGM60L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'싼타페 TM/MX5',yr:'2018~',eng:'2.2 디젤',isg:1,grp:'LN3',ah:70,cca:720,tech:'AGM',alt:'비ISG 는 DIN80L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'팰리세이드 LX2',yr:'2018~',eng:'2.2 디젤',isg:0,grp:'LN5',ah:90,cca:800,tech:'FLD',alt:'DIN90L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'스타리아 US4',yr:'2021~',eng:'2.2 디젤',isg:0,grp:'LN5',ah:90,cca:800,tech:'FLD',alt:'DIN90L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'포터2',yr:'2004~',eng:'2.5 디젤',isg:0,grp:'D26',ah:70,cca:600,tech:'FLD',alt:'100D26L',conf:'M'},
+{mkt:'KR',bd:'현대',mdl:'엑시언트',yr:'2020~',eng:'대형트럭 24V',isg:0,grp:'H52',ah:200,cca:1200,tech:'FLD',alt:'N200 ×2 직렬',conf:'M'},
+{mkt:'KR',bd:'기아',mdl:'K5 DL3',yr:'2019~',eng:'2.0 가솔린',isg:1,grp:'LN3',ah:70,cca:680,tech:'AGM',alt:'AGM70L',conf:'M'},
+{mkt:'KR',bd:'기아',mdl:'쏘렌토 MQ4',yr:'2020~',eng:'2.2 디젤',isg:1,grp:'LN3',ah:70,cca:720,tech:'AGM',alt:'DIN80L',conf:'M'},
+{mkt:'KR',bd:'기아',mdl:'카니발 KA4',yr:'2020~',eng:'2.2 디젤',isg:1,grp:'LN5',ah:90,cca:800,tech:'AGM',alt:'DIN90L',conf:'M'},
+{mkt:'KR',bd:'기아',mdl:'셀토스 SP2',yr:'2019~',eng:'1.6 T-GDI',isg:1,grp:'LN2',ah:60,cca:560,tech:'AGM',alt:'DIN60L',conf:'M'},
+{mkt:'KR',bd:'기아',mdl:'모닝 JA',yr:'2017~',eng:'1.0 가솔린',isg:1,grp:'LBN1',ah:45,cca:400,tech:'EFB',alt:'DIN45L',conf:'M'},
+{mkt:'KR',bd:'기아',mdl:'봉고3',yr:'2004~',eng:'2.5 디젤',isg:0,grp:'D26',ah:70,cca:600,tech:'FLD',alt:'100D26L',conf:'M'},
+{mkt:'KR',bd:'제네시스',mdl:'G80 RG3',yr:'2020~',eng:'2.5T / 3.5T',isg:1,grp:'LN5',ah:90,cca:850,tech:'AGM',alt:'보조배터리 별도',conf:'M'},
+{mkt:'KR',bd:'KGM(쌍용)',mdl:'렉스턴 Y400',yr:'2017~',eng:'2.2 디젤',isg:0,grp:'LN5',ah:90,cca:800,tech:'FLD',alt:'DIN90L',conf:'M'},
+{mkt:'KR',bd:'쉐보레',mdl:'트레일블레이저',yr:'2020~',eng:'1.35T',isg:1,grp:'LN2',ah:60,cca:560,tech:'AGM',alt:'DIN60L',conf:'M'},
+/* 일본 */
+{mkt:'JP',bd:'토요타',mdl:'프리우스 ZVW50',yr:'2015~2022',eng:'1.8 HV',isg:1,grp:'B24',ah:45,cca:400,tech:'EFB',alt:'S-46B24R',conf:'M'},
+{mkt:'JP',bd:'토요타',mdl:'아쿠아 NHP10',yr:'2011~2021',eng:'1.5 HV',isg:1,grp:'B20',ah:38,cca:350,tech:'EFB',alt:'S-34B20R',conf:'M'},
+{mkt:'JP',bd:'토요타',mdl:'알파드 30계',yr:'2015~2023',eng:'2.5 가솔린',isg:1,grp:'S-95',ah:75,cca:730,tech:'EFB',alt:'S-95 / 80D26L',conf:'M'},
+{mkt:'JP',bd:'토요타',mdl:'코롤라 E210',yr:'2018~',eng:'1.8 가솔린',isg:1,grp:'LN1',ah:50,cca:470,tech:'EFB',alt:'LN1 ISS',conf:'M'},
+{mkt:'JP',bd:'토요타',mdl:'RAV4 XA50',yr:'2018~',eng:'2.0 / 2.5',isg:1,grp:'LN2',ah:60,cca:560,tech:'EFB',alt:'LN2 ISS',conf:'M'},
+{mkt:'JP',bd:'토요타',mdl:'하이럭스 GUN125',yr:'2015~',eng:'2.4 디젤',isg:0,grp:'D31',ah:90,cca:750,tech:'FLD',alt:'105D31R',conf:'M'},
+{mkt:'JP',bd:'토요타',mdl:'랜드크루저 300',yr:'2021~',eng:'3.3 디젤',isg:0,grp:'D31',ah:100,cca:800,tech:'FLD',alt:'115D31R ×2',conf:'M'},
+{mkt:'JP',bd:'닛산',mdl:'세레나 C27',yr:'2016~2022',eng:'2.0 / e-POWER',isg:1,grp:'S-95',ah:75,cca:730,tech:'EFB',alt:'S-95',conf:'M'},
+{mkt:'JP',bd:'닛산',mdl:'노트 e-POWER E12',yr:'2016~2020',eng:'1.2 e-POWER',isg:1,grp:'K-42',ah:38,cca:370,tech:'EFB',alt:'K-42R',conf:'M'},
+{mkt:'JP',bd:'혼다',mdl:'피트 GK/GR',yr:'2013~',eng:'1.3 / 1.5',isg:1,grp:'M-42',ah:38,cca:400,tech:'EFB',alt:'M-42 / 55B19L',conf:'M'},
+{mkt:'JP',bd:'혼다',mdl:'프리드 GB',yr:'2016~',eng:'1.5',isg:1,grp:'M-42',ah:38,cca:400,tech:'EFB',alt:'M-42',conf:'M'},
+{mkt:'JP',bd:'마쓰다',mdl:'CX-5 KF',yr:'2017~',eng:'2.0 / 2.2 i-stop',isg:1,grp:'Q-85',ah:60,cca:650,tech:'EFB',alt:'Q-85R',conf:'M'},
+{mkt:'JP',bd:'스바루',mdl:'포레스터 SK',yr:'2018~',eng:'2.0 / 2.5 아이사이트',isg:1,grp:'Q-85',ah:60,cca:650,tech:'EFB',alt:'Q-85 / 55D23L',conf:'M'},
+{mkt:'JP',bd:'스즈키',mdl:'와곤R MH55',yr:'2017~',eng:'0.66 마일드HV',isg:1,grp:'M-42',ah:38,cca:370,tech:'EFB',alt:'M-42R',conf:'M'},
+{mkt:'JP',bd:'다이하츠',mdl:'탄토 LA650',yr:'2019~',eng:'0.66',isg:1,grp:'M-42',ah:38,cca:370,tech:'EFB',alt:'M-42R',conf:'M'},
+{mkt:'JP',bd:'미쓰비시',mdl:'아웃랜더 PHEV',yr:'2013~',eng:'2.0 / 2.4 PHEV',isg:1,grp:'S-95',ah:75,cca:700,tech:'EFB',alt:'S-95',conf:'M'},
+{mkt:'JP',bd:'이스즈',mdl:'엘프 (소형트럭)',yr:'2007~',eng:'3.0 디젤',isg:0,grp:'E41',ah:100,cca:750,tech:'FLD',alt:'N100 / 115E41R',conf:'M'},
+/* 유럽 */
+{mkt:'EU',bd:'Volkswagen',mdl:'Golf VII',yr:'2012~2020',eng:'1.4 TSI',isg:1,grp:'LN2',ah:60,cca:560,tech:'EFB',alt:'상위 트림 AGM 70Ah',conf:'H'},
+{mkt:'EU',bd:'Volkswagen',mdl:'Golf VIII',yr:'2019~',eng:'1.5 eTSI',isg:1,grp:'LN3',ah:70,cca:760,tech:'AGM',alt:'기본형 LN2 EFB',conf:'M'},
+{mkt:'EU',bd:'Volkswagen',mdl:'Passat B8',yr:'2014~',eng:'2.0 TDI',isg:1,grp:'LN3',ah:70,cca:760,tech:'AGM',alt:'LN3 EFB',conf:'H'},
+{mkt:'EU',bd:'Volkswagen',mdl:'Tiguan II',yr:'2016~',eng:'2.0 TDI / TSI',isg:1,grp:'LN3',ah:70,cca:760,tech:'AGM',alt:'',conf:'H'},
+{mkt:'EU',bd:'Škoda',mdl:'Octavia III/IV',yr:'2013~',eng:'1.5 TSI',isg:1,grp:'LN2',ah:60,cca:600,tech:'EFB',alt:'LN3 AGM',conf:'H'},
+{mkt:'EU',bd:'Audi',mdl:'A4 B9',yr:'2015~',eng:'2.0 TDI / TFSI',isg:1,grp:'LN4',ah:80,cca:800,tech:'AGM',alt:'LN5 AGM 92Ah',conf:'H'},
+{mkt:'EU',bd:'Audi',mdl:'A6 C8',yr:'2018~',eng:'2.0 / 3.0 TDI MHEV',isg:1,grp:'LN5',ah:92,cca:850,tech:'AGM',alt:'보조 AGM 별도',conf:'H'},
+{mkt:'EU',bd:'BMW',mdl:'3시리즈 F30',yr:'2011~2019',eng:'320i / 320d',isg:1,grp:'LN5',ah:92,cca:850,tech:'AGM',alt:'LN4 AGM 80Ah',conf:'H'},
+{mkt:'EU',bd:'BMW',mdl:'3시리즈 G20',yr:'2018~',eng:'320i / 320d MHEV',isg:1,grp:'LN5',ah:92,cca:850,tech:'AGM',alt:'',conf:'H'},
+{mkt:'EU',bd:'BMW',mdl:'5시리즈 G30',yr:'2016~',eng:'520d / 530i',isg:1,grp:'LN5',ah:105,cca:950,tech:'AGM',alt:'LN6',conf:'M'},
+{mkt:'EU',bd:'Mercedes-Benz',mdl:'C-Class W205',yr:'2014~2021',eng:'C200 / C220d',isg:1,grp:'LN5',ah:92,cca:850,tech:'AGM',alt:'보조 12Ah AGM',conf:'H'},
+{mkt:'EU',bd:'Mercedes-Benz',mdl:'E-Class W213',yr:'2016~',eng:'E200 / E220d',isg:1,grp:'LN5',ah:92,cca:850,tech:'AGM',alt:'보조 20Ah AGM',conf:'H'},
+{mkt:'EU',bd:'Renault',mdl:'Clio V',yr:'2019~',eng:'1.0 TCe',isg:1,grp:'LN1',ah:50,cca:500,tech:'EFB',alt:'LN2 EFB 60Ah',conf:'M'},
+{mkt:'EU',bd:'Peugeot',mdl:'208 II',yr:'2019~',eng:'1.2 PureTech',isg:1,grp:'LBN2',ah:60,cca:560,tech:'EFB',alt:'LN2 EFB',conf:'M'},
+{mkt:'EU',bd:'Fiat',mdl:'500',yr:'2007~',eng:'1.2 / 0.9 TwinAir',isg:1,grp:'LBN1',ah:50,cca:450,tech:'EFB',alt:'비ISG 는 일반액식',conf:'M'},
+{mkt:'EU',bd:'Ford',mdl:'Focus IV',yr:'2018~',eng:'1.0 EcoBoost',isg:1,grp:'LN2',ah:60,cca:600,tech:'EFB',alt:'LN3 AGM',conf:'M'},
+{mkt:'EU',bd:'Opel/Vauxhall',mdl:'Astra K',yr:'2015~2021',eng:'1.4T / 1.6 CDTI',isg:1,grp:'LN2',ah:60,cca:600,tech:'EFB',alt:'',conf:'M'},
+{mkt:'EU',bd:'Volvo',mdl:'XC60 II',yr:'2017~',eng:'B4 / B5 MHEV',isg:1,grp:'LN4',ah:80,cca:800,tech:'AGM',alt:'LN5 AGM',conf:'M'},
+{mkt:'EU',bd:'Mercedes-Benz',mdl:'Actros',yr:'2011~',eng:'대형트럭 24V',isg:0,grp:'EN C',ah:225,cca:1150,tech:'FLD',alt:'225Ah ×2 직렬',conf:'M'},
+{mkt:'EU',bd:'Scania',mdl:'R-series',yr:'2016~',eng:'대형트럭 24V',isg:0,grp:'EN C',ah:225,cca:1150,tech:'FLD',alt:'225Ah ×2 직렬',conf:'M'},
+/* 북미 */
+{mkt:'NA',bd:'Ford',mdl:'F-150',yr:'2015~2020',eng:'2.7 / 3.5 EcoBoost',isg:1,grp:'BCI 65',ah:75,cca:750,tech:'AGM',alt:'Group 65 일반액식',conf:'H'},
+{mkt:'NA',bd:'Ford',mdl:'F-150',yr:'2021~',eng:'PowerBoost / 3.5 EB',isg:1,grp:'BCI 94R',ah:80,cca:800,tech:'AGM',alt:'H7 AGM',conf:'M'},
+{mkt:'NA',bd:'Ford',mdl:'Explorer',yr:'2020~',eng:'2.3 / 3.0',isg:1,grp:'BCI 48',ah:70,cca:760,tech:'AGM',alt:'H6 AGM',conf:'M'},
+{mkt:'NA',bd:'Chevrolet',mdl:'Silverado 1500',yr:'2019~',eng:'5.3 V8',isg:1,grp:'BCI 48',ah:70,cca:730,tech:'AGM',alt:'Group 94R AGM',conf:'M'},
+{mkt:'NA',bd:'Chevrolet',mdl:'Equinox',yr:'2018~',eng:'1.5T',isg:1,grp:'BCI 48',ah:70,cca:730,tech:'AGM',alt:'',conf:'M'},
+{mkt:'NA',bd:'RAM',mdl:'1500',yr:'2019~',eng:'5.7 eTorque',isg:1,grp:'BCI 94R',ah:80,cca:800,tech:'AGM',alt:'H7 AGM',conf:'M'},
+{mkt:'NA',bd:'Jeep',mdl:'Wrangler JL',yr:'2018~',eng:'3.6 / 2.0T eTorque',isg:1,grp:'BCI 48',ah:70,cca:760,tech:'AGM',alt:'보조 AGM 별도',conf:'M'},
+{mkt:'NA',bd:'Toyota',mdl:'Camry',yr:'2018~',eng:'2.5 / 3.5',isg:0,grp:'BCI 24',ah:70,cca:650,tech:'FLD',alt:'Group 24F',conf:'H'},
+{mkt:'NA',bd:'Toyota',mdl:'Tacoma',yr:'2016~',eng:'3.5 V6',isg:0,grp:'BCI 24',ah:70,cca:650,tech:'FLD',alt:'Group 24F',conf:'H'},
+{mkt:'NA',bd:'Honda',mdl:'Accord',yr:'2018~',eng:'1.5T / 2.0T',isg:0,grp:'BCI 51R',ah:45,cca:500,tech:'FLD',alt:'Group 51R',conf:'H'},
+{mkt:'NA',bd:'Honda',mdl:'CR-V',yr:'2017~',eng:'1.5T',isg:0,grp:'BCI 51R',ah:45,cca:500,tech:'FLD',alt:'',conf:'H'},
+{mkt:'NA',bd:'Nissan',mdl:'Altima',yr:'2019~',eng:'2.5',isg:0,grp:'BCI 35',ah:60,cca:600,tech:'FLD',alt:'Group 35',conf:'H'},
+{mkt:'NA',bd:'Subaru',mdl:'Outback',yr:'2019~',eng:'2.5',isg:0,grp:'BCI 25',ah:55,cca:600,tech:'FLD',alt:'Group 25',conf:'H'},
+{mkt:'NA',bd:'Freightliner',mdl:'Cascadia',yr:'2017~',eng:'대형트럭 12V',isg:0,grp:'BCI 31',ah:100,cca:950,tech:'AGM',alt:'Group 31 ×4 병렬',conf:'M'},
+/* 중화권 / 기타 */
+{mkt:'CN',bd:'Volkswagen',mdl:'Lavida (朗逸)',yr:'2018~',eng:'1.5 / 1.4T',isg:1,grp:'LBN2',ah:60,cca:540,tech:'EFB',alt:'L2-400',conf:'M'},
+{mkt:'CN',bd:'Haval',mdl:'H6',yr:'2017~',eng:'1.5T',isg:1,grp:'LBN2',ah:60,cca:540,tech:'EFB',alt:'L2-400',conf:'M'},
+{mkt:'CN',bd:'Geely',mdl:'Boyue (博越)',yr:'2016~',eng:'1.8T',isg:1,grp:'LBN2',ah:60,cca:540,tech:'EFB',alt:'L2-400',conf:'M'},
+{mkt:'CN',bd:'BYD',mdl:'Qin PLUS DM-i',yr:'2021~',eng:'PHEV 12V 보조',isg:0,grp:'B24',ah:45,cca:400,tech:'FLD',alt:'6-QW-45',conf:'M'},
+{mkt:'CN',bd:'Toyota',mdl:'Corolla (중국형)',yr:'2019~',eng:'1.2T / 1.8 HV',isg:1,grp:'D23',ah:60,cca:550,tech:'EFB',alt:'55D23L / Q-85',conf:'M'},
+{mkt:'ETC',bd:'마린',mdl:'레저보트 시동+하우스',yr:'-',eng:'12V 듀얼퍼포즈',isg:0,grp:'BCI 31',ah:100,cca:800,tech:'AGM',alt:'Group 31 듀얼',conf:'H'}
+];
+
+/* ===========================================================================
+   앱 로직.  시드는 코드에 박아두고, 사용자가 바꾼 것/올린 것만 localStorage 에
+   따로 쌓는다.  그래야 나중에 시드를 갱신해도 사용자 데이터가 안 날아간다.
+   =========================================================================== */
+const LS_KEY = 'gb_sli_catalog_v1';
+const SPEC_MAP = {}; SPECS.forEach(s => SPEC_MAP[s.k] = s);
+const MK_MAP = {};   MAKERS.forEach(m => MK_MAP[m.k] = m);
+const RGN_MAP = {};  REGIONS.forEach(r => RGN_MAP[r.k] = r.n);
+
+const DEFAULTS = {
+  v: SEED_VERSION,
+  edits: {}, added: [], removed: [], imported: [],
+  makerEdits: {}, addedMakers: [],
+  fitAdded: [], fitEdits: {}, fitRemoved: [],
+  cart: [],
+  settings: {sae2en: 0.95, home: 'sebang',
+             w: {cca: 30, cap: 25, whkg: 20, whl: 10, cyc: 15}}
+};
+let store = load();
+let view = 'dash';
+const filters = {cat: {}, fit: {}, xref: {}, src: {}};
+let sortState = {};
+
+function load() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+    const s = Object.assign({}, DEFAULTS, raw);
+    s.settings = Object.assign({}, DEFAULTS.settings, raw.settings || {});
+    s.settings.w = Object.assign({}, DEFAULTS.settings.w, (raw.settings || {}).w || {});
+    return s;
+  } catch (e) { return JSON.parse(JSON.stringify(DEFAULTS)); }
+}
+function save() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(store)); }
+  catch (e) { alert('브라우저 저장에 실패했다 (용량 초과일 수 있음): ' + e.message); }
+  renderStoreInfo();
+}
+function h(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const num = v => (v === '' || v == null || isNaN(v)) ? null : +v;
+const fmt = (v, d) => v == null ? '<span class="muted">-</span>' :
+  (d ? (+v).toFixed(d) : Math.round(v).toLocaleString());
+
+/* --- 모델 조립 ---------------------------------------------------------- */
+function mid(m) {
+  return [m.mk, m.br || '', m.mdl, m.sz || m.grp || '', m.dist || '', m.cpn || ''].join('|');
+}
+function normalize(m) {
+  const o = Object.assign({}, m);
+  const sp = SPEC_MAP[o.grp];
+  if (sp) { o.L = o.L || sp.L; o.W = o.W || sp.W; o.H = o.H || sp.H; o.sys = o.sys || sp.sys; }
+  const f = store.settings.sae2en;
+  if (o.cca != null) {
+    o.ccaEN  = o.cs === 'SAE' ? Math.round(o.cca * f) : o.cca;
+    o.ccaSAE = o.cs === 'SAE' ? o.cca : Math.round(o.cca / f);
+  } else { o.ccaEN = o.ccaSAE = null; }
+  const wh = (o.v && o.ah) ? o.v * o.ah : null;
+  o.whkg = (wh && o.wt) ? wh / o.wt : null;
+  o.whl  = (wh && o.L && o.W && o.H) ? wh * 1e6 / (o.L * o.W * o.H) : null;
+  o.ccaAh = (o.ccaEN && o.ah) ? o.ccaEN / o.ah : null;
+  o.ccaKg = (o.ccaEN && o.wt) ? o.ccaEN / o.wt : null;
+  o.mkName = (MK_MAP[o.mk] || {}).n || o.mk;
+  return o;
+}
+let _cache = null;
+function allModels() {
+  if (_cache) return _cache;
+  const out = [];
+  const push = (m, src) => {
+    const id = m.id || mid(m);
+    if (store.removed.indexOf(id) >= 0) return;
+    const merged = Object.assign({}, m, store.edits[id] || {}, {id: id, src: src});
+    merged.own = merged.mk === store.settings.home;
+    out.push(normalize(merged));
+  };
+  MODELS.forEach(m => push(m, 'seed'));
+  store.added.forEach(m => push(m, 'user'));
+  store.imported.forEach(m => push(m, 'import'));
+  _cache = out;
+  return out;
+}
+function invalidate() { _cache = null; }
+function allMakers() {
+  const out = MAKERS.concat(store.addedMakers)
+    .map(m => Object.assign({}, m, store.makerEdits[m.k] || {}));
+  const counts = {};
+  allModels().forEach(m => counts[m.mk] = (counts[m.mk] || 0) + 1);
+  out.forEach(m => m.cnt = counts[m.k] || 0);
+  return out;
+}
+function allFitment() {
+  const out = [];
+  FITMENT.forEach((f, i) => {
+    const id = 'f' + i;
+    if (store.fitRemoved.indexOf(id) >= 0) return;
+    out.push(Object.assign({}, f, store.fitEdits[id] || {}, {id: id}));
+  });
+  store.fitAdded.forEach((f, i) => {
+    const id = f.id || ('u' + i);
+    if (store.fitRemoved.indexOf(id) >= 0) return;
+    out.push(Object.assign({}, f, store.fitEdits[id] || {}, {id: id}));
+  });
+  return out;
+}
+
+/* --- 성능 점수: 같은 용도군 안에서의 상대 위치 --------------------------- */
+const METRICS = [
+  {k: 'cca',  f: m => m.ccaEN, label: '시동성능(CCA)'},
+  {k: 'cap',  f: m => m.ah,    label: '용량(Ah)'},
+  {k: 'whkg', f: m => m.whkg,  label: '중량 에너지밀도'},
+  {k: 'whl',  f: m => m.whl,   label: '부피 에너지밀도'},
+  {k: 'cyc',  f: m => m.cyc,   label: '사이클 수명'}
+];
+function scoreAll() {
+  const models = allModels();
+  const groups = {};
+  models.forEach(m => { (groups[m.app || '미분류'] = groups[m.app || '미분류'] || []).push(m); });
+  Object.keys(groups).forEach(g => {
+    const list = groups[g];
+    const range = {};
+    METRICS.forEach(mt => {
+      const vals = list.map(mt.f).filter(v => v != null && !isNaN(v));
+      range[mt.k] = vals.length ? {min: Math.min.apply(null, vals), max: Math.max.apply(null, vals)} : null;
+    });
+    list.forEach(m => {
+      let sum = 0, wsum = 0; m.pct = {};
+      METRICS.forEach(mt => {
+        const v = mt.f(m), r = range[mt.k];
+        if (v == null || !r) return;
+        const p = r.max === r.min ? 100 : (v - r.min) / (r.max - r.min) * 100;
+        m.pct[mt.k] = p;
+        const w = store.settings.w[mt.k] || 0;
+        sum += p * w; wsum += w;
+      });
+      m.score = wsum ? Math.round(sum / wsum) : null;
+    });
+  });
+  return models;
+}
+const scoreCls = s => s == null ? '' : s >= 75 ? 's-a' : s >= 50 ? 's-b' : s >= 25 ? 's-c' : 's-d';
+
+/* --- 공통 표 렌더러 ----------------------------------------------------- */
+function table(elId, cols, rows, opt) {
+  opt = opt || {};
+  const key = opt.sortKey || elId;
+  const st = sortState[key] || (sortState[key] = {k: opt.defSort || null, dir: opt.defDir || -1});
+  if (st.k) {
+    const col = cols.filter(c => c.k === st.k)[0];
+    rows = rows.slice().sort((a, b) => {
+      let x = col && col.sv ? col.sv(a) : a[st.k], y = col && col.sv ? col.sv(b) : b[st.k];
+      if (x == null) return 1; if (y == null) return -1;
+      if (typeof x === 'string' || typeof y === 'string')
+        return String(x).localeCompare(String(y), 'ko') * st.dir;
+      return (x - y) * st.dir;
+    });
+  }
+  const thead = '<thead><tr>' + cols.map(c =>
+    '<th class="' + (c.num ? 'num ' : '') + (c.nosort ? 'no-sort' : '') + '" data-k="' + h(c.k) + '">' +
+    h(c.t) + (st.k === c.k ? (st.dir > 0 ? ' ▲' : ' ▼') : '') + '</th>').join('') + '</tr></thead>';
+  const body = rows.length ? rows.map((r, i) =>
+    '<tr ' + (opt.rowAttr ? opt.rowAttr(r, i) : '') + '>' + cols.map(c =>
+      '<td class="' + (c.num ? 'num ' : '') + (c.cls || '') + '">' +
+      (c.r ? c.r(r, i) : (r[c.k] == null ? '<span class="muted">-</span>' : h(r[c.k]))) + '</td>').join('') + '</tr>'
+  ).join('') : '<tr><td colspan="' + cols.length + '"><div class="empty">' + (opt.empty || '데이터가 없다.') + '</div></td></tr>';
+  const el = document.getElementById(elId);
+  el.innerHTML = thead + '<tbody>' + body + '</tbody>';
+  el.querySelectorAll('th').forEach(th => {
+    if (th.classList.contains('no-sort')) return;
+    th.onclick = () => {
+      const k = th.dataset.k;
+      if (st.k === k) st.dir *= -1; else { st.k = k; st.dir = -1; }
+      render();
+    };
+  });
+}
+function barChart(elId, data, opt) {
+  opt = opt || {};
+  const max = Math.max.apply(null, data.map(d => d.v).concat([1]));
+  document.getElementById(elId).innerHTML = data.length ? data.map(d =>
+    '<div class="barrow"><span title="' + h(d.l) + '">' + h(d.l) + '</span>' +
+    '<span class="bar"><i style="width:' + (d.v / max * 100) + '%;background:' + (d.c || 'var(--blue)') + '"></i></span>' +
+    '<span class="v">' + h(opt.fmt ? opt.fmt(d.v) : d.v.toLocaleString()) + '</span></div>').join('')
+    : '<div class="empty">데이터 없음</div>';
+}
+const techCls = t => t === 'AGM' || t === 'AGM나선형' ? 't-agm' : t === 'EFB' ? 't-efb' : 't-fld';
+const techTag = t => '<span class="tag ' + techCls(t) + '">' + h(t) + '</span>';
+const verTag = v => {
+  const m = {std: ['t-std', '규격표준'], pub: ['t-pub', '공개스펙'], est: ['t-est', '추정'],
+             own: ['t-own', '사내설계치'], user: ['t-ok', '직접입력']};
+  const x = m[v] || ['t-std', v || '-'];
+  return '<span class="tag ' + x[0] + '">' + h(x[1]) + '</span>';
+};
+
+/* --- 네비게이션 --------------------------------------------------------- */
+const TITLES = {
+  dash: ['대시보드', '전세계 SLI 배터리 카달로그 현황'],
+  cat:  ['카달로그', '수집한 모델의 성능 스펙'],
+  fit:  ['차량 적합성', '차종 → 요구 규격 → 적합 모델'],
+  cmp:  ['성능 비교', '용도군 내 상대 성능'],
+  xref: ['규격 크로스레퍼런스', '같은 규격에서의 스펙 격차'],
+  rgn:  ['판매지역', '지역별 커버리지와 공백'],
+  src:  ['제조사 · 수집관리', '카달로그 확보 현황'],
+  data: ['데이터 관리', '가져오기 · 백업 · 품질']
+};
+function go(v) {
+  view = v;
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.v === v));
+  document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + v));
+  document.getElementById('vTitle').textContent = TITLES[v][0];
+  document.getElementById('vDesc').textContent = TITLES[v][1];
+  window.scrollTo(0, 0);
+  render();
+}
+
+/* --- 대시보드 ----------------------------------------------------------- */
+function renderDash() {
+  const ms = scoreAll(), mk = allMakers();
+  const own = ms.filter(m => m.own).length;
+  const collected = mk.filter(m => m.st === '수집완료').length;
+  const est = ms.filter(m => m.ver === 'est').length;
+  const rgnSet = {}; ms.forEach(m => (m.rg || []).forEach(r => rgnSet[r] = 1));
+  document.getElementById('kpis').innerHTML = [
+    ['등록 모델', ms.length, '자사 ' + own + ' / 타사 ' + (ms.length - own), 'blue'],
+    ['제조사 · 유통사', mk.length, '카달로그 수집완료 ' + collected + '곳', 'purple'],
+    ['커버 판매지역', Object.keys(rgnSet).length + ' / ' + REGIONS.length, '지역 탭에서 공백 확인', 'green'],
+    ['PDF 근거 확보', mk.filter(x => x.file).length + ' / ' + mk.length, '카달로그 원본 파일이 등록된 소스', 'amber'],
+    ['원본 대조 필요', est, '추정값으로 들어간 모델 수', est ? 'amber' : 'green']
+  ].map(k => '<div class="kpi ' + k[3] + '"><div class="l">' + k[0] + '</div><div class="n">' +
+    k[1] + '</div><div class="s">' + h(k[2]) + '</div></div>').join('');
+
+  const cnt = (arr, f) => {
+    const o = {}; arr.forEach(x => { const k = f(x); if (k != null) o[k] = (o[k] || 0) + 1; });
+    return Object.keys(o).map(k => ({l: k, v: o[k]})).sort((a, b) => b.v - a.v);
+  };
+  barChart('chTech', cnt(ms, m => m.tech));
+  barChart('chApp', cnt(ms, m => m.app));
+  const rc = {}; ms.forEach(m => (m.rg || []).forEach(r => rc[r] = (rc[r] || 0) + 1));
+  barChart('chRgn', REGIONS.filter(r => rc[r.k]).map(r => ({l: r.n, v: rc[r.k]})).sort((a, b) => b.v - a.v));
+  barChart('chSys', cnt(ms, m => m.sys || (SPEC_MAP[m.grp] || {}).sys || '기타'));
+  barChart('chMk', cnt(ms, m => m.mkName).slice(0, 12));
+
+  const groups = {};
+  ms.forEach(m => (groups[m.app || '미분류'] = groups[m.app || '미분류'] || []).push(m));
+  const avg = (l, f) => { const v = l.map(f).filter(x => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+  table('tbAvg', [
+    {k: 'g', t: '용도'}, {k: 'n', t: '모델', num: true},
+    {k: 'ah', t: '평균 Ah', num: true, r: r => fmt(r.ah, 1)},
+    {k: 'cca', t: '평균 CCA(EN)', num: true, r: r => fmt(r.cca)},
+    {k: 'ccaAh', t: 'CCA/Ah', num: true, r: r => fmt(r.ccaAh, 2)},
+    {k: 'whkg', t: 'Wh/kg', num: true, r: r => fmt(r.whkg, 1)},
+    {k: 'whl', t: 'Wh/L', num: true, r: r => fmt(r.whl, 1)}
+  ], Object.keys(groups).map(g => ({
+    g: g, n: groups[g].length, ah: avg(groups[g], m => m.ah), cca: avg(groups[g], m => m.ccaEN),
+    ccaAh: avg(groups[g], m => m.ccaAh), whkg: avg(groups[g], m => m.whkg), whl: avg(groups[g], m => m.whl)
+  })), {sortKey: 'avg', defSort: 'n'});
+
+  const todo = mk.filter(m => m.st !== '수집완료' || m.cnt === 0);
+  table('tbTodo', [
+    {k: 'n', t: '제조사 / 유통사', r: r => h(r.n) + (r.t === 'D' ? ' <span class="tag t-std">유통</span>' : '')},
+    {k: 'c', t: '국가'},
+    {k: 'rg', t: '주요 판매지역', r: r => (r.rg || []).map(x => RGN_MAP[x] || x).join(', ')},
+    {k: 'cnt', t: '등록 모델', num: true},
+    {k: 'st', t: '상태', r: r => '<span class="tag ' + (r.st === '수집완료' ? 't-ok' : 't-warn') + '">' + h(r.st) + '</span>'},
+    {k: 'site', t: '카달로그 링크', r: r => r.site ? '<a href="' + h(r.site) + '" target="_blank" rel="noopener">열기 ↗</a>' : '<span class="muted">-</span>'},
+    {k: 'act', t: '', nosort: true, r: r => '<button class="btn sm" onclick="openMakerEdit(\'' + h(r.k) + '\')">수집기록</button>'}
+  ], todo, {sortKey: 'todo', defSort: 'cnt', defDir: 1, empty: '모든 소스가 수집완료다.'});
+
+  document.getElementById('seedNotice').innerHTML =
+    '<b>초기 데이터는 참고용이다.</b> 공개 규격 표준과 제조사 공개 스펙으로 채운 1차 데이터이며, ' +
+    '<span class="tag t-est">추정</span> 표시가 붙은 ' + est + '건은 원본 카달로그와 대조하기 전에 영업·기술 자료로 쓰면 안 된다. ' +
+    '카달로그를 받는 대로 [제조사·수집관리]에서 상태를 바꾸고 스펙을 갱신하면 된다.';
+}
+
+/* --- 카달로그 ----------------------------------------------------------- */
+/* 텍스트 입력에 change 까지 묶으면, 표의 행을 클릭하는 순간 blur→change→재렌더가
+   일어나 클릭 대상이 사라진다. 그래서 입력 종류별로 이벤트를 하나만 쓴다. */
+function bindFilter(id, fn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.tagName === 'INPUT' && el.type !== 'checkbox') el.oninput = fn;
+  else el.onchange = fn;
+}
+function selOpts(list, cur) {
+  return list.map(v => '<option value="' + h(v) + '"' + (cur === v ? ' selected' : '') + '>' + h(v) + '</option>').join('');
+}
+function uniq(arr) { return Array.from(new Set(arr.filter(x => x != null && x !== ''))).sort((a, b) => String(a).localeCompare(String(b), 'ko')); }
+
+function renderCatFilters() {
+  const ms = allModels(), f = filters.cat;
+  document.getElementById('catFilters').innerHTML =
+    '<input type="search" id="fq" placeholder="제조사·브랜드·모델·규격 검색" value="' + h(f.q || '') + '">' +
+    '<select id="fOwn"><option value="">자사/타사 전체</option>' + selOpts(['자사만', '타사만'], f.own) + '</select>' +
+    '<select id="fMk"><option value="">제조사 전체</option>' + selOpts(uniq(ms.map(m => m.mkName)), f.mk) + '</select>' +
+    '<select id="fTech"><option value="">기술 전체</option>' + selOpts(uniq(ms.map(m => m.tech)), f.tech) + '</select>' +
+    '<select id="fApp"><option value="">용도 전체</option>' + selOpts(uniq(ms.map(m => m.app)), f.app) + '</select>' +
+    '<select id="fGrp"><option value="">규격 전체</option>' + selOpts(uniq(ms.map(m => m.grp)), f.grp) + '</select>' +
+    '<select id="fRgn"><option value="">지역 전체</option>' +
+      REGIONS.map(r => '<option value="' + r.k + '"' + (f.rgn === r.k ? ' selected' : '') + '>' + h(r.n) + '</option>').join('') + '</select>' +
+    '<button class="btn sm" onclick="filters.cat={};render()">초기화</button>';
+  ['q:fq','own:fOwn','mk:fMk','tech:fTech','app:fApp','grp:fGrp','rgn:fRgn'].forEach(pair => {
+    const key = pair.split(':')[0], id = pair.split(':')[1];
+    bindFilter(id, () => { f[key] = document.getElementById(id).value; renderCatTable(); });
+  });
+}
+function filteredModels() {
+  const f = filters.cat, q = (f.q || '').trim().toLowerCase();
+  return scoreAll().filter(m => {
+    if (f.own === '자사만' && !m.own) return false;
+    if (f.own === '타사만' && m.own) return false;
+    if (f.mk && m.mkName !== f.mk) return false;
+    if (f.tech && m.tech !== f.tech) return false;
+    if (f.app && m.app !== f.app) return false;
+    if (f.grp && m.grp !== f.grp) return false;
+    if (f.rgn && (m.rg || []).indexOf(f.rgn) < 0) return false;
+    if (q) {
+      const hay = [m.mkName, m.br, m.mdl, m.sz, m.grp, m.dist, m.cpn].join(' ').toLowerCase();
+      if (hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+}
+function renderCatTable() {
+  const rows = filteredModels();
+  table('tbCat', [
+    {k: 'sel', t: '', nosort: true, r: r => '<input type="checkbox" onclick="event.stopPropagation();toggleCart(\'' + h(r.id).replace(/'/g, "\\'") + '\')"' +
+      (store.cart.indexOf(r.id) >= 0 ? ' checked' : '') + '>'},
+    {k: 'mkName', t: '제조사', r: r => h(r.mkName) + (r.own ? ' <span class="tag t-own">자사</span>' : '')},
+    {k: 'br', t: '브랜드'},
+    {k: 'mdl', t: '모델'},
+    {k: 'grp', t: '규격', r: r => h(r.grp || '') + (r.sz && r.sz !== r.grp ? ' <span class="muted">' + h(r.sz) + '</span>' : '')},
+    {k: 'tech', t: '기술', r: r => techTag(r.tech)},
+    {k: 'app', t: '용도'},
+    {k: 'ah', t: 'Ah', num: true},
+    {k: 'rc', t: 'RC', num: true},
+    {k: 'ccaEN', t: 'CCA(EN)', num: true, r: r => fmt(r.ccaEN) + (r.cs === 'SAE' ? '<span class="muted">*</span>' : '')},
+    {k: 'ccaSAE', t: 'CCA(SAE)', num: true, r: r => fmt(r.ccaSAE) + (r.cs === 'EN' ? '<span class="muted">*</span>' : '')},
+    {k: 'wt', t: '무게', num: true, r: r => fmt(r.wt, 1)},
+    {k: 'ccaAh', t: 'CCA/Ah', num: true, r: r => fmt(r.ccaAh, 2)},
+    {k: 'whkg', t: 'Wh/kg', num: true, r: r => fmt(r.whkg, 1)},
+    {k: 'whl', t: 'Wh/L', num: true, r: r => fmt(r.whl, 1)},
+    {k: 'score', t: '점수', num: true, r: r => r.score == null ? '-' : '<span class="score ' + scoreCls(r.score) + '">' + r.score + '</span>'},
+    {k: 'rg', t: '판매지역', r: r => (r.rg || []).map(x => RGN_MAP[x] || x).join(', ')},
+    {k: 'ver', t: '근거', r: r => verTag(r.ver)}
+  ], rows, {
+    sortKey: 'cat', defSort: 'score',
+    rowAttr: r => 'style="cursor:pointer" onclick="openDetail(\'' + h(r.id).replace(/'/g, "\\'") + '\')"',
+    empty: '조건에 맞는 모델이 없다.'
+  });
+  document.getElementById('catLegend').innerHTML =
+    rows.length + '개 표시. <b>*</b> 표시된 CCA 는 원 표기 규격이 아니라 환산값(계수 ' +
+    store.settings.sae2en + ')이다. 점수는 같은 용도군 안에서의 상대 위치이며 가중치는 [성능 비교]에서 바꿀 수 있다.';
+  document.getElementById('cntCat').textContent = allModels().length;
+  document.getElementById('cntCmp').textContent = store.cart.length || '';
+}
+function toggleCart(id) {
+  const i = store.cart.indexOf(id);
+  if (i >= 0) store.cart.splice(i, 1);
+  else { if (store.cart.length >= 8) { alert('비교는 8개까지'); return; } store.cart.push(id); }
+  save(); renderCatTable();
+}
+function clearCart() { store.cart = []; save(); render(); }
+
+/* --- 모델 상세 드로어 --------------------------------------------------- */
+function openDetail(id) {
+  const m = scoreAll().filter(x => x.id === id)[0];
+  if (!m) return;
+  const peers = allModels().filter(x => x.grp && x.grp === m.grp && x.id !== m.id)
+    .sort((a, b) => (b.ccaEN || 0) - (a.ccaEN || 0)).slice(0, 12);
+  const fits = allFitment().filter(f => f.grp && f.grp === m.grp && fitOK(f, m));
+  const e = m.ext || {};
+  document.getElementById('drawer').innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:start;gap:10px">' +
+    '<div><h3>' + h(m.br || '') + ' ' + h(m.mdl) + '</h3><p class="muted">' + h(m.mkName) + ' · ' + h(m.grp || m.sz || '') + ' · ' + techTag(m.tech) + ' ' + verTag(m.ver) + '</p></div>' +
+    '<button class="btn sm" onclick="closeDrawer()">닫기</button></div>' +
+    '<dl class="kv">' +
+    kv('용도', m.app) + kv('전압', m.v ? m.v + 'V' : null) + kv('C20 용량', m.ah ? m.ah + ' Ah' : null) +
+    kv('RC', m.rc ? m.rc + ' 분' : null) +
+    kv('CCA', m.cca ? (m.cca + ' A (' + m.cs + ' 표기)') : null) +
+    kv('CCA 환산', m.ccaEN ? ('EN ' + m.ccaEN + ' / SAE ' + m.ccaSAE) : null) +
+    kv('치수 L×W×H', (m.L ? m.L + '×' + m.W + '×' + m.H + ' mm' : null) + (SPEC_MAP[m.grp] && !m.Lraw ? ' <span class="muted">(규격 표준)</span>' : '')) +
+    kv('무게', m.wt ? m.wt + ' kg' : null) + kv('사이클', m.cyc) +
+    kv('CCA/Ah', m.ccaAh ? m.ccaAh.toFixed(2) : null) +
+    kv('Wh/kg', m.whkg ? m.whkg.toFixed(1) : null) +
+    kv('Wh/L', m.whl ? m.whl.toFixed(1) : null) +
+    kv('종합점수', m.score == null ? null : '<span class="score ' + scoreCls(m.score) + '">' + m.score + '</span> <span class="muted">(' + h(m.app) + ' 군 내)</span>') +
+    kv('판매지역', (m.rg || []).map(x => RGN_MAP[x] || x).join(', ')) +
+    (m.dist ? kv('유통사', m.dist) : '') + (m.cpn ? kv('고객품번', m.cpn) : '') +
+    (e.judge ? kv('스펙 판정', e.judge) : '') +
+    (e.mc20 || e.mcca ? kv('표기치', [e.mc20 ? 'C20 ' + e.mc20 : '', e.mrc ? 'RC ' + e.mrc : '', e.msae ? 'SAE ' + e.msae : '', e.men ? 'EN ' + e.men : ''].filter(Boolean).join(' / ')) : '') +
+    ((e.o25 || e.s25) ? kv('오더/판매', ['25년 오더 ' + (e.o25 || 0), '25년 판매 ' + (e.s25 || 0), '26년 판매 ' + (e.s26 || 0)].join(' / ')) : '') +
+    kv('근거 카달로그', m.doc ? h(m.doc) + (m.pg ? ' p.' + h(m.pg) : '') : null) +
+    kv('출처', m.note || (m.src === 'import' ? '사내 임포트' : m.src === 'user' ? '직접 입력' : '시드 데이터')) +
+    '</dl>' +
+    '<div style="display:flex;gap:7px;margin-bottom:16px">' +
+    '<button class="btn sm primary" onclick="toggleCart(\'' + h(id).replace(/'/g, "\\'") + '\');openDetail(\'' + h(id).replace(/'/g, "\\'") + '\')">' +
+      (store.cart.indexOf(id) >= 0 ? '비교함에서 빼기' : '비교함에 담기') + '</button>' +
+    '<button class="btn sm" onclick="openEdit(\'' + h(id).replace(/'/g, "\\'") + '\')">수정</button>' +
+    '<button class="btn sm danger" onclick="removeModel(\'' + h(id).replace(/'/g, "\\'") + '\')">삭제</button></div>' +
+    '<h3 style="font-size:14px;margin:18px 0 8px">같은 규격(' + h(m.grp || '-') + ') 경쟁 모델</h3>' +
+    (peers.length ? '<table>' + peers.map(p =>
+      '<tr><td>' + h(p.mkName) + (p.own ? ' <span class="tag t-own">자사</span>' : '') + '</td><td>' + h(p.mdl) + '</td>' +
+      '<td>' + techTag(p.tech) + '</td><td class="num">' + fmt(p.ah) + 'Ah</td><td class="num">' + fmt(p.ccaEN) + 'A</td></tr>').join('') + '</table>'
+      : '<p class="muted">같은 규격으로 등록된 다른 모델이 없다.</p>') +
+    '<h3 style="font-size:14px;margin:18px 0 8px">적용 가능 차종 <span class="muted" style="font-weight:400">(요구 스펙 충족 기준)</span></h3>' +
+    (fits.length ? '<table>' + fits.map(f =>
+      '<tr><td>' + h(f.mkt) + '</td><td>' + h(f.bd) + ' ' + h(f.mdl) + '</td><td class="muted">' + h(f.yr) + '</td>' +
+      '<td>' + h(f.tech) + '</td></tr>').join('') + '</table>'
+      : '<p class="muted">등록된 차종 중 요구 스펙을 만족하는 항목이 없다.</p>');
+  openDrawer();
+}
+function kv(k, v) { return v == null || v === '' ? '' : '<dt>' + h(k) + '</dt><dd>' + v + '</dd>'; }
+function openDrawer() { document.getElementById('drawer').classList.add('open'); document.getElementById('backdrop').classList.add('open'); }
+function closeDrawer() { document.getElementById('drawer').classList.remove('open'); document.getElementById('backdrop').classList.remove('open'); }
+function removeModel(id) {
+  if (!confirm('이 모델을 목록에서 지운다. 계속?')) return;
+  if (store.removed.indexOf(id) < 0) store.removed.push(id);
+  store.added = store.added.filter(m => mid(m) !== id);
+  store.imported = store.imported.filter(m => (m.id || mid(m)) !== id);
+  delete store.edits[id];
+  save(); invalidate(); closeDrawer(); render();
+}
+
+/* --- 모델 추가/수정 ----------------------------------------------------- */
+function openEdit(id) {
+  const m = id ? allModels().filter(x => x.id === id)[0] : {};
+  const inp = (k, label, type, opts) => {
+    if (opts) return '<div><label>' + label + '</label><select name="' + k + '">' +
+      ['<option value=""></option>'].concat(opts.map(o => '<option' + (m[k] === o ? ' selected' : '') + '>' + h(o) + '</option>')).join('') + '</select></div>';
+    return '<div><label>' + label + '</label><input name="' + k + '" type="' + (type || 'text') + '" value="' + h(m[k] == null ? '' : m[k]) + '"></div>';
+  };
+  document.getElementById('drawer').innerHTML =
+    '<div style="display:flex;justify-content:space-between"><h3>' + (id ? '모델 수정' : '모델 추가') + '</h3>' +
+    '<button class="btn sm" onclick="closeDrawer()">닫기</button></div>' +
+    '<form id="fEdit" class="form" style="margin-top:14px;grid-template-columns:1fr 1fr">' +
+    inp('mk', '제조사 키', 'text', MAKERS.concat(store.addedMakers).map(x => x.k)) +
+    inp('br', '브랜드') + inp('mdl', '모델명') + inp('grp', '규격그룹', 'text', SPECS.map(s => s.k)) +
+    inp('sz', '카달로그 규격코드') + inp('tech', '기술', 'text', TECHS) + inp('app', '용도', 'text', APPS) +
+    inp('v', '전압', 'number') + inp('ah', 'C20 용량', 'number') + inp('rc', 'RC(분)', 'number') +
+    inp('cca', 'CCA', 'number') + inp('cs', 'CCA 규격', 'text', ['EN', 'SAE']) +
+    inp('wt', '무게(kg)', 'number') + inp('cyc', '사이클', 'number') +
+    inp('L', '길이', 'number') + inp('W', '폭', 'number') + inp('H', '높이', 'number') +
+    inp('ver', '근거 등급', 'text', ['std', 'pub', 'est', 'user']) +
+    inp('doc', '근거 카달로그(문서·판)') + inp('pg', '근거 페이지') +
+    '<div style="grid-column:1/-1"><label>판매지역 (복수 선택)</label><div>' +
+      REGIONS.map(r => '<label class="chip" style="margin:2px"><input type="checkbox" name="rg" value="' + r.k + '"' +
+        ((m.rg || []).indexOf(r.k) >= 0 ? ' checked' : '') + '> ' + h(r.n) + '</label>').join('') + '</div></div>' +
+    '<div style="grid-column:1/-1"><label>비고</label><input name="note" value="' + h(m.note || '') + '"></div>' +
+    '<div style="grid-column:1/-1;display:flex;gap:8px"><button type="submit" class="btn primary">저장</button>' +
+    '<button type="button" class="btn" onclick="closeDrawer()">취소</button></div></form>';
+  document.getElementById('fEdit').onsubmit = ev => {
+    ev.preventDefault();
+    const fd = new FormData(ev.target), o = {};
+    ['mk','br','mdl','grp','sz','tech','app','cs','ver','note','doc','pg'].forEach(k => { const v = fd.get(k); if (v) o[k] = v; });
+    ['v','ah','rc','cca','wt','cyc','L','W','H'].forEach(k => { const v = num(fd.get(k)); if (v != null) o[k] = v; });
+    o.rg = fd.getAll('rg');
+    if (!o.mk || !o.mdl) { alert('제조사 키와 모델명은 필수'); return; }
+    if (id) store.edits[id] = o;
+    else store.added.push(Object.assign({ver: 'user'}, o));
+    save(); invalidate(); closeDrawer(); render();
+  };
+  openDrawer();
+}
+
+/* --- 차량 적합성 -------------------------------------------------------- */
+function fitOK(f, m) {
+  if (f.grp && m.grp !== f.grp) return false;
+  if (f.ah && m.ah && m.ah < f.ah * 0.95) return false;
+  if (f.cca && m.ccaEN && m.ccaEN < f.cca * 0.95) return false;
+  if (f.tech === 'AGM' && m.tech !== 'AGM' && m.tech !== 'AGM나선형') return false;
+  if (f.tech === 'EFB' && ['EFB', 'AGM', 'AGM나선형'].indexOf(m.tech) < 0) return false;
+  return true;
+}
+function fitMatches(f) {
+  return scoreAll().filter(m => fitOK(f, m)).sort((a, b) => (b.own ? 1 : 0) - (a.own ? 1 : 0) || (b.score || 0) - (a.score || 0));
+}
+function renderFit() { renderFitFilters(); renderFitTable(); }
+function renderFitFilters() {
+  const fits = allFitment(), f = filters.fit;
+  document.getElementById('fitFilters').innerHTML =
+    '<input type="search" id="ffq" placeholder="차량 브랜드·모델 검색" value="' + h(f.q || '') + '">' +
+    '<select id="ffMkt"><option value="">시장 전체</option>' + selOpts(uniq(fits.map(x => x.mkt)), f.mkt) + '</select>' +
+    '<select id="ffBd"><option value="">차량 브랜드 전체</option>' + selOpts(uniq(fits.map(x => x.bd)), f.bd) + '</select>' +
+    '<select id="ffTech"><option value="">요구 기술 전체</option>' + selOpts(uniq(fits.map(x => x.tech)), f.tech) + '</select>' +
+    '<label class="chip"><input type="checkbox" id="ffOwn"' + (f.ownOnly ? ' checked' : '') + '> 자사 대응 가능한 차종만</label>' +
+    '<button class="btn sm" onclick="filters.fit={};render()">초기화</button>';
+  ['q:ffq','mkt:ffMkt','bd:ffBd','tech:ffTech'].forEach(pair => {
+    const key = pair.split(':')[0], id = pair.split(':')[1];
+    bindFilter(id, () => { f[key] = document.getElementById(id).value; renderFitTable(); });
+  });
+  bindFilter('ffOwn', () => { f.ownOnly = document.getElementById('ffOwn').checked; renderFitTable(); });
+}
+function renderFitTable() {
+  const fits = allFitment(), f = filters.fit, q = (f.q || '').trim().toLowerCase();
+  const rows = fits.filter(x => {
+    if (f.mkt && x.mkt !== f.mkt) return false;
+    if (f.bd && x.bd !== f.bd) return false;
+    if (f.tech && x.tech !== f.tech) return false;
+    if (q && [x.bd, x.mdl, x.eng, x.grp, x.alt].join(' ').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  }).map(x => {
+    const mm = fitMatches(x);
+    return Object.assign({}, x, {n: mm.length, nOwn: mm.filter(m => m.own).length, best: mm[0]});
+  }).filter(x => !f.ownOnly || x.nOwn > 0);
+
+  table('tbFit', [
+    {k: 'mkt', t: '시장'},
+    {k: 'bd', t: '브랜드'},
+    {k: 'mdl', t: '차종'},
+    {k: 'yr', t: '연식'},
+    {k: 'eng', t: '엔진/사양'},
+    {k: 'isg', t: 'ISG', r: r => r.isg ? '<span class="tag t-warn">있음</span>' : '<span class="muted">없음</span>'},
+    {k: 'grp', t: '요구 규격'},
+    {k: 'ah', t: 'Ah', num: true},
+    {k: 'cca', t: 'CCA', num: true},
+    {k: 'tech', t: '요구 기술', r: r => techTag(r.tech)},
+    {k: 'nOwn', t: '자사 대응', num: true, r: r => r.nOwn ? '<span class="tag t-ok">' + r.nOwn + '건</span>' : '<span class="tag t-warn">없음</span>'},
+    {k: 'n', t: '전체 대응', num: true},
+    {k: 'conf', t: '확신도', r: r => '<span class="tag ' + (r.conf === 'H' ? 't-ok' : 't-warn') + '">' + (r.conf === 'H' ? '표준' : '대조필요') + '</span>'},
+    {k: 'act', t: '', nosort: true, r: r => '<button class="btn sm" onclick="event.stopPropagation();openFitEdit(\'' + h(r.id) + '\')">수정</button>'}
+  ], rows, {
+    sortKey: 'fit', defSort: 'mkt', defDir: 1,
+    rowAttr: r => 'style="cursor:pointer" onclick="openFitDetail(\'' + h(r.id) + '\')"',
+    empty: '조건에 맞는 차종이 없다.'
+  });
+  document.getElementById('cntFit').textContent = fits.length;
+}
+function openFitDetail(id) {
+  const f = allFitment().filter(x => x.id === id)[0];
+  if (!f) return;
+  const mm = fitMatches(f);
+  document.getElementById('drawer').innerHTML =
+    '<div style="display:flex;justify-content:space-between;gap:10px"><div>' +
+    '<h3>' + h(f.bd) + ' ' + h(f.mdl) + '</h3><p class="muted">' + h(f.mkt) + ' · ' + h(f.yr) + ' · ' + h(f.eng) + '</p></div>' +
+    '<button class="btn sm" onclick="closeDrawer()">닫기</button></div>' +
+    '<dl class="kv">' + kv('ISG(스탑앤고)', f.isg ? '있음 — EFB/AGM 필수' : '없음') +
+    kv('요구 규격', f.grp) + kv('요구 용량', f.ah ? f.ah + ' Ah 이상' : null) +
+    kv('요구 CCA', f.cca ? f.cca + ' A(EN) 이상' : null) + kv('요구 기술', f.tech) +
+    kv('대체/비고', f.alt) +
+    kv('확신도', f.conf === 'H' ? '업계 통용 표준' : '연식·트림별 편차 큼 — 원본 대조 필요') + '</dl>' +
+    '<h3 style="font-size:14px;margin:18px 0 8px">적합 모델 ' + mm.length + '건</h3>' +
+    (mm.length ? '<table><thead><tr><th>제조사</th><th>모델</th><th>기술</th><th class="num">Ah</th><th class="num">CCA(EN)</th><th class="num">점수</th></tr></thead><tbody>' +
+      mm.map(m => '<tr><td>' + h(m.mkName) + (m.own ? ' <span class="tag t-own">자사</span>' : '') + '</td>' +
+      '<td>' + h(m.br || '') + ' ' + h(m.mdl) + '</td><td>' + techTag(m.tech) + '</td>' +
+      '<td class="num">' + fmt(m.ah) + '</td><td class="num">' + fmt(m.ccaEN) + '</td>' +
+      '<td class="num">' + (m.score == null ? '-' : '<span class="score ' + scoreCls(m.score) + '">' + m.score + '</span>') + '</td></tr>').join('') +
+      '</tbody></table>'
+      : '<p class="muted">등록된 모델 중 이 차종 요구를 만족하는 것이 없다. 라인업 공백일 수 있다.</p>');
+  openDrawer();
+}
+function openFitEdit(id) {
+  const f = id ? allFitment().filter(x => x.id === id)[0] : {};
+  const inp = (k, label, type, opts) => opts
+    ? '<div><label>' + label + '</label><select name="' + k + '"><option value=""></option>' +
+      opts.map(o => '<option' + (String(f[k]) === String(o) ? ' selected' : '') + '>' + h(o) + '</option>').join('') + '</select></div>'
+    : '<div><label>' + label + '</label><input name="' + k + '" type="' + (type || 'text') + '" value="' + h(f[k] == null ? '' : f[k]) + '"></div>';
+  document.getElementById('drawer').innerHTML =
+    '<div style="display:flex;justify-content:space-between"><h3>' + (id ? '차종 수정' : '차종 추가') + '</h3>' +
+    '<button class="btn sm" onclick="closeDrawer()">닫기</button></div>' +
+    '<form id="fFit" class="form" style="margin-top:14px;grid-template-columns:1fr 1fr">' +
+    inp('mkt', '시장', 'text', ['KR', 'JP', 'EU', 'NA', 'CN', 'SEA', 'IN', 'MEA', 'OCE', 'LAT', 'ETC']) +
+    inp('bd', '차량 브랜드') + inp('mdl', '차종') + inp('yr', '연식') + inp('eng', '엔진/사양') +
+    inp('isg', 'ISG', 'text', ['0', '1']) + inp('grp', '요구 규격그룹', 'text', SPECS.map(s => s.k)) +
+    inp('ah', '요구 Ah', 'number') + inp('cca', '요구 CCA(EN)', 'number') +
+    inp('tech', '요구 기술', 'text', TECHS) + inp('conf', '확신도', 'text', ['H', 'M']) +
+    '<div style="grid-column:1/-1"><label>대체/비고</label><input name="alt" value="' + h(f.alt || '') + '"></div>' +
+    '<div style="grid-column:1/-1;display:flex;gap:8px"><button type="submit" class="btn primary">저장</button>' +
+    (id ? '<button type="button" class="btn danger" onclick="removeFit(\'' + h(id) + '\')">삭제</button>' : '') +
+    '<button type="button" class="btn" onclick="closeDrawer()">취소</button></div></form>';
+  document.getElementById('fFit').onsubmit = ev => {
+    ev.preventDefault();
+    const fd = new FormData(ev.target), o = {};
+    ['mkt','bd','mdl','yr','eng','grp','tech','conf','alt'].forEach(k => { const v = fd.get(k); if (v) o[k] = v; });
+    ['ah','cca'].forEach(k => { const v = num(fd.get(k)); if (v != null) o[k] = v; });
+    o.isg = fd.get('isg') === '1' ? 1 : 0;
+    if (!o.bd || !o.mdl) { alert('브랜드와 차종은 필수'); return; }
+    if (id) store.fitEdits[id] = o;
+    else store.fitAdded.push(Object.assign({id: 'u' + Date.now()}, o));
+    save(); closeDrawer(); render();
+  };
+  openDrawer();
+}
+function removeFit(id) {
+  if (!confirm('이 차종을 지운다. 계속?')) return;
+  if (store.fitRemoved.indexOf(id) < 0) store.fitRemoved.push(id);
+  save(); closeDrawer(); render();
+}
+
+/* --- 성능 비교 ---------------------------------------------------------- */
+function renderCmp() {
+  const ms = scoreAll().filter(m => store.cart.indexOf(m.id) >= 0);
+  document.getElementById('weights').innerHTML = METRICS.map(mt =>
+    '<div class="slider"><span>' + h(mt.label) + '</span>' +
+    '<input type="range" min="0" max="50" step="5" value="' + (store.settings.w[mt.k] || 0) + '" data-w="' + mt.k + '">' +
+    '<span>' + (store.settings.w[mt.k] || 0) + '</span></div>').join('');
+  document.querySelectorAll('#weights input').forEach(el => {
+    el.oninput = () => { store.settings.w[el.dataset.w] = +el.value; save(); invalidate(); render(); };
+  });
+  const sae = document.getElementById('wSae');
+  sae.value = store.settings.sae2en;
+  document.getElementById('wSaeV').textContent = store.settings.sae2en;
+  sae.oninput = () => { store.settings.sae2en = +sae.value; save(); invalidate(); render(); };
+
+  if (!ms.length) {
+    document.getElementById('tbCmp').innerHTML =
+      '<tbody><tr><td><div class="empty">[카달로그]에서 체크박스로 모델을 담으면 여기서 나란히 비교된다.</div></td></tr></tbody>';
+    return;
+  }
+  const rows = [
+    ['제조사', m => h(m.mkName) + (m.own ? ' <span class="tag t-own">자사</span>' : '')],
+    ['모델', m => h(m.br || '') + ' ' + h(m.mdl)],
+    ['규격', m => h(m.grp || m.sz || '-')],
+    ['기술', m => techTag(m.tech)],
+    ['용도', m => h(m.app || '-')],
+    ['C20 (Ah)', m => fmt(m.ah)],
+    ['RC (분)', m => fmt(m.rc)],
+    ['CCA 표기', m => m.cca ? m.cca + ' ' + m.cs : '-'],
+    ['CCA (EN 환산)', m => fmt(m.ccaEN)],
+    ['무게 (kg)', m => fmt(m.wt, 1)],
+    ['치수 (mm)', m => m.L ? m.L + '×' + m.W + '×' + m.H : '-'],
+    ['사이클', m => fmt(m.cyc)],
+    ['CCA/Ah', m => fmt(m.ccaAh, 2)],
+    ['CCA/kg', m => fmt(m.ccaKg, 1)],
+    ['Wh/kg', m => fmt(m.whkg, 1)],
+    ['Wh/L', m => fmt(m.whl, 1)],
+    ['판매지역', m => (m.rg || []).map(x => RGN_MAP[x] || x).join(', ') || '-'],
+    ['근거', m => verTag(m.ver)]
+  ];
+  let html = '<thead><tr><th style="min-width:120px">항목</th>' +
+    ms.map(m => '<th class="num">' + h(m.mdl) + '</th>').join('') + '</tr></thead><tbody>';
+  html += '<tr><td><b>종합점수</b><div class="muted" style="font-size:10.5px">용도군 내 상대</div></td>' +
+    ms.map(m => '<td class="num">' + (m.score == null ? '-' :
+      '<span class="score ' + scoreCls(m.score) + '">' + m.score + '</span>') + '</td>').join('') + '</tr>';
+  METRICS.forEach(mt => {
+    html += '<tr><td class="muted">└ ' + h(mt.label) + ' 순위</td>' + ms.map(m =>
+      '<td class="num">' + (m.pct && m.pct[mt.k] != null ?
+        '<span class="bar" style="display:inline-block;width:60px;vertical-align:middle"><i style="width:' +
+        Math.round(m.pct[mt.k]) + '%"></i></span> ' + Math.round(m.pct[mt.k]) : '-') + '</td>').join('') + '</tr>';
+  });
+  rows.forEach(r => {
+    html += '<tr><td>' + h(r[0]) + '</td>' + ms.map(m => '<td class="num">' + r[1](m) + '</td>').join('') + '</tr>';
+  });
+  html += '<tr><td></td>' + ms.map(m => '<td class="num"><button class="btn sm danger" onclick="toggleCart(\'' +
+    h(m.id).replace(/'/g, "\\'") + '\');render()">빼기</button></td>').join('') + '</tr></tbody>';
+  document.getElementById('tbCmp').innerHTML = html;
+}
+
+/* --- 규격 크로스레퍼런스 ------------------------------------------------ */
+function renderXref() {
+  const ms = allModels(), f = filters.xref;
+  document.getElementById('xrefFilters').innerHTML =
+    '<select id="xSys"><option value="">규격체계 전체</option>' +
+      selOpts(uniq(SPECS.map(s => s.sys)), f.sys) + '</select>' +
+    '<select id="xApp"><option value="">용도 전체</option>' + selOpts(uniq(ms.map(m => m.app)), f.app) + '</select>' +
+    '<label class="chip"><input type="checkbox" id="xGap"' + (f.gapOnly ? ' checked' : '') + '> 자사가 뒤지는 규격만</label>' +
+    '<span class="muted">자사 기준: ' + h((MK_MAP[store.settings.home] || {}).n || store.settings.home) + '</span>';
+  bindFilter('xSys', () => { f.sys = document.getElementById('xSys').value; renderXrefTable(); });
+  bindFilter('xApp', () => { f.app = document.getElementById('xApp').value; renderXrefTable(); });
+  bindFilter('xGap', () => { f.gapOnly = document.getElementById('xGap').checked; renderXrefTable(); });
+  renderXrefTable();
+}
+function renderXrefTable() {
+  const ms = allModels(), f = filters.xref;
+
+  const g = {};
+  ms.forEach(m => {
+    if (!m.grp) return;
+    if (f.app && m.app !== f.app) return;
+    const sp = SPEC_MAP[m.grp];
+    if (f.sys && (!sp || sp.sys !== f.sys)) return;
+    (g[m.grp] = g[m.grp] || []).push(m);
+  });
+  const mx = (l, fn) => { const v = l.map(fn).filter(x => x != null); return v.length ? Math.max.apply(null, v) : null; };
+  const mn = (l, fn) => { const v = l.map(fn).filter(x => x != null); return v.length ? Math.min.apply(null, v) : null; };
+  let rows = Object.keys(g).map(k => {
+    const l = g[k], own = l.filter(m => m.own), oth = l.filter(m => !m.own);
+    const sp = SPEC_MAP[k] || {};
+    const ownCca = mx(own, m => m.ccaEN), othCca = mx(oth, m => m.ccaEN);
+    const ownAh = mx(own, m => m.ah), othAh = mx(oth, m => m.ah);
+    const best = oth.slice().sort((a, b) => (b.ccaEN || 0) - (a.ccaEN || 0))[0];
+    return {
+      grp: k, sys: sp.sys || '-', dim: sp.L ? sp.L + '×' + sp.W + '×' + sp.H : '-',
+      n: l.length, nMk: new Set(l.map(m => m.mk)).size,
+      ahRange: (mn(l, m => m.ah) || '-') + '~' + (mx(l, m => m.ah) || '-'),
+      ccaRange: (mn(l, m => m.ccaEN) || '-') + '~' + (mx(l, m => m.ccaEN) || '-'),
+      ownCca: ownCca, othCca: othCca,
+      gapCca: (ownCca && othCca) ? (ownCca - othCca) / othCca * 100 : null,
+      gapAh: (ownAh && othAh) ? (ownAh - othAh) / othAh * 100 : null,
+      bestMk: best ? best.mkName : null, bestMdl: best ? best.mdl : null,
+      hasAgm: l.some(m => m.tech === 'AGM' || m.tech === 'AGM나선형'),
+      ownAgm: own.some(m => m.tech === 'AGM' || m.tech === 'AGM나선형')
+    };
+  });
+  if (f.gapOnly) rows = rows.filter(r => (r.gapCca != null && r.gapCca < 0) || (r.ownCca == null && r.othCca != null) || (r.hasAgm && !r.ownAgm));
+  const pct = v => v == null ? '<span class="muted">-</span>' :
+    '<span class="tag ' + (v >= 0 ? 't-ok' : 't-warn') + '">' + (v >= 0 ? '+' : '') + v.toFixed(1) + '%</span>';
+  table('tbXref', [
+    {k: 'grp', t: '규격'}, {k: 'sys', t: '체계'}, {k: 'dim', t: '치수 L×W×H'},
+    {k: 'nMk', t: '제조사', num: true}, {k: 'n', t: '모델', num: true},
+    {k: 'ahRange', t: 'Ah 범위'}, {k: 'ccaRange', t: 'CCA(EN) 범위'},
+    {k: 'ownCca', t: '자사 최고 CCA', num: true, r: r => r.ownCca == null ? '<span class="tag t-warn">미보유</span>' : fmt(r.ownCca)},
+    {k: 'othCca', t: '타사 최고 CCA', num: true, r: r => fmt(r.othCca)},
+    {k: 'gapCca', t: 'CCA 갭', num: true, sv: r => r.gapCca, r: r => pct(r.gapCca)},
+    {k: 'gapAh', t: 'Ah 갭', num: true, sv: r => r.gapAh, r: r => pct(r.gapAh)},
+    {k: 'bestMk', t: '타사 최고 모델', r: r => r.bestMk ? h(r.bestMk) + ' <span class="muted">' + h(r.bestMdl) + '</span>' : '-'},
+    {k: 'ownAgm', t: 'AGM 대응', r: r => !r.hasAgm ? '<span class="muted">해당없음</span>' :
+      (r.ownAgm ? '<span class="tag t-ok">보유</span>' : '<span class="tag t-warn">공백</span>')}
+  ], rows, {sortKey: 'xref', defSort: 'n', empty: '해당 조건의 규격이 없다.'});
+}
+
+/* --- 판매지역 ----------------------------------------------------------- */
+function renderRgn() {
+  const ms = allModels();
+  const stat = {};
+  REGIONS.forEach(r => stat[r.k] = {k: r.k, n: r.n, all: 0, own: 0, mk: {}, tech: {}, app: {}, grp: {}, sales: 0});
+  ms.forEach(m => (m.rg || []).forEach(rk => {
+    const s = stat[rk]; if (!s) return;
+    s.all++; if (m.own) s.own++;
+    s.mk[m.mk] = 1; s.tech[m.tech] = (s.tech[m.tech] || 0) + 1;
+    s.app[m.app] = (s.app[m.app] || 0) + 1; if (m.grp) s.grp[m.grp] = 1;
+    if (m.ext && m.ext.s25) s.sales += +m.ext.s25 || 0;
+  }));
+  const list = REGIONS.map(r => stat[r.k]);
+  const covered = list.filter(s => s.all > 0).length, ownCov = list.filter(s => s.own > 0).length;
+  const totalSales = list.reduce((a, b) => a + b.sales, 0);
+  document.getElementById('rgnKpis').innerHTML = [
+    ['데이터 있는 지역', covered + ' / ' + REGIONS.length, '', 'blue'],
+    ['자사 모델 있는 지역', ownCov + ' / ' + REGIONS.length, ownCov < covered ? '타사만 있는 지역 ' + (covered - ownCov) + '곳' : '', ownCov < covered ? 'amber' : 'green'],
+    ['최다 커버 지역', (list.slice().sort((a, b) => b.all - a.all)[0] || {}).n || '-', '', 'purple'],
+    ['임포트 판매실적 합', totalSales ? totalSales.toLocaleString() : '-', totalSales ? '25년 기준(사내 임포트)' : 'CSV 임포트 시 표시', 'green']
+  ].map(k => '<div class="kpi ' + k[3] + '"><div class="l">' + k[0] + '</div><div class="n">' + h(k[1]) +
+    '</div><div class="s">' + h(k[2]) + '</div></div>').join('');
+
+  const techs = uniq(ms.map(m => m.tech));
+  table('tbRgnTech', [{k: 'n', t: '지역'}].concat(techs.map(t => ({
+    k: 't_' + t, t: t, num: true, sv: r => r.tech[t] || 0,
+    r: r => r.tech[t] ? r.tech[t] : '<span class="muted">공백</span>'
+  }))).concat([{k: 'all', t: '합계', num: true}]), list, {sortKey: 'rgntech', defSort: 'all'});
+
+  barChart('chRgnOwn', list.filter(s => s.all).map(s => ({l: s.n, v: s.own})), {});
+  barChart('chRgnMk', list.filter(s => s.all).map(s => ({l: s.n, v: Object.keys(s.mk).length})).sort((a, b) => b.v - a.v));
+
+  table('tbRgn', [
+    {k: 'n', t: '지역'},
+    {k: 'all', t: '전체 모델', num: true},
+    {k: 'own', t: '자사 모델', num: true, r: r => r.own ? r.own : '<span class="tag t-warn">0</span>'},
+    {k: 'nmk', t: '제조사 수', num: true, sv: r => Object.keys(r.mk).length, r: r => Object.keys(r.mk).length},
+    {k: 'ngrp', t: '커버 규격 수', num: true, sv: r => Object.keys(r.grp).length, r: r => Object.keys(r.grp).length},
+    {k: 'apps', t: '용도 구성', r: r => Object.keys(r.app).map(a => a + ' ' + r.app[a]).join(' · ') || '-'},
+    {k: 'sales', t: '판매실적(임포트)', num: true, r: r => r.sales ? r.sales.toLocaleString() : '<span class="muted">-</span>'}
+  ], list, {sortKey: 'rgn', defSort: 'all'});
+}
+
+/* --- 제조사 · 수집관리 -------------------------------------------------- */
+function renderSrc() { renderSrcFilters(); renderSrcTable(); }
+function renderSrcFilters() {
+  const mk = allMakers(), f = filters.src;
+  document.getElementById('srcFilters').innerHTML =
+    '<input type="search" id="sq" placeholder="제조사·브랜드·국가 검색" value="' + h(f.q || '') + '">' +
+    '<select id="sType"><option value="">전체</option>' + selOpts(['제조사', '유통사'], f.type) + '</select>' +
+    '<select id="sSt"><option value="">상태 전체</option>' + selOpts(['미수집', '수집중', '수집완료'], f.st) + '</select>' +
+    '<select id="sRgn"><option value="">지역 전체</option>' +
+      REGIONS.map(r => '<option value="' + r.k + '"' + (f.rgn === r.k ? ' selected' : '') + '>' + h(r.n) + '</option>').join('') + '</select>';
+  ['q:sq','type:sType','st:sSt','rgn:sRgn'].forEach(pair => {
+    const key = pair.split(':')[0], id = pair.split(':')[1];
+    bindFilter(id, () => { f[key] = document.getElementById(id).value; renderSrcTable(); });
+  });
+}
+function renderSrcTable() {
+  const mk = allMakers(), f = filters.src;
+  const q = (f.q || '').toLowerCase();
+  const rows = mk.filter(m => {
+    if (f.type === '제조사' && m.t !== 'M') return false;
+    if (f.type === '유통사' && m.t !== 'D') return false;
+    if (f.st && m.st !== f.st) return false;
+    if (f.rgn && (m.rg || []).indexOf(f.rgn) < 0) return false;
+    if (q && [m.n, m.br, m.c, m.k].join(' ').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  table('tbSrc', [
+    {k: 'n', t: '제조사 / 유통사', r: r => h(r.n) + (r.k === store.settings.home ? ' <span class="tag t-own">자사</span>' : '')},
+    {k: 't', t: '구분', r: r => r.t === 'D' ? '유통사' : '제조사'},
+    {k: 'c', t: '국가'},
+    {k: 'br', t: '브랜드', r: r => '<span title="' + h(r.br) + '">' + h((r.br || '').slice(0, 34)) + ((r.br || '').length > 34 ? '…' : '') + '</span>'},
+    {k: 'rg', t: '판매지역', sv: r => (r.rg || []).length, r: r => (r.rg || []).map(x => RGN_MAP[x] || x).join(', ')},
+    {k: 'cnt', t: '등록 모델', num: true},
+    {k: 'st', t: '수집상태', r: r => '<span class="tag ' + (r.st === '수집완료' ? 't-ok' : r.st === '수집중' ? 't-pub' : 't-warn') + '">' + h(r.st) + '</span>'},
+    {k: 'cat', t: '카달로그 문서'},
+    {k: 'ed', t: '판(edition)'},
+    {k: 'pub', t: '발행연도', num: true},
+    {k: 'file', t: 'PDF 파일', r: r => r.file ? h(r.file) + (r.pg ? ' <span class="muted">' + h(r.pg) + 'p</span>' : '') : '<span class="tag t-warn">원본 없음</span>'},
+    {k: 'sha', t: 'SHA-256', r: r => r.sha ? '<code title="' + h(r.sha) + '">' + h(String(r.sha).slice(0, 10)) + '…</code>' : '<span class="muted">-</span>'},
+    {k: 'dt', t: '수집일'},
+    {k: 'site', t: '링크', nosort: true, r: r => (r.pdf || r.site)
+      ? '<a href="' + h(r.pdf || r.site) + '" target="_blank" rel="noopener">' + (r.pdf ? 'PDF ↗' : '사이트 ↗') + '</a>'
+      : '<span class="muted">-</span>'},
+    {k: 'act', t: '', nosort: true, r: r => '<button class="btn sm" onclick="openMakerEdit(\'' + h(r.k) + '\')">수정</button>'}
+  ], rows, {sortKey: 'src', defSort: 'cnt'});
+  document.getElementById('cntSrc').textContent = mk.length;
+}
+function openMakerEdit(k) {
+  const m = k ? allMakers().filter(x => x.k === k)[0] : {rg: []};
+  const inp = (kk, label, opts) => opts
+    ? '<div><label>' + label + '</label><select name="' + kk + '"><option value=""></option>' +
+      opts.map(o => '<option' + (m[kk] === o ? ' selected' : '') + '>' + h(o) + '</option>').join('') + '</select></div>'
+    : '<div><label>' + label + '</label><input name="' + kk + '" value="' + h(m[kk] || '') + '"></div>';
+  document.getElementById('drawer').innerHTML =
+    '<div style="display:flex;justify-content:space-between"><h3>' + (k ? h(m.n) : '제조사/유통사 추가') + '</h3>' +
+    '<button class="btn sm" onclick="closeDrawer()">닫기</button></div>' +
+    '<form id="fMaker" class="form" style="margin-top:14px;grid-template-columns:1fr 1fr">' +
+    (k ? '' : inp('k', '키(영문, 고유)')) + inp('n', '이름') + inp('c', '국가') +
+    inp('t', '구분', ['M', 'D']) + inp('st', '수집상태', ['미수집', '수집중', '수집완료']) +
+    inp('cat', '카달로그 문서명') + inp('ed', '판(edition)') + inp('pub', '발행연도') +
+    '<div><label>수집일</label><input name="dt" type="date" value="' + h(m.dt || '') + '"></div>' +
+    inp('file', '받은 PDF 파일명') + inp('pg', '페이지 수') +
+    '<div style="grid-column:1/-1">' + inp('sha', 'SHA-256 (파일 무결성)') + '</div>' +
+    '<div style="grid-column:1/-1">' + inp('br', '브랜드(쉼표 구분)') + '</div>' +
+    '<div style="grid-column:1/-1">' + inp('site', '제조사 사이트 URL') + '</div>' +
+    '<div style="grid-column:1/-1">' + inp('pdf', '카달로그 PDF 직접 URL') + '</div>' +
+    '<div style="grid-column:1/-1"><label>판매지역</label><div>' +
+      REGIONS.map(r => '<label class="chip" style="margin:2px"><input type="checkbox" name="rg" value="' + r.k + '"' +
+        ((m.rg || []).indexOf(r.k) >= 0 ? ' checked' : '') + '> ' + h(r.n) + '</label>').join('') + '</div></div>' +
+    '<div style="grid-column:1/-1;display:flex;gap:8px"><button type="submit" class="btn primary">저장</button>' +
+    '<button type="button" class="btn" onclick="closeDrawer()">취소</button></div></form>';
+  document.getElementById('fMaker').onsubmit = ev => {
+    ev.preventDefault();
+    const fd = new FormData(ev.target), o = {};
+    ['k','n','c','t','st','cat','ed','pub','dt','file','pg','sha','br','site','pdf']
+      .forEach(x => { const v = fd.get(x); if (v != null) o[x] = v; });
+    o.rg = fd.getAll('rg');
+    if (k) { store.makerEdits[k] = Object.assign({}, store.makerEdits[k], o); }
+    else {
+      if (!o.k || !o.n) { alert('키와 이름은 필수'); return; }
+      if (MK_MAP[o.k] || store.addedMakers.some(x => x.k === o.k)) { alert('이미 있는 키'); return; }
+      store.addedMakers.push(o); MK_MAP[o.k] = o;
+    }
+    save(); invalidate(); closeDrawer(); render();
+  };
+  openDrawer();
+}
+
+/* --- CSV --------------------------------------------------------------- */
+function parseCSV(text) {
+  text = text.replace(/^﻿/, '');
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if (c !== '\r') cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+const CSV_COLS = ['구분','제조사','브랜드','모델','규격그룹','규격체계','기술','용도','전압','C20용량','RC분',
+  'CCA_SAE','CCA_EN','판매지역','유통사','고객품번','표기_C20','표기_RC','표기_CCA_SAE','표기_CCA_EN','스펙판정',
+  '오더23','오더24','오더25','판매25','판매26','검증상태','근거문서','근거페이지','출처','비고'];
+const TECH_ALIAS = {'일반액식':'FLD','액식':'FLD','FLOODED':'FLD','FLD':'FLD','EFB':'EFB','AGM':'AGM','AGM나선형':'AGM나선형'};
+function makerKeyByName(name) {
+  if (!name) return 'unknown';
+  const all = MAKERS.concat(store.addedMakers);
+  const hit = all.filter(m => m.k === name || m.n === name || m.n.indexOf(name) >= 0 || name.indexOf(m.n.split(' ')[0]) >= 0)[0];
+  return hit ? hit.k : 'x_' + name.replace(/\s+/g, '_').toLowerCase();
+}
+function importCSV(text, mode) {
+  const rows = parseCSV(text);
+  if (!rows.length) return {err: 'CSV 를 읽지 못했다.'};
+  const head = rows[0].map(s => s.trim());
+  const idx = {}; CSV_COLS.forEach(c => idx[c] = head.indexOf(c));
+  if (idx['모델'] < 0 || idx['제조사'] < 0) return {err: '필수 열(제조사, 모델)이 없다. 헤더를 확인할 것.'};
+  const get = (r, c) => idx[c] >= 0 ? String(r[idx[c]] == null ? '' : r[idx[c]]).trim() : '';
+  const out = [], newMk = {};
+  rows.slice(1).forEach((r, i) => {
+    const mkName = get(r, '제조사'); if (!mkName || !get(r, '모델')) return;
+    const key = makerKeyByName(mkName);
+    if (!MK_MAP[key] && !newMk[key]) newMk[key] = {k: key, n: mkName, c: '', t: 'M', rg: [], br: get(r, '브랜드'), site: '', st: '수집완료', ed: 'CSV 임포트'};
+    const en = num(get(r, 'CCA_EN')), sae = num(get(r, 'CCA_SAE'));
+    const rgn = get(r, '판매지역');
+    const o = {
+      mk: key, br: get(r, '브랜드'), mdl: get(r, '모델'), grp: get(r, '규격그룹'),
+      sys: get(r, '규격체계'), tech: TECH_ALIAS[get(r, '기술')] || get(r, '기술') || 'FLD',
+      app: get(r, '용도') || '승용SLI', v: num(get(r, '전압')) || 12,
+      ah: num(get(r, 'C20용량')), rc: num(get(r, 'RC분')),
+      cca: en != null ? en : sae, cs: en != null ? 'EN' : 'SAE',
+      rg: rgn ? [REGION_ALIAS[rgn] || rgn] : [], dist: get(r, '유통사'), cpn: get(r, '고객품번'),
+      ver: get(r, '검증상태') === '사내설계치' ? 'own' : (get(r, '검증상태') || 'own'),
+      doc: get(r, '근거문서'), pg: get(r, '근거페이지'),
+      note: [get(r, '출처'), get(r, '비고')].filter(Boolean).join(' / '),
+      ext: {
+        mc20: get(r, '표기_C20'), mrc: get(r, '표기_RC'),
+        msae: get(r, '표기_CCA_SAE'), men: get(r, '표기_CCA_EN'), judge: get(r, '스펙판정'),
+        o23: num(get(r, '오더23')), o24: num(get(r, '오더24')), o25: num(get(r, '오더25')),
+        s25: num(get(r, '판매25')), s26: num(get(r, '판매26'))
+      }
+    };
+    o.id = mid(o) + '|' + i;
+    out.push(o);
+  });
+  Object.keys(newMk).forEach(k => { store.addedMakers.push(newMk[k]); MK_MAP[k] = newMk[k]; });
+  store.imported = mode === 'replace' ? out : store.imported.concat(out);
+  save(); invalidate();
+  return {n: out.length, mk: Object.keys(newMk).length};
+}
+/* 카달로그 원본(PDF) 근거 레지스트리 — fetch_catalogs.py 가 뽑아주는 CSV */
+const MK_CSV_COLS = ['제조사키','제조사','카달로그명','판','발행연도','PDF_URL','파일명','SHA256','페이지수','수집일','상태','비고'];
+function importMakerCSV(text) {
+  const rows = parseCSV(text);
+  if (!rows.length) return {err: 'CSV 를 읽지 못했다.'};
+  const head = rows[0].map(s => s.trim());
+  const idx = {}; MK_CSV_COLS.forEach(c => idx[c] = head.indexOf(c));
+  if (idx['제조사키'] < 0 && idx['제조사'] < 0) return {err: '제조사키 또는 제조사 열이 필요하다.'};
+  const get = (r, c) => idx[c] >= 0 ? String(r[idx[c]] == null ? '' : r[idx[c]]).trim() : '';
+  let n = 0;
+  rows.slice(1).forEach(r => {
+    const key = get(r, '제조사키') || makerKeyByName(get(r, '제조사'));
+    if (!key) return;
+    const cur = allMakers().filter(x => x.k === key)[0];
+    const o = {cat: get(r, '카달로그명'), ed: get(r, '판'), pub: get(r, '발행연도'),
+               pdf: get(r, 'PDF_URL'), file: get(r, '파일명'), sha: get(r, 'SHA256'),
+               pg: get(r, '페이지수'), dt: get(r, '수집일'), st: get(r, '상태') || '수집완료'};
+    Object.keys(o).forEach(k2 => { if (o[k2] === '') delete o[k2]; });
+    if (!cur) {
+      store.addedMakers.push(Object.assign({k: key, n: get(r, '제조사') || key, c: '', t: 'M', rg: [], br: '', site: ''}, o));
+      MK_MAP[key] = store.addedMakers[store.addedMakers.length - 1];
+    } else store.makerEdits[key] = Object.assign({}, store.makerEdits[key], o);
+    n++;
+  });
+  save(); invalidate();
+  return {n: n};
+}
+function toCSV(rows, cols) {
+  const esc = v => {
+    const s = v == null ? '' : String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  return '﻿' + [cols.join(',')].concat(rows.map(r => r.map(esc).join(','))).join('\r\n');
+}
+function download(name, text, type) {
+  const b = new Blob([text], {type: type || 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+}
+function exportCSV(all) {
+  const ms = all ? scoreAll() : filteredModels();
+  const rows = ms.map(m => {
+    const e = m.ext || {};
+    return [m.own ? '자사' : '타사', m.mkName, m.br, m.mdl, m.grp, m.sys, m.tech, m.app, m.v, m.ah, m.rc,
+      m.cs === 'SAE' ? m.cca : m.ccaSAE, m.cs === 'EN' ? m.cca : m.ccaEN,
+      (m.rg || []).map(x => RGN_MAP[x] || x).join(';'), m.dist, m.cpn,
+      e.mc20, e.mrc, e.msae, e.men, e.judge, e.o23, e.o24, e.o25, e.s25, e.s26,
+      m.ver, m.doc, m.pg, m.note, m.score];
+  });
+  download('battery_catalog_' + new Date().toISOString().slice(0, 10) + '.csv',
+    toCSV(rows, CSV_COLS.concat(['점수'])));
+}
+function downloadTemplate() { download('battery_catalog_template.csv', toCSV([], CSV_COLS)); }
+function exportJSON() {
+  download('battery_catalog_backup_' + new Date().toISOString().slice(0, 10) + '.json',
+    JSON.stringify(store, null, 2), 'application/json');
+}
+function resetAll() {
+  if (!confirm('직접 입력·수정한 내용과 임포트한 사내 데이터가 모두 지워지고 시드 상태로 돌아간다. 계속?')) return;
+  localStorage.removeItem(LS_KEY);
+  store = load(); invalidate(); render();
+}
+
+/* --- 데이터 관리 -------------------------------------------------------- */
+function renderData() {
+  const ms = allModels();
+  const miss = k => ms.filter(m => m[k] == null || m[k] === '').length;
+  const bad = ms.filter(m => m.ccaAh && (m.ccaAh < 3 || m.ccaAh > 20));
+  const badAh = ms.filter(m => m.v === 12 && m.ah && (m.ah < 10 || m.ah > 300));
+  const dup = {}; ms.forEach(m => { const k = m.mk + '|' + m.mdl; dup[k] = (dup[k] || 0) + 1; });
+  const dups = Object.keys(dup).filter(k => dup[k] > 1);
+  document.getElementById('quality').innerHTML =
+    '<div class="grid g4">' + [
+      ['용량(Ah) 결측', miss('ah')], ['CCA 결측', miss('cca')], ['무게 결측', miss('wt')],
+      ['치수 결측', ms.filter(m => !m.L).length], ['규격그룹 결측', miss('grp')],
+      ['CCA/Ah 이상치', bad.length], ['용량 이상치', badAh.length],
+      ['모델명 중복', dups.length], ['추정값(est)', ms.filter(m => m.ver === 'est').length]
+    ].map(x => '<div class="kpi ' + (x[1] ? 'amber' : 'green') + '"><div class="l">' + x[0] +
+      '</div><div class="n">' + x[1] + '</div></div>').join('') + '</div>' +
+    (bad.length ? '<p class="legend" style="margin-top:10px"><b>CCA/Ah 이상치</b> (일반적으로 5~12): ' +
+      bad.slice(0, 12).map(m => h(m.mkName + ' ' + m.mdl + ' (' + m.ccaAh.toFixed(1) + ')')).join(', ') +
+      (bad.length > 12 ? ' 외 ' + (bad.length - 12) + '건' : '') + '</p>' : '') +
+    (badAh.length ? '<p class="legend"><b>용량 이상치</b> (12V 기준 10~300Ah 밖 — 원본 엑셀에서 다른 열 값이 섞였을 수 있다): ' +
+      badAh.slice(0, 12).map(m => h(m.mkName + ' ' + m.mdl + ' (' + m.ah + 'Ah)')).join(', ') +
+      (badAh.length > 12 ? ' 외 ' + (badAh.length - 12) + '건' : '') + '</p>' : '') +
+    (dups.length ? '<p class="legend"><b>같은 제조사에 같은 모델명</b>: ' +
+      dups.slice(0, 10).map(k => h(k.split('|')[1])).join(', ') +
+      (dups.length > 10 ? ' 외 ' + (dups.length - 10) + '건' : '') +
+      ' — 유통사/고객품번이 다른 정상 케이스일 수 있다.</p>' : '');
+
+  const imp = store.imported;
+  if (!imp.length) {
+    document.getElementById('impSummary').innerHTML =
+      '<div class="empty">아직 올린 사내 데이터가 없다. 위에서 CSV 를 올리면 여기에 요약이 나온다.</div>';
+  } else {
+    const byR = {}, byD = {};
+    imp.forEach(m => {
+      (m.rg || ['?']).forEach(r => byR[RGN_MAP[r] || r] = (byR[RGN_MAP[r] || r] || 0) + 1);
+      if (m.dist) byD[m.dist] = (byD[m.dist] || 0) + 1;
+    });
+    const sales = imp.reduce((a, m) => a + ((m.ext && m.ext.s25) || 0), 0);
+    document.getElementById('impSummary').innerHTML =
+      '<div class="grid g4">' +
+      '<div class="kpi blue"><div class="l">임포트 행</div><div class="n">' + imp.length + '</div></div>' +
+      '<div class="kpi purple"><div class="l">유통 채널</div><div class="n">' + Object.keys(byD).length + '</div></div>' +
+      '<div class="kpi green"><div class="l">판매지역</div><div class="n">' + Object.keys(byR).length + '</div></div>' +
+      '<div class="kpi"><div class="l">25년 판매합</div><div class="n">' + sales.toLocaleString() + '</div></div></div>' +
+      '<div class="grid g2" style="margin-top:12px"><div><h3 style="font-size:13px">지역별</h3>' +
+      Object.keys(byR).sort((a, b) => byR[b] - byR[a]).map(k => '<div class="barrow"><span>' + h(k) +
+        '</span><span class="bar"><i style="width:' + (byR[k] / imp.length * 100) + '%"></i></span><span class="v">' + byR[k] + '</span></div>').join('') +
+      '</div><div><h3 style="font-size:13px">유통사별</h3>' +
+      Object.keys(byD).sort((a, b) => byD[b] - byD[a]).slice(0, 12).map(k => '<div class="barrow"><span title="' + h(k) + '">' +
+        h(k.slice(0, 18)) + '</span><span class="bar"><i style="width:' + (byD[k] / imp.length * 100) + '%;background:var(--purple)"></i></span><span class="v">' + byD[k] + '</span></div>').join('') +
+      '</div></div>' +
+      '<div style="margin-top:12px"><button class="btn sm danger" onclick="dropImported()">임포트 데이터만 삭제</button></div>';
+  }
+  renderStoreInfo();
+}
+function dropImported() {
+  if (!confirm('임포트한 사내 데이터를 모두 지운다. 계속?')) return;
+  store.imported = []; save(); invalidate(); render();
+}
+function renderStoreInfo() {
+  let size = 0;
+  try { size = (localStorage.getItem(LS_KEY) || '').length; } catch (e) {}
+  const txt = '저장 용량 ' + (size / 1024).toFixed(0) + ' KB · 임포트 ' + store.imported.length + '행';
+  const a = document.getElementById('storeInfo'); if (a) a.textContent = txt;
+  const b = document.getElementById('storeStat');
+  if (b) b.innerHTML = '<dl class="kv">' + kv('브라우저 저장 용량', (size / 1024).toFixed(1) + ' KB') +
+    kv('임포트 행', store.imported.length) + kv('직접 추가한 모델', store.added.length) +
+    kv('수정한 모델', Object.keys(store.edits).length) + kv('추가한 차종', store.fitAdded.length) +
+    kv('시드 버전', store.v + ' / 현재 ' + SEED_VERSION) + '</dl>';
+}
+
+/* --- 렌더 총괄 ---------------------------------------------------------- */
+function render() {
+  if (view === 'dash') renderDash();
+  else if (view === 'cat') { renderCatFilters(); renderCatTable(); }
+  else if (view === 'fit') renderFit();
+  else if (view === 'cmp') renderCmp();
+  else if (view === 'xref') renderXref();
+  else if (view === 'rgn') renderRgn();
+  else if (view === 'src') renderSrc();
+  else if (view === 'data') renderData();
+  document.getElementById('cntCat').textContent = allModels().length;
+  document.getElementById('cntFit').textContent = allFitment().length;
+  document.getElementById('cntCmp').textContent = store.cart.length || '';
+  document.getElementById('cntSrc').textContent = allMakers().length;
+  renderStoreInfo();
+}
+function helpDrawer() {
+  document.getElementById('drawer').innerHTML =
+    '<div style="display:flex;justify-content:space-between"><h3>사용법</h3><button class="btn sm" onclick="closeDrawer()">닫기</button></div>' +
+    '<ol style="margin:14px 0;padding-left:18px;font-size:12.8px;line-height:1.9">' +
+    '<li><b>카달로그를 모은다</b> — [제조사·수집관리]에서 대상 회사를 확인하고, 공식 사이트에서 받은 카달로그의 판·수집일을 기록한다.</li>' +
+    '<li><b>스펙을 채운다</b> — 카달로그에서 읽은 값으로 [카달로그] 탭의 모델을 수정하거나 추가한다. 근거를 <b>공개스펙</b>으로 바꾸면 추정값 카운트가 줄어든다.</li>' +
+    '<li><b>사내 제품은 CSV 로</b> — [데이터 관리]에서 사내 리스트를 올린다. 이 파일에는 저장되지 않고 브라우저에만 남는다.</li>' +
+    '<li><b>비교한다</b> — 카달로그에서 체크해 담고 [성능 비교]에서 가중치를 조절한다. 점수는 같은 용도군 안에서의 상대 위치다.</li>' +
+    '<li><b>격차를 본다</b> — [규격 크로스레퍼런스]에서 규격별 자사 대비 타사 최고 스펙 격차와 AGM 공백을 확인한다.</li>' +
+    '<li><b>차량을 붙인다</b> — [차량 적합성]에서 차종별 요구 스펙에 맞는 모델이 우리에게 있는지 본다.</li>' +
+    '<li><b>지역을 나눈다</b> — [판매지역]에서 지역별 커버리지 공백을 확인한다.</li></ol>' +
+    '<div class="banner">CCA 는 EN 과 SAE 시험법이 달라 정확한 환산식이 없다. 이 앱은 비교를 위해 근사 계수를 쓰며, ' +
+    '실제 카달로그 대조·고객 제시에는 <b>원 표기값과 표기 규격</b>을 그대로 써야 한다.</div>';
+  openDrawer();
+}
+
+/* --- 초기화 ------------------------------------------------------------- */
+document.querySelectorAll('.navbtn').forEach(b => b.onclick = () => go(b.dataset.v));
+document.getElementById('btnHelp').onclick = helpDrawer;
+document.getElementById('fileCsv').onchange = ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const mode = (document.querySelector('input[name=impMode]:checked') || {}).value || 'merge';
+  const rd = new FileReader();
+  rd.onload = () => {
+    const r = importCSV(rd.result, mode);
+    document.getElementById('impResult').innerHTML = r.err
+      ? '<div class="banner">' + h(r.err) + '</div>'
+      : '<div class="banner info"><b>' + r.n + '행</b>을 가져왔다.' +
+        (r.mk ? ' 새 제조사/유통사 ' + r.mk + '곳이 자동 등록됐다.' : '') + '</div>';
+    render();
+  };
+  rd.readAsText(f, 'utf-8');
+};
+document.getElementById('fileMk').onchange = ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    const r = importMakerCSV(rd.result);
+    document.getElementById('mkImpResult').innerHTML = r.err
+      ? '<div class="banner">' + h(r.err) + '</div>'
+      : '<div class="banner info">카달로그 근거 <b>' + r.n + '건</b>을 등록했다. [제조사·수집관리]에서 확인.</div>';
+    render();
+  };
+  rd.readAsText(f, 'utf-8');
+};
+document.getElementById('fileJson').onchange = ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const o = JSON.parse(rd.result);
+      if (!o || typeof o !== 'object') throw new Error('형식 오류');
+      store = Object.assign({}, DEFAULTS, o);
+      store.settings = Object.assign({}, DEFAULTS.settings, o.settings || {});
+      save(); invalidate(); render(); alert('복원했다.');
+    } catch (e) { alert('복원 실패: ' + e.message); }
+  };
+  rd.readAsText(f, 'utf-8');
+};
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+render();
+</script>
+</body>
+</html>
