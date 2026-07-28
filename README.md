@@ -113,6 +113,23 @@ python3 tools/collect.py --brands        # 유통사 사이트를 훑어 취급 
 대표 홈페이지가 아니라 **실제 카탈로그·제품목록 주소**이고, 존재를 확인한
 것과 경로를 추정한 것을 구분해 뒀다.
 
+### 이 시스템을 다른 AI 로 다시 만들려면
+
+`.claude/skills/battery-catalog/` 에 기획부터 검증까지 전 과정을 스킬로 떼어놨다.
+
+| 파일 | 내용 |
+|---|---|
+| `SKILL.md` | 무엇을 만드는가 · 순서 · 어기면 안 되는 원칙 |
+| `reference/01_domain.md` | 규격 49종 · CCA EN/SAE · 파생지표 · 데이터 스키마 |
+| `reference/02_app.md` | 11개 뷰 · 저장소 · 폰 · PDF 근거 |
+| `reference/03_collect.md` | 수집 엔진 · 정규식 함정 · 바이어 DB · 경쟁 브랜드 발굴 |
+| `reference/04_workbook.md` | 엑셀 12시트 · 쓰면 안 되는 함수 |
+| `reference/05_pitfalls.md` | 실제로 밟은 지뢰 12개 |
+| `GPT_PROMPT.md` | ChatGPT 에 그대로 붙여넣는 8단계 프롬프트 |
+
+Claude Code 는 `.claude/skills/` 를 알아서 읽는다.  ChatGPT 는 못 읽으니
+프로젝트에 6개 md 를 업로드하고 `GPT_PROMPT.md` 의 단계별 프롬프트를 쓴다.
+
 ### 도구 (PC 가 있을 때)
 
 ```bash
