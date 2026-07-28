@@ -63,6 +63,17 @@ python3 tools/fetch_catalogs.py            # data/catalog_sources.csv 를 돈다
 python3 tools/fetch_catalogs.py --only exide banner
 ```
 
+```bash
+# 같은 데이터를 엑셀 워크북으로
+node tools/dump_seed.js battery_catalog.html seed.json
+python3 tools/build_workbook.py seed.json 글로벌_SLI_배터리_카달로그.xlsx
+```
+
+워크북은 읽어보기 / 설정 / 규격마스터 / 카달로그 / 제조사 / 차량적합성 /
+지역커버리지 / 크로스레퍼런스 8개 시트다. 파생지표와 집계는 값이 아니라
+**수식**이라 스펙을 고치면 갭·커버리지가 따라 움직인다. 생성물이라
+저장소에는 커밋하지 않는다(`.gitignore` 의 `*.xlsx`).
+
 `fetch_catalogs.py` 가 만든 `catalogs/catalog_registry.csv` 를
 앱의 [데이터 관리 → 카달로그 원본(PDF) 근거 등록] 에 올리면
 제조사별 카달로그 판·파일·해시가 채워진다.
