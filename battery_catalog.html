@@ -433,6 +433,7 @@
 
 <div class="backdrop" id="backdrop" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer"></div>
+
 <script>
 /* ===========================================================================
    시드 데이터 — 대상은 SLI(시동용) 배터리.  기술은 FLD(일반액식) / EFB / AGM.
@@ -440,7 +441,7 @@
    여기에 넣지 않는다.  자사 실데이터는 CSV 임포트로만 올린다.
    ver: std=규격 표준값 / pub=제조사 공개 스펙 / est=추정(원본 카달로그 대조 필요)
    =========================================================================== */
-const SEED_VERSION = 5;
+const SEED_VERSION = 6;
 
 const TECHS = ['FLD', 'EFB', 'AGM', 'AGM나선형'];
 const APPS = ['승용SLI', '스타트스톱', '상용차', '마린/듀얼'];
@@ -634,6 +635,18 @@ const MAKERS = [
   {k:'ecobat',   n:'Ecobat Battery',         c:'미국/유럽', t:'D', rg:['NA','EU'],    br:'다브랜드 유통', site:'https://www.ecobat.com', st:'미수집', ed:''},
   {k:'hella',    n:'HELLA',                 c:'독일',   t:'D', rg:['SEA','CN','EU'], br:'HELLA SLI 유통', site:'https://www.hella.com', st:'미수집', ed:''},
   {k:'jpretail', n:'일본 카용품 리테일 체인',  c:'일본',   t:'D', rg:['JP'],            br:'PB 배터리 (OEM 조달)', site:'', st:'미수집', ed:''},
+  {k:'mebco',    n:'Middle East Battery Co (MEBCO)', c:'사우디', t:'M', rg:['MEA'], br:'ACDelco(위탁생산), MEBCO, PIONEER, BLACK BOX', site:'https://mebco.com', st:'미수집', ed:''},
+  {k:'recor',    n:'Recor Factory (Greek Industry of Accumulators)', c:'그리스', t:'M', rg:['EU','MEA'], br:'Recor, Master Line', site:'https://eu.recorbatteries.gr', st:'미수집', ed:''},
+  {k:'sakkos',   n:'Sakkos Automotive',            c:'그리스', t:'M', rg:['EU'],  br:'Sakkos', site:'https://www.sakkos-automotive.gr', st:'미수집', ed:''},
+  {k:'mantra',   n:'Mantra Batteries (Nova Power Tech 계열)', c:'인도', t:'M', rg:['IN'], br:'Mantra', site:'', st:'미수집', ed:''},
+  {k:'aag',      n:'Alliance Automotive Group UK & IE', c:'영국', t:'D', rg:['EU'], br:'NAPA, Platinum, Tayna', site:'https://allianceautomotive.co.uk', st:'미수집', ed:''},
+  {k:'cybnz',    n:'Century Yuasa Batteries (NZ)',  c:'뉴질랜드', t:'D', rg:['OCE'], br:'Century, Yuasa, Katana, Optima, Enersun, Intelepower', site:'https://www.cyb.co.nz', st:'미수집', ed:''},
+  {k:'roussakis',n:'G.J. Roussakis SA',            c:'그리스', t:'D', rg:['EU'],  br:'ACDelco, Yuasa, GS, Trojan, Suntech, CTEK', site:'https://www.roussakis.eu', st:'미수집', ed:''},
+  {k:'accuserv', n:'Accu-Service NV',              c:'벨기에', t:'D', rg:['EU'],  br:'다브랜드 수입', site:'https://www.accu-service.be', st:'미수집', ed:''},
+  {k:'naseem',   n:'Naseem Al Faihaa General Trading', c:'이라크', t:'D', rg:['MEA'], br:'일·한·인니·태·대만산 다브랜드', site:'', st:'미수집', ed:''},
+  {k:'khalife',  n:'Khalife for Oil & Lubricants', c:'레바논', t:'D', rg:['MEA'], br:'Trophy 외 다브랜드', site:'https://khalifeforoil.com', st:'미수집', ed:''},
+  {k:'novapower',n:'Nova Power Tech Pvt Ltd',      c:'인도',   t:'D', rg:['IN'],  br:'Amaron, Mantra', site:'', st:'미수집', ed:''},
+  {k:'asianbatt',n:'Asian Batteries',              c:'네팔',   t:'D', rg:['IN'],  br:'Asian 외 다브랜드', site:'https://asianbatteries.com.np', st:'미수집', ed:''},
   {k:'jpwhole',  n:'일본 애프터마켓 도매',     c:'일본',   t:'D', rg:['JP'],            br:'도매 유통 채널', site:'', st:'미수집', ed:''}
 ];
 
@@ -671,6 +684,21 @@ const DISTRIBUTORS = [
   {k:"envirobatt",n:"enviroBATT",c:"영국",rg:"EU",site:"https://www.envirobatt.co.uk",list:"https://www.envirobatt.co.uk",pat:"",br:"다브랜드",chk:"검색확인",note:"영국 유통"},
   {k:"emerald_lk",n:"Emerald International (Pvt) Ltd",c:"스리랑카",rg:"IN",site:"",list:"",pat:"",br:"다브랜드",chk:"미확인",note:"스리랑카 수입상 — 사이트 확인 필요"},
   {k:"bosch_dist",n:"Robert Bosch 현지법인망",c:"다국",rg:"ETC",site:"https://www.boschaftermarket.com",list:"",pat:"https://{cc}.boschaftermarket.com/{cc}/en/parts/batteries/",br:"Bosch",chk:"검색확인",note:"아프리카·중남미·동남아 25개국 이상에서 배터리 유통 — 국가별 포털"},
+  {k:"aag_uk",n:"Alliance Automotive Group UK & IE",c:"영국·아일랜드",rg:"EU",site:"https://allianceautomotive.co.uk",list:"https://allianceautomotive.co.uk/ourhistory/",pat:"",br:"NAPA|Platinum|Tayna|다브랜드",chk:"검색확인",note:"NAPA UK·Tayna(2023 인수)·Platinum Batteries(2018 인수)·FPS 를 한 그룹이 굴린다 — 영국 배터리 채널의 관문"},
+  {k:"cyb_nz",n:"Century Yuasa Batteries (NZ)",c:"뉴질랜드",rg:"OCE",site:"https://www.cyb.co.nz",list:"https://www.cyb.co.nz/divisions/automotive",pat:"",br:"Century|Yuasa|Katana|Optima|Enersun|Intelepower|Poweroad",chk:"검색확인",note:"뉴질랜드 최대 유통 — 호주 CYB 계열. 남태평양 재수출"},
+  {k:"roussakis",n:"G.J. Roussakis SA",c:"그리스",rg:"EU",site:"https://www.roussakis.eu",list:"https://www.roussakis.eu/en/manufacturers",pat:"https://www.roussakis.eu/en/manufacturers/{brand}",br:"ACDelco|Yuasa|GS|Suntech|Trojan|CTEK",chk:"검색확인",note:"아테네 코로피 38년 — 브랜드별 URL 규칙적. Trojan 마스터 디스트리뷰터(2011~)"},
+  {k:"sakkos",n:"Sakkos Automotive",c:"그리스",rg:"EU",site:"https://www.sakkos-automotive.gr",list:"https://www.sakkos-automotive.gr/en/",pat:"",br:"자체 생산 + 다브랜드",chk:"검색확인",note:"그리스 — 생산과 유통을 같이 한다"},
+  {k:"accuservice",n:"Accu-Service NV",c:"벨기에",rg:"EU",site:"https://www.accu-service.be",list:"",pat:"",br:"다브랜드",chk:"검색확인",note:"1957년 루셀라레 — 벨기에 최대 독립 스타터배터리 수입상. 재고 3만개"},
+  {k:"naseem",n:"Naseem Al Faihaa General Trading",c:"이라크",rg:"MEA",site:"",list:"",pat:"",br:"일본·한국·인도네시아·태국·대만산 다브랜드",chk:"검색확인",note:"1959년 설립. 바그다드·바스라·카르발라·에르빌 + 두바이 사무소"},
+  {k:"khalife",n:"Khalife for Oil & Lubricants",c:"레바논",rg:"MEA",site:"https://khalifeforoil.com",list:"",pat:"",br:"Trophy|다브랜드",chk:"검색확인",note:"1981년 가지에 — 오일·배터리·타이어·필터. Trophy 배터리를 민다"},
+  {k:"novapower",n:"Nova Power Tech Pvt Ltd",c:"인도",rg:"IN",site:"",list:"",pat:"",br:"Amaron|Mantra",chk:"검색확인",note:"하이데라바드 2009년 — Amaron 유통 + 계열 브랜드 Mantra 직접 판매"},
+  {k:"axion_aw",n:"Axion Auto Parts",c:"아루바",rg:"LAT",site:"",list:"",pat:"",br:"AC Delco|Atlas",chk:"검색확인",note:"아루바 — 카리브 소형 시장 배터리 채널"},
+  {k:"asianbatt_np",n:"Asian Batteries",c:"네팔",rg:"IN",site:"https://asianbatteries.com.np",list:"https://asianbatteries.com.np/best-car-battery-in-nepal/",pat:"",br:"Asian|Exide|Livguard|다브랜드",chk:"검색확인",note:"카트만두 2012년 — 한국·중국·일본·인도 조달"},
+  {k:"sebang_eu",n:"Sebang Batteries Europe",c:"독일",rg:"EU",site:"https://www.sebang-europe.com",list:"https://www.sebang-europe.com/products/all-batteries",pat:"",br:"Rocket|Global",chk:"검색확인",note:"자사 유럽 판매법인 — ROCKET·GLOBAL 카탈로그 2025 배포"},
+  {k:"sebang_na",n:"Sebang Global Battery North America",c:"미국",rg:"NA",site:"https://www.gbatteryusa.com",list:"https://www.gbatteryusa.com/products/",pat:"",br:"Rocket|Global",chk:"검색확인",note:"자사 북미 법인"},
+  {k:"sebang_my",n:"Sebang Global Battery Malaysia",c:"말레이시아",rg:"SEA",site:"https://sebangglobal.my",list:"https://sebangglobal.my/products/",pat:"",br:"Rocket",chk:"검색확인",note:"자사 말레이시아 채널"},
+  {k:"rocket_ae",n:"Rocket Batteries UAE",c:"UAE",rg:"MEA",site:"https://rocketbatteries.ae",list:"https://rocketbatteries.ae/about-us/",pat:"",br:"Rocket",chk:"검색확인",note:"자사 브랜드 중동 유통"},
+  {k:"rocket_kh",n:"Rocket Battery Cambodia",c:"캄보디아",rg:"SEA",site:"",list:"",pat:"",br:"Rocket",chk:"검색확인",note:"프놈펜 — 자사 브랜드 캄보디아 채널"},
 ];
 
 /* --- 브랜드 × 마켓 ------------------------------------------------------
@@ -698,7 +726,7 @@ const BRAND_MARKETS = [
   {k:'gsyuasa_sea',br:'GS Yuasa',mk:'gsyuasa',rg:'SEA',ctry:'동남아',std:'JIS',series:'GS MF, Yuasa',cat:'',fit:'',st:'미수집'},
   {k:'yuasa_oce',br:'Yuasa',mk:'centuryy',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Yuasa 시리즈',cat:'https://www.yuasabatteries.co.nz/media/qnrj5dgs/yuasa-au-cross-reference-chart-nov19.pdf',fit:'',st:'확인됨',nsrc:1,catKind:'pdf',catChk:'검색확인'},
   {k:'acdelco_na',br:'ACDelco',mk:'acdelco',rg:'NA',ctry:'북미',std:'BCI',series:'Gold(Professional), Silver, AGM',cat:'https://www.acdelco.com/parts/batteries.html',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
-  {k:'acdelco_mea',br:'ACDelco',mk:'acdelco',rg:'MEA',ctry:'중동',std:'BCI + DIN',series:'Gold, Advantage',cat:'',fit:'',st:'미수집'},
+  {k:'acdelco_mea',br:'ACDelco',mk:'mebco',rg:'MEA',ctry:'중동',std:'BCI + DIN',series:'Gold, Advantage',cat:'https://mebco.com/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
   {k:'acdelco_oce',br:'ACDelco',mk:'acdelco',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'ACDelco 시리즈',cat:'',fit:'',st:'미수집'},
   {k:'acdelco_sea',br:'ACDelco',mk:'acdelco',rg:'SEA',ctry:'동남아',std:'JIS',series:'ACDelco MF',cat:'',fit:'',st:'미수집'},
   {k:'amaron_in',br:'Amaron',mk:'amararaja',rg:'IN',ctry:'인도',std:'DIN/EN + JIS',series:'Hi-Life, Pro, Flo, Go, Shield, Black(상용)',cat:'https://www.amaron.in/product-range',fit:'https://www.amaron.in/battery-finder',st:'미수집',nsrc:2,catKind:'productlist',catChk:'패턴추정'},
@@ -712,7 +740,14 @@ const BRAND_MARKETS = [
   {k:'atlas_kr',br:'Atlas BX',mk:'atlasbx',rg:'KR',ctry:'한국',std:'DIN/EN + JIS',series:'MF, AGM, EFB',cat:'https://www.hankookncompany.com',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'미확인'},
   {k:'marshall_oce',br:'Marshall',mk:'atlasbx',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Marshall',cat:'',fit:'',st:'미수집'},
   {k:'rocket_kr',br:'Rocket',mk:'sebang',rg:'KR',ctry:'한국',std:'DIN/EN + JIS',series:'SMF, AGM, EFB',cat:'https://rocketbattery.kr/rocket/batterysize.html',fit:'',st:'확인됨',nsrc:2,catKind:'productlist',catChk:'검색확인'},
-  {k:'gb_export',br:'GB',mk:'sebang',rg:'EU',ctry:'수출(유럽·중동)',std:'DIN/EN',series:'GB DIN, EFB, AGM',cat:'',fit:'',st:'미수집'},
+  {k:'rocket_na',br:'Rocket',mk:'sebang',rg:'NA',ctry:'북미',std:'BCI',series:'Rocket, Global',cat:'https://www.gbatteryusa.com/products/',fit:'',st:'확인됨',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'rocket_mea',br:'Rocket',mk:'sebang',rg:'MEA',ctry:'중동',std:'DIN/EN + JIS',series:'Rocket SMF, EFB, AGM',cat:'https://rocketbatteries.ae/about-us/',fit:'',st:'확인됨',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'rocket_sea',br:'Rocket',mk:'sebang',rg:'SEA',ctry:'동남아',std:'JIS + DIN',series:'Rocket SMF',cat:'https://sebangglobal.my/products/',fit:'',st:'확인됨',nsrc:2,catKind:'productlist',catChk:'검색확인'},
+  {k:'recor_eu',br:'Recor',mk:'recor',rg:'EU',ctry:'그리스',std:'DIN/EN',series:'Master Line, 상용, 중장비',cat:'https://eu.recorbatteries.gr/catalogues/',fit:'',st:'확인됨',nsrc:2,catKind:'productlist',catChk:'검색확인'},
+  {k:'sakkos_eu',br:'Sakkos',mk:'sakkos',rg:'EU',ctry:'그리스',std:'DIN/EN',series:'Sakkos',cat:'https://www.sakkos-automotive.gr/en/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'mebco_mea',br:'MEBCO / PIONEER / BLACK BOX',mk:'mebco',rg:'MEA',ctry:'사우디·GCC',std:'BCI + DIN + JIS',series:'MEBCO, PIONEER, BLACK BOX',cat:'https://mebco.com/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'mantra_in',br:'Mantra',mk:'mantra',rg:'IN',ctry:'인도',std:'DIN/EN + JIS',series:'Mantra',cat:'',fit:'',st:'미수집',nsrc:0,catKind:'',catChk:'미확인'},
+  {k:'gb_export',br:'GB / Rocket',mk:'sebang',rg:'EU',ctry:'수출(유럽)',std:'DIN/EN',series:'GB DIN, EFB, AGM · ROCKET',cat:'https://sebang-europe.com/assets/downloads/rocket_catalogue_2023_en.pdf',fit:'',st:'확인됨',nsrc:3,catKind:'pdf',catChk:'검색확인'},
   {k:'gb_jp',br:'GB',mk:'sebang',rg:'JP',ctry:'일본',std:'JIS',series:'GB JIS, EFB(ISS)',cat:'',fit:'',st:'미수집'},
   {k:'moura_lat',br:'Moura',mk:'moura',rg:'LAT',ctry:'브라질',std:'BCI + 현지',series:'Moura Light, Log, Start-Stop',cat:'https://www.moura.com.br/produtos/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
   {k:'heliar_lat',br:'Heliar',mk:'clarios',rg:'LAT',ctry:'브라질',std:'BCI + 현지',series:'Free, Start-Stop',cat:'https://www.heliar.com.br/produtos',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
@@ -3431,6 +3466,7 @@ idbGet().then(rows => {
   idbFailed = true;
   console.warn('IndexedDB 를 쓸 수 없다. localStorage 로 동작한다:', e && e.message);
 });
+
 </script>
 </body>
 </html>

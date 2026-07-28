@@ -86,6 +86,24 @@ python3 tools/collect.py --brands        # 유통사 사이트를 훑어 취급 
 브랜드 사전과 대조해 `catalogs/discovered_brands.csv` 를 만든다.
 아직 우리 DB 에 없는 브랜드는 앱 [유통사·경쟁브랜드]에서 붉게 표시된다.
 
+바이어를 한 곳씩 되짚어 44곳까지 채웠고, 그 과정에서 이런 것들이 나왔다.
+
+- **AAP = Alliance Automotive Group UK & IE.** NAPA UK·Tayna(2023 인수)·
+  Platinum Batteries(2018 인수)·FPS 가 전부 한 그룹이다. 영국 배터리 채널로
+  들어가는 문이 사실상 이 하나다.
+- **YBS/YBIT = GS Yuasa 유럽 판매법인**(YBF 리옹·YBIB 마드리드·YBEU 뒤셀도르프).
+- **MEBCO(사우디)** — Clarios 49% + 자밀·알조마이 등 사우디 투자자 51% 합작.
+  아랍권 최대 납축전지 공장(연 340만 개)이고 **중동 ACDelco 를 여기서 만든다.**
+  그래서 `acdelco_mea` 의 제조사를 ACDelco 가 아니라 MEBCO 로 바로잡았다.
+- **Recor(그리스)** — 코모티니 공장, 1964년, 그리스 유일의 스타터배터리 생산자.
+- **Roussakis(그리스)** — ACDelco·Yuasa·GS·Trojan 을 한 진열대에 올린다.
+  브랜드별 URL 이 규칙적이라 통째로 긁기 좋다.
+- **Nova Power Tech(인도)** — Amaron 을 유통하면서 계열 브랜드 Mantra 를 같이 판다.
+
+끝내 못 찾은 바이어는 `TRANS PARTS(AUTO)`, `M/S NICKEL GLASS AND BATTERIES`,
+러시아 Rocket 채널이다. 사명이 너무 일반적이라 공개 검색으로는 특정이 안 됐고,
+`data/distributor_sources.csv` 에도 넣지 않았다 — 추정으로 채우면 근거가 무너진다.
+
 ### 브랜드 × 마켓
 
 같은 브랜드라도 나라마다 파는 시리즈와 규격체계가 다르다. Bosch 가 대표적이라

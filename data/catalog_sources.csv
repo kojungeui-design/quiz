@@ -63,3 +63,16 @@ pinaco_sea,PINACO,PINACO,베트남,productlist,https://en.pinaco.com/products,,�
 uplus_ref,참고자료,U-Plus,-,pattern,https://www.uplusbattery.com/pdf/sli/automobile-battery/jis-series/{code}.pdf,code=55D23L|75D23R|80D26L|95D31L|115D31R,검색확인,JIS 규격별 스펙시트 — 규격 표준값 대조용
 toyota_fit,토요타,OEM,북미,pdf,https://www.toyotapartsandservice.com/wp-content/uploads/2023/09/03_Batteries2023_hi.pdf,,검색확인,차종별 적용 배터리 (2023) — 피트먼트 대조 원천
 toyota_fit,토요타,OEM,북미,pattern,https://www.toyotapartsandservice.com/wp-content/uploads/{yyyy}/{mm}/03_Batteries{yyyy}_hi.pdf,yyyy=2020|2022|2023,검색확인,연도별 적용표 — 연식 변화 추적용
+gb_export,Rocket / Global,Sebang,수출(유럽),pdf,https://sebang-europe.com/assets/downloads/rocket_catalogue_2023_en.pdf,,검색확인,ROCKET 2023 영문 카탈로그 — 자사 유럽법인 배포본
+gb_export,Rocket / Global,Sebang,수출(유럽),productlist,https://www.sebang-europe.com/support/downloads,,검색확인,ROCKET·GLOBAL 카탈로그 2025 다운로드 페이지
+gb_export,Rocket / Global,Sebang,수출(유럽),productlist,https://www.sebang-europe.com/products/all-batteries,,검색확인,전 제품 목록
+rocket_na,Rocket / Global,Sebang,북미,productlist,https://www.gbatteryusa.com/products/,,검색확인,자사 북미법인 제품 목록
+rocket_mea,Rocket,Sebang,중동,productlist,https://rocketbatteries.ae/about-us/,,검색확인,자사 중동 유통
+rocket_sea,Rocket,Sebang,동남아,productlist,https://sebangglobal.my/products/,,검색확인,말레이시아 채널 제품 목록
+recor_eu,Recor,Recor,그리스,productlist,https://eu.recorbatteries.gr/catalogues/,,검색확인,그리스 유일 스타터배터리 공장 — 브랜드·카탈로그 목록
+recor_eu,Recor,Recor,그리스,productlist,https://eu.recorbatteries.gr/portfolio/master-line/,,검색확인,Master Line 시리즈
+sakkos_eu,Sakkos,Sakkos,그리스,productlist,https://www.sakkos-automotive.gr/en/,,검색확인,그리스 생산·유통
+mebco_mea,ACDelco / MEBCO,MEBCO,사우디·GCC,productlist,https://mebco.com/,,검색확인,아랍권 최대 납축전지 공장 — ACDelco 위탁생산 + 자체 브랜드
+acdelco_mea,ACDelco,MEBCO,중동,productlist,https://www.roussakis.eu/en/manufacturers,,검색확인,유통사 브랜드 페이지 — ACDelco·Yuasa·GS·Trojan 병렬
+aag_uk_eu,NAPA / Platinum,Alliance Automotive,영국,productlist,https://www.tayna.co.uk/car-batteries/napa/,,검색확인,AAG 계열 NAPA 배터리 목록
+cyb_nz_oce,Century / Yuasa,Century Yuasa,뉴질랜드,productlist,https://www.cyb.co.nz/divisions/automotive,,검색확인,뉴질랜드 자동차 배터리 부문

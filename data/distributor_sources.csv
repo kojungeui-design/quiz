@@ -28,3 +28,18 @@ aceon,AceOn Group,영국,EU,https://www.aceongroup.com,https://www.aceongroup.co
 envirobatt,enviroBATT,영국,EU,https://www.envirobatt.co.uk,https://www.envirobatt.co.uk,,다브랜드,검색확인,영국 유통
 emerald_lk,Emerald International (Pvt) Ltd,스리랑카,IN,,,,다브랜드,미확인,스리랑카 수입상 — 사이트 확인 필요
 bosch_dist,Robert Bosch 현지법인망,다국,ETC,https://www.boschaftermarket.com,,https://{cc}.boschaftermarket.com/{cc}/en/parts/batteries/,Bosch,검색확인,아프리카·중남미·동남아 25개국 이상에서 배터리 유통 — 국가별 포털
+aag_uk,Alliance Automotive Group UK & IE,영국·아일랜드,EU,https://allianceautomotive.co.uk,https://allianceautomotive.co.uk/ourhistory/,,NAPA|Platinum|Tayna|다브랜드,검색확인,NAPA UK·Tayna(2023 인수)·Platinum Batteries(2018 인수)·FPS 를 한 그룹이 굴린다 — 영국 배터리 채널의 관문
+cyb_nz,Century Yuasa Batteries (NZ),뉴질랜드,OCE,https://www.cyb.co.nz,https://www.cyb.co.nz/divisions/automotive,,Century|Yuasa|Katana|Optima|Enersun|Intelepower|Poweroad,검색확인,뉴질랜드 최대 유통 — 호주 CYB 계열. 남태평양 재수출
+roussakis,G.J. Roussakis SA,그리스,EU,https://www.roussakis.eu,https://www.roussakis.eu/en/manufacturers,https://www.roussakis.eu/en/manufacturers/{brand},ACDelco|Yuasa|GS|Suntech|Trojan|CTEK,검색확인,아테네 코로피 38년 — 브랜드별 URL 규칙적. Trojan 마스터 디스트리뷰터(2011~)
+sakkos,Sakkos Automotive,그리스,EU,https://www.sakkos-automotive.gr,https://www.sakkos-automotive.gr/en/,,자체 생산 + 다브랜드,검색확인,그리스 — 생산과 유통을 같이 한다
+accuservice,Accu-Service NV,벨기에,EU,https://www.accu-service.be,,,다브랜드,검색확인,1957년 루셀라레 — 벨기에 최대 독립 스타터배터리 수입상. 재고 3만개
+naseem,Naseem Al Faihaa General Trading,이라크,MEA,,,,일본·한국·인도네시아·태국·대만산 다브랜드,검색확인,1959년 설립. 바그다드·바스라·카르발라·에르빌 + 두바이 사무소
+khalife,Khalife for Oil & Lubricants,레바논,MEA,https://khalifeforoil.com,,,Trophy|다브랜드,검색확인,1981년 가지에 — 오일·배터리·타이어·필터. Trophy 배터리를 민다
+novapower,Nova Power Tech Pvt Ltd,인도,IN,,,,Amaron|Mantra,검색확인,하이데라바드 2009년 — Amaron 유통 + 계열 브랜드 Mantra 직접 판매
+axion_aw,Axion Auto Parts,아루바,LAT,,,,AC Delco|Atlas,검색확인,아루바 — 카리브 소형 시장 배터리 채널
+asianbatt_np,Asian Batteries,네팔,IN,https://asianbatteries.com.np,https://asianbatteries.com.np/best-car-battery-in-nepal/,,Asian|Exide|Livguard|다브랜드,검색확인,카트만두 2012년 — 한국·중국·일본·인도 조달
+sebang_eu,Sebang Batteries Europe,독일,EU,https://www.sebang-europe.com,https://www.sebang-europe.com/products/all-batteries,,Rocket|Global,검색확인,자사 유럽 판매법인 — ROCKET·GLOBAL 카탈로그 2025 배포
+sebang_na,Sebang Global Battery North America,미국,NA,https://www.gbatteryusa.com,https://www.gbatteryusa.com/products/,,Rocket|Global,검색확인,자사 북미 법인
+sebang_my,Sebang Global Battery Malaysia,말레이시아,SEA,https://sebangglobal.my,https://sebangglobal.my/products/,,Rocket,검색확인,자사 말레이시아 채널
+rocket_ae,Rocket Batteries UAE,UAE,MEA,https://rocketbatteries.ae,https://rocketbatteries.ae/about-us/,,Rocket,검색확인,자사 브랜드 중동 유통
+rocket_kh,Rocket Battery Cambodia,캄보디아,SEA,,,,Rocket,검색확인,프놈펜 — 자사 브랜드 캄보디아 채널
