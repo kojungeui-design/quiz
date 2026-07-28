@@ -165,6 +165,7 @@
       <button class="navbtn" data-v="fit">🚗 차량 적합성 <span class="cnt" id="cntFit"></span></button>
       <button class="navbtn" data-v="cmp">⚖️ 성능 비교 <span class="cnt" id="cntCmp"></span></button>
       <button class="navbtn" data-v="xref">🔀 규격 크로스레퍼런스</button>
+      <button class="navbtn" data-v="map">🗺️ 세계지도</button>
       <button class="navbtn" data-v="rgn">🌍 판매지역</button>
       <button class="navbtn" data-v="bm">🌐 브랜드·마켓 <span class="cnt" id="cntBm"></span></button>
       <button class="navbtn" data-v="src">🏭 제조사·수집관리 <span class="cnt" id="cntSrc"></span></button>
@@ -267,6 +268,22 @@
         <div class="filters" id="xrefFilters"></div>
         <div class="tw"><table id="tbXref"></table></div>
         <p class="legend">갭 = (자사 최고 스펙 − 타사 최고 스펙) ÷ 타사 최고 스펙. 음수면 타사가 앞선다.</p>
+      </section>
+
+      <!-- 세계지도 -->
+      <section class="view" id="v-map">
+        <div class="sh">
+          <div><h2>세계지도</h2><p>어느 나라에 무엇을 파는지 지도에 찍는다. 버블을 누르면 그 나라 제품 목록으로 간다.</p></div>
+        </div>
+        <div class="filters" id="mapFilters"></div>
+        <div class="card" style="padding:10px">
+          <div id="mapWrap" style="width:100%;overflow-x:auto"></div>
+          <div id="mapLegend" class="legend"></div>
+        </div>
+        <div class="grid g2">
+          <div class="card"><h3>국가별 <span class="sub">상위 20</span></h3><div class="tw" style="max-height:420px"><table id="tbCtry"></table></div></div>
+          <div class="card"><h3>지역별 합계</h3><div id="chMapRgn"></div></div>
+        </div>
       </section>
 
       <!-- 판매지역 -->
@@ -422,6 +439,59 @@ const REGION_ALIAS = {
   '인도':'IN','유럽':'EU','북미':'NA','미국':'NA','캐나다':'NA','중남미':'LAT','브라질':'LAT',
   '중동':'MEA','아프리카':'MEA','호주':'OCE','오세아니아':'OCE'
 };
+
+/* --- 세계지도용 좌표 -----------------------------------------------------
+   국가 중심 위·경도.  등장방형도법(x=경도, y=위도)으로 그대로 찍는다.
+   바이어 DB 를 임포트하면 이 좌표로 나라별 버블이 올라간다. */
+const WORLD = {
+ '한국':[36.5,127.8,'KR'],'일본':[36.2,138.3,'JP'],'중국':[35.9,104.2,'CN'],'대만':[23.7,121.0,'CN'],
+ '홍콩':[22.3,114.2,'CN'],'베트남':[14.1,108.3,'SEA'],'태국':[15.9,101.0,'SEA'],'말레이시아':[4.2,102.0,'SEA'],
+ '인도네시아':[-0.8,113.9,'SEA'],'필리핀':[12.9,121.8,'SEA'],'싱가포르':[1.35,103.8,'SEA'],'미얀마':[21.9,96.0,'SEA'],
+ '캄보디아':[12.6,105.0,'SEA'],'라오스':[19.9,102.5,'SEA'],'브루나이':[4.5,114.7,'SEA'],
+ '인도':[20.6,79.0,'IN'],'파키스탄':[30.4,69.3,'IN'],'방글라데시':[23.7,90.4,'IN'],'스리랑카':[7.9,80.8,'IN'],
+ '네팔':[28.4,84.1,'IN'],'몰디브':[3.2,73.2,'IN'],
+ 'UAE':[23.4,53.8,'MEA'],'사우디':[23.9,45.1,'MEA'],'이라크':[33.2,43.7,'MEA'],'이란':[32.4,53.7,'MEA'],
+ '시리아':[34.8,39.0,'MEA'],'요르단':[30.6,36.2,'MEA'],'레바논':[33.9,35.9,'MEA'],'쿠웨이트':[29.3,47.5,'MEA'],
+ '카타르':[25.4,51.2,'MEA'],'오만':[21.5,55.9,'MEA'],'바레인':[26.0,50.6,'MEA'],'예멘':[15.6,48.5,'MEA'],
+ '이스라엘':[31.0,34.9,'MEA'],'터키':[39.0,35.2,'MEA'],
+ '이집트':[26.8,30.8,'MEA'],'모로코':[31.8,-7.1,'MEA'],'알제리':[28.0,1.7,'MEA'],'튀니지':[33.9,9.5,'MEA'],
+ '리비아':[26.3,17.2,'MEA'],'수단':[12.9,30.2,'MEA'],'나이지리아':[9.1,8.7,'MEA'],'가나':[8.0,-1.0,'MEA'],
+ '케냐':[0.0,37.9,'MEA'],'탄자니아':[-6.4,34.9,'MEA'],'우간다':[1.4,32.3,'MEA'],'에티오피아':[9.2,40.5,'MEA'],
+ '콩고':[-0.2,15.8,'MEA'],'가봉':[-0.8,11.6,'MEA'],'베냉':[9.3,2.3,'MEA'],'코트디부아르':[7.5,-5.6,'MEA'],
+ '기니':[10.0,-9.7,'MEA'],'적도기니':[1.7,10.3,'MEA'],'세네갈':[14.5,-14.5,'MEA'],'카메룬':[7.4,12.4,'MEA'],
+ '앙골라':[-11.2,17.9,'MEA'],'잠비아':[-13.1,27.9,'MEA'],'짐바브웨':[-19.0,29.2,'MEA'],'남아공':[-30.6,22.9,'MEA'],
+ '마다가스카르':[-18.8,46.9,'MEA'],'모리셔스':[-20.3,57.6,'MEA'],'세이셸':[-4.7,55.5,'MEA'],'토고':[8.6,0.8,'MEA'],
+ '말리':[17.6,-4.0,'MEA'],'니제르':[17.6,8.1,'MEA'],'라이베리아':[6.4,-9.4,'MEA'],'시에라리온':[8.5,-11.8,'MEA'],
+ '부르키나파소':[12.2,-1.6,'MEA'],'르완다':[-1.9,29.9,'MEA'],'모리타니':[21.0,-10.9,'MEA'],'감비아':[13.4,-15.3,'MEA'],
+ '차드':[15.5,18.7,'MEA'],'소말리아':[5.2,46.2,'MEA'],'지부티':[11.8,42.6,'MEA'],'보츠와나':[-22.3,24.7,'MEA'],
+ '나미비아':[-22.96,18.5,'MEA'],'모잠비크':[-18.7,35.5,'MEA'],
+ '독일':[51.2,10.5,'EU'],'프랑스':[46.2,2.2,'EU'],'스페인':[40.5,-3.7,'EU'],'이탈리아':[41.9,12.6,'EU'],
+ '스웨덴':[60.1,18.6,'EU'],'노르웨이':[60.5,8.5,'EU'],'핀란드':[61.9,25.8,'EU'],'덴마크':[56.3,9.5,'EU'],
+ '폴란드':[51.9,19.2,'EU'],'네덜란드':[52.1,5.3,'EU'],'벨기에':[50.5,4.5,'EU'],'아일랜드':[53.4,-8.2,'EU'],
+ '그리스':[39.1,21.8,'EU'],'포르투갈':[39.4,-8.2,'EU'],'오스트리아':[47.5,14.6,'EU'],'스위스':[46.8,8.2,'EU'],
+ '체코':[49.8,15.5,'EU'],'슬로바키아':[48.7,19.7,'EU'],'헝가리':[47.2,19.5,'EU'],'루마니아':[45.9,25.0,'EU'],
+ '불가리아':[42.7,25.5,'EU'],'크로아티아':[45.1,15.2,'EU'],'슬로베니아':[46.2,15.0,'EU'],'세르비아':[44.0,21.0,'EU'],
+ '알바니아':[41.2,20.2,'EU'],'키프로스':[35.1,33.4,'EU'],'몰타':[35.9,14.4,'EU'],'영국':[55.4,-3.4,'EU'],
+ '에스토니아':[58.6,25.0,'EU'],'라트비아':[56.9,24.6,'EU'],'리투아니아':[55.2,23.9,'EU'],'아이슬란드':[64.96,-19.02,'EU'],
+ '룩셈부르크':[49.8,6.1,'EU'],
+ '러시아':[61.5,105.3,'ETC'],'우크라이나':[48.4,31.2,'ETC'],'벨라루스':[53.7,28.0,'ETC'],'아르메니아':[40.1,45.0,'ETC'],
+ '조지아':[42.3,43.4,'ETC'],'카자흐스탄':[48.0,66.9,'ETC'],'우즈베키스탄':[41.4,64.6,'ETC'],
+ '키르기스스탄':[41.2,74.8,'ETC'],'아프가니스탄':[33.9,67.7,'ETC'],'아제르바이잔':[40.1,47.6,'ETC'],
+ '타지키스탄':[38.9,71.3,'ETC'],'투르크메니스탄':[38.97,59.56,'ETC'],'몰도바':[47.4,28.4,'ETC'],
+ '미국':[37.1,-95.7,'NA'],'캐나다':[56.1,-106.3,'NA'],
+ '멕시코':[23.6,-102.6,'LAT'],'브라질':[-14.2,-51.9,'LAT'],'칠레':[-35.7,-71.5,'LAT'],'페루':[-9.2,-75.0,'LAT'],
+ '콜롬비아':[4.6,-74.3,'LAT'],'아르헨티나':[-38.4,-63.6,'LAT'],'에콰도르':[-1.8,-78.2,'LAT'],'파나마':[8.5,-80.8,'LAT'],
+ '과테말라':[15.8,-90.2,'LAT'],'코스타리카':[9.8,-83.8,'LAT'],'파라과이':[-23.4,-58.4,'LAT'],'우루과이':[-32.5,-55.8,'LAT'],
+ '볼리비아':[-16.3,-63.6,'LAT'],'베네수엘라':[6.4,-66.6,'LAT'],'온두라스':[15.2,-86.2,'LAT'],'니카라과':[12.9,-85.2,'LAT'],
+ '엘살바도르':[13.8,-88.9,'LAT'],'도미니카':[18.7,-70.2,'LAT'],'자메이카':[18.1,-77.3,'LAT'],
+ '트리니다드토바고':[10.7,-61.2,'LAT'],'쿠바':[21.5,-77.8,'LAT'],'아이티':[19.0,-72.3,'LAT'],
+ '푸에르토리코':[18.2,-66.6,'LAT'],'가이아나':[4.9,-58.9,'LAT'],'수리남':[3.9,-56.0,'LAT'],'벨리즈':[17.2,-88.5,'LAT'],
+ '바하마':[25.0,-77.4,'LAT'],
+ '호주':[-25.3,133.8,'OCE'],'뉴질랜드':[-40.9,174.9,'OCE'],'피지':[-17.7,178.1,'OCE'],'파푸아뉴기니':[-6.3,144.0,'OCE']
+};
+/* 국가 정보가 없는 시드 데이터는 지역 대표 좌표에 모아 찍는다 */
+const REGION_CENTER = {KR:[36.5,127.8],JP:[36.2,138.3],CN:[35.9,104.2],SEA:[4.0,110.0],IN:[20.6,79.0],
+ EU:[50.0,10.0],NA:[39.0,-98.0],LAT:[-14.0,-58.0],MEA:[15.0,25.0],OCE:[-25.3,133.8],ETC:[55.0,80.0]};
 
 /* --- 규격(사이즈) 마스터.  치수 mm, 높이는 총고 기준 --------------------- */
 const SPECS = [
@@ -1581,6 +1651,7 @@ const RGN_MAP = {};  REGIONS.forEach(r => RGN_MAP[r.k] = r.n);
 
 const isPhone = () => window.matchMedia('(max-width:820px)').matches;
 let catLimit = 60;   /* 폰에서 한 번에 그리는 카드 수 */
+const CAT_PAGE = 300;  /* PC 에서 한 번에 그리는 행 수 — 임포트하면 수만 행이 된다 */
 
 const DEFAULTS = {
   v: SEED_VERSION,
@@ -1596,6 +1667,47 @@ let view = 'dash';
 const filters = {cat: {}, fit: {}, xref: {}, src: {}};
 let sortState = {};
 
+
+/* --- 임포트 데이터 저장소 -----------------------------------------------
+   사내 데이터는 수만 행이 들어온다.  localStorage 는 5MB 언저리에서 막혀서
+   바이어 DB 15,000 행이면 저장이 실패하고 새로고침에 날아간다.  그래서
+   임포트 행만 IndexedDB 로 빼고, 나머지 작은 것들만 localStorage 에 둔다. */
+const IDB_NAME = 'gb_sli_catalog', IDB_STORE = 'imported';
+let idbFailed = false;
+function idbOpen() {
+  return new Promise((res, rej) => {
+    if (!window.indexedDB) return rej(new Error('IndexedDB 없음'));
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+    };
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+function idbTx(mode, fn) {
+  return idbOpen().then(db => new Promise((res, rej) => {
+    const tx = db.transaction(IDB_STORE, mode);
+    const out = fn(tx.objectStore(IDB_STORE));
+    tx.oncomplete = () => res(out && out.result !== undefined ? out.result : out);
+    tx.onerror = () => rej(tx.error);
+    tx.onabort = () => rej(tx.error);
+  }));
+}
+const idbGet = () => idbTx('readonly', st => st.get('rows'));
+const idbPut = rows => idbTx('readwrite', st => st.put(rows, 'rows'));
+const idbClear = () => idbTx('readwrite', st => st.delete('rows'));
+
+function saveImported() {
+  if (idbFailed) { save(); return Promise.resolve(); }
+  return idbPut(store.imported).then(() => { save(); }).catch(e => {
+    idbFailed = true;
+    console.warn('IndexedDB 저장 실패, localStorage 로 되돌린다:', e && e.message);
+    save();
+  });
+}
+
 function load() {
   try {
     const raw = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
@@ -1606,8 +1718,14 @@ function load() {
   } catch (e) { return JSON.parse(JSON.stringify(DEFAULTS)); }
 }
 function save() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(store)); }
-  catch (e) { alert('브라우저 저장에 실패했다 (용량 초과일 수 있음): ' + e.message); }
+  try {
+    // 임포트 행은 IndexedDB 로 따로 저장한다 (localStorage 용량 한계 때문)
+    const light = Object.assign({}, store, {imported: idbFailed ? store.imported : []});
+    localStorage.setItem(LS_KEY, JSON.stringify(light));
+  } catch (e) {
+    alert('브라우저 저장에 실패했다 (용량 초과일 수 있음): ' + e.message +
+          '\n\n[데이터 관리 → 전체 JSON 백업]으로 내보내 두는 걸 권한다.');
+  }
   renderStoreInfo();
 }
 function h(s) {
@@ -1776,6 +1894,7 @@ const TITLES = {
   fit:  ['차량 적합성', '차종 → 요구 규격 → 적합 모델'],
   cmp:  ['성능 비교', '용도군 내 상대 성능'],
   xref: ['규격 크로스레퍼런스', '같은 규격에서의 스펙 격차'],
+  map:  ['세계지도', '나라별 판매 분포'],
   rgn:  ['판매지역', '지역별 커버리지와 공백'],
   bm:   ['브랜드 · 마켓', '나라마다 다른 라인업과 카탈로그 주소'],
   src:  ['제조사 · 수집관리', '카달로그 확보 현황'],
@@ -1877,10 +1996,11 @@ function renderCatFilters() {
     '<select id="fTech"><option value="">기술 전체</option>' + selOpts(uniq(ms.map(m => m.tech)), f.tech) + '</select>' +
     '<select id="fApp"><option value="">용도 전체</option>' + selOpts(uniq(ms.map(m => m.app)), f.app) + '</select>' +
     '<select id="fGrp"><option value="">규격 전체</option>' + selOpts(uniq(ms.map(m => m.grp)), f.grp) + '</select>' +
+    '<select id="fCtry"><option value="">국가 전체</option>' + selOpts(uniq(ms.map(m => m.ctry)), f.ctry) + '</select>' +
     '<select id="fRgn"><option value="">지역 전체</option>' +
       REGIONS.map(r => '<option value="' + r.k + '"' + (f.rgn === r.k ? ' selected' : '') + '>' + h(r.n) + '</option>').join('') + '</select>' +
     '<button class="btn sm" onclick="filters.cat={};render()">초기화</button>';
-  ['q:fq','own:fOwn','mk:fMk','tech:fTech','app:fApp','grp:fGrp','rgn:fRgn'].forEach(pair => {
+  ['q:fq','own:fOwn','mk:fMk','tech:fTech','app:fApp','grp:fGrp','rgn:fRgn','ctry:fCtry'].forEach(pair => {
     const key = pair.split(':')[0], id = pair.split(':')[1];
     bindFilter(id, () => { f[key] = document.getElementById(id).value; renderCatTable(); });
   });
@@ -1895,6 +2015,7 @@ function filteredModels() {
     if (f.app && m.app !== f.app) return false;
     if (f.grp && m.grp !== f.grp) return false;
     if (f.rgn && (m.rg || []).indexOf(f.rgn) < 0) return false;
+    if (f.ctry && m.ctry !== f.ctry) return false;
     if (q) {
       const hay = [m.mkName, m.br, m.mdl, m.sz, m.grp, m.dist, m.cpn].join(' ').toLowerCase();
       if (hay.indexOf(q) < 0) return false;
@@ -1904,7 +2025,7 @@ function filteredModels() {
 }
 function renderCatTable() {
   const rows = filteredModels();
-  const cap = isPhone() ? catLimit : rows.length;
+  const cap = isPhone() ? catLimit : Math.max(catLimit, CAT_PAGE);
   const shown = rows.slice(0, cap);
   table('tbCat', [
     {k: 'sel', t: '비교함', nosort: true, r: r => '<input type="checkbox" onclick="event.stopPropagation();toggleCart(\'' + h(r.id).replace(/'/g, "\\'") + '\')"' +
@@ -1926,6 +2047,7 @@ function renderCatTable() {
     {k: 'whkg', t: 'Wh/kg', num: true, mh: true, r: r => fmt(r.whkg, 1)},
     {k: 'whl', t: 'Wh/L', num: true, mh: true, r: r => fmt(r.whl, 1)},
     {k: 'score', t: '점수', num: true, r: r => r.score == null ? '-' : '<span class="score ' + scoreCls(r.score) + '">' + r.score + '</span>'},
+    {k: 'ctry', t: '국가', r: r => r.ctry ? h(r.ctry) : '<span class="muted">-</span>'},
     {k: 'rg', t: '판매지역', mh: true, r: r => (r.rg || []).map(x => RGN_MAP[x] || x).join(', ')},
     {k: 'ver', t: '근거', r: r => verTag(r.ver)}
   ], shown, {
@@ -1935,7 +2057,8 @@ function renderCatTable() {
   });
   document.getElementById('catLegend').innerHTML =
     (shown.length < rows.length
-      ? '<button class="btn sm" onclick="catLimit+=60;renderCatTable()">더 보기 (' + shown.length + ' / ' + rows.length + ')</button> '
+      ? '<button class="btn sm" onclick="catLimit+=(isPhone()?60:CAT_PAGE);renderCatTable()">더 보기 (' +
+        shown.length.toLocaleString() + ' / ' + rows.length.toLocaleString() + ')</button> '
       : rows.length + '개 표시. ') +
     '<b>*</b> 표시된 CCA 는 원 표기 규격이 아니라 환산값(계수 ' +
     store.settings.sae2en + ')이다. 점수는 같은 용도군 안에서의 상대 위치이며 가중치는 [성능 비교]에서 바꿀 수 있다.';
@@ -1973,6 +2096,7 @@ function openDetail(id) {
     kv('Wh/kg', m.whkg ? m.whkg.toFixed(1) : null) +
     kv('Wh/L', m.whl ? m.whl.toFixed(1) : null) +
     kv('종합점수', m.score == null ? null : '<span class="score ' + scoreCls(m.score) + '">' + m.score + '</span> <span class="muted">(' + h(m.app) + ' 군 내)</span>') +
+    kv('국가', m.ctry) + kv('거래 바이어', m.nbuyer ? m.nbuyer + '곳' : null) +
     kv('판매지역', (m.rg || []).map(x => RGN_MAP[x] || x).join(', ')) +
     (m.dist ? kv('유통사', m.dist) : '') + (m.cpn ? kv('고객품번', m.cpn) : '') +
     (e.judge ? kv('스펙 판정', e.judge) : '') +
@@ -2312,6 +2436,171 @@ function renderXrefTable() {
   ], rows, {sortKey: 'xref', defSort: 'n', empty: '해당 조건의 규격이 없다.'});
 }
 
+/* --- 세계지도 -----------------------------------------------------------
+   등장방형도법으로 위·경도를 그대로 x·y 에 놓는다.  국가 좌표가 있는 데이터
+   (바이어 DB 임포트)는 나라별로, 국가 정보가 없는 시드는 지역 대표 좌표에
+   모아 찍고 테두리를 달리해서 구분한다. */
+const MAP_W = 1000, MAP_H = 500;
+const RG_COLOR = {KR:'#c63d4c',JP:'#1473e6',CN:'#c67700',SEA:'#16845b',IN:'#6b4bd6',
+  EU:'#1473e6',NA:'#6b4bd6',LAT:'#16845b',MEA:'#c67700',OCE:'#0f8a8a',ETC:'#667487'};
+/* 대륙 윤곽 — 해안선 주요 지점만 이은 간이 폴리곤이다.  나라 경계를 그리려는
+   게 아니라 버블이 어디쯤인지 읽히게 하는 배경이라 이 정도로 충분하다.
+   각 배열은 [위도, 경도] 순. */
+const LAND = [
+ /* 유라시아 */[[36,-9],[44,-9],[48,-5],[51,2],[58,5],[63,5],[71,28],[70,60],[73,80],[76,105],
+  [70,140],[60,160],[62,180],[55,160],[50,140],[43,132],[39,127],[35,126],[30,122],[22,114],
+  [21,109],[10,105],[1,104],[8,98],[16,94],[21,89],[15,80],[8,77],[23,68],[25,57],[20,58],
+  [13,45],[21,39],[30,33],[31,34],[37,36],[41,29],[37,23],[40,18],[45,13],[44,9],[43,3],[38,-1]],
+ /* 아프리카 */[[35,-6],[37,10],[33,22],[31,32],[22,37],[12,43],[11,51],[2,46],[-5,40],[-16,40],
+  [-26,33],[-34,25],[-34,18],[-23,14],[-12,13],[-6,12],[4,9],[6,3],[5,-4],[9,-13],[14,-17],
+  [21,-17],[28,-13],[33,-9]],
+ /* 북미 */[[70,-160],[71,-130],[69,-105],[64,-95],[60,-95],[58,-80],[63,-77],[60,-65],[48,-65],
+  [45,-60],[42,-70],[35,-76],[25,-80],[30,-88],[29,-95],[26,-97],[20,-97],[18,-94],[15,-92],
+  [9,-79],[14,-87],[19,-105],[23,-110],[33,-118],[40,-124],[48,-125],[55,-133],[60,-145],
+  [60,-165],[66,-164]],
+ /* 남미 */[[12,-72],[11,-63],[6,-58],[0,-50],[-5,-35],[-13,-38],[-23,-43],[-33,-53],[-38,-57],
+  [-42,-64],[-50,-68],[-55,-68],[-52,-73],[-42,-74],[-33,-72],[-18,-70],[-6,-81],[0,-80],[6,-77],[9,-77]],
+ /* 호주 */[[-11,131],[-12,137],[-16,146],[-24,153],[-33,152],[-38,146],[-38,140],[-35,136],
+  [-32,134],[-34,116],[-22,114],[-18,122],[-14,127]],
+ /* 그린란드 */[[83,-32],[76,-20],[70,-22],[60,-44],[66,-53],[76,-60],[81,-50]],
+ /* 일본 */[[45,142],[43,145],[38,141],[34,140],[33,131],[34,129],[37,137],[41,140]],
+ /* 영국 */[[58,-5],[53,0],[51,1],[50,-5],[55,-6]],
+ /* 뉴질랜드 */[[-35,173],[-38,178],[-42,174],[-46,167],[-41,172]],
+ /* 마다가스카르 */[[-12,49],[-16,50],[-25,47],[-25,44],[-16,44]],
+ /* 보르네오 */[[5,117],[1,119],[-4,116],[-3,110],[2,109]],
+ /* 필리핀 */[[18,121],[14,123],[10,126],[6,126],[9,122],[14,120]],
+ /* 아이슬란드 */[[66,-23],[64,-14],[63,-19],[65,-24]]
+];
+const proj = (lat, lon) => [(lon + 180) / 360 * MAP_W, (90 - lat) / 180 * MAP_H];
+
+function mapAggregate() {
+  const byC = {}, byR = {};
+  allModels().forEach(m => {
+    if (m.ctry && WORLD[m.ctry]) {
+      const c = byC[m.ctry] || (byC[m.ctry] = {n: 0, own: 0, buyers: 0, rg: WORLD[m.ctry][2], sizes: {}});
+      c.n++; if (m.own) c.own++;
+      c.buyers += (m.nbuyer || 0);
+      if (m.grp) c.sizes[m.grp] = 1;
+    } else {
+      (m.rg || []).forEach(rk => {
+        if (!REGION_CENTER[rk]) return;
+        const r = byR[rk] || (byR[rk] = {n: 0, own: 0, sizes: {}});
+        r.n++; if (m.own) r.own++;
+        if (m.grp) r.sizes[m.grp] = 1;
+      });
+    }
+  });
+  return {byC: byC, byR: byR};
+}
+function renderMap() {
+  const f = filters.map || (filters.map = {});
+  const agg = mapAggregate();
+  document.getElementById('mapFilters').innerHTML =
+    '<select id="mMode"><option value="model">버블 크기 = 모델 수</option>' +
+      '<option value="buyer"' + (f.mode === 'buyer' ? ' selected' : '') + '>버블 크기 = 바이어 수</option>' +
+      '<option value="size"' + (f.mode === 'size' ? ' selected' : '') + '>버블 크기 = 취급 규격 수</option></select>' +
+    '<select id="mRgn"><option value="">지역 전체</option>' +
+      REGIONS.map(r => '<option value="' + r.k + '"' + (f.rgn === r.k ? ' selected' : '') + '>' + h(r.n) + '</option>').join('') + '</select>' +
+    '<label class="chip"><input type="checkbox" id="mOwn"' + (f.ownOnly ? ' checked' : '') + '> 자사만</label>' +
+    '<label class="chip"><input type="checkbox" id="mNoRgn"' + (f.hideRegion ? ' checked' : '') + '> 지역 버블 숨기기</label>';
+  bindFilter('mMode', () => { f.mode = document.getElementById('mMode').value; renderMap(); });
+  bindFilter('mRgn', () => { f.rgn = document.getElementById('mRgn').value; renderMap(); });
+  bindFilter('mOwn', () => { f.ownOnly = document.getElementById('mOwn').checked; renderMap(); });
+  bindFilter('mNoRgn', () => { f.hideRegion = document.getElementById('mNoRgn').checked; renderMap(); });
+
+  const val = d => f.mode === 'buyer' ? (d.buyers || 0)
+    : f.mode === 'size' ? Object.keys(d.sizes).length
+    : (f.ownOnly ? d.own : d.n);
+  const pts = [];
+  Object.keys(agg.byC).forEach(name => {
+    const d = agg.byC[name], w = WORLD[name];
+    if (f.rgn && w[2] !== f.rgn) return;
+    if (f.ownOnly && !d.own) return;
+    if (val(d) <= 0) return;
+    pts.push({name: name, kind: 'country', v: val(d), d: d, xy: proj(w[0], w[1]), rg: w[2]});
+  });
+  if (!f.hideRegion) Object.keys(agg.byR).forEach(rk => {
+    const d = agg.byR[rk];
+    if (f.rgn && rk !== f.rgn) return;
+    if (f.ownOnly && !d.own) return;
+    if (val(d) <= 0) return;
+    const c = REGION_CENTER[rk];
+    pts.push({name: RGN_MAP[rk] || rk, kind: 'region', v: val(d), d: d, xy: proj(c[0], c[1]), rg: rk});
+  });
+  const max = Math.max.apply(null, pts.map(p => p.v).concat([1]));
+  const radius = v => 3.5 + Math.sqrt(v / max) * 17;
+  pts.sort((a, b) => b.v - a.v);
+
+  let grid = '';
+  for (let lon = -180; lon <= 180; lon += 30) {
+    const x = proj(0, lon)[0];
+    grid += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="' + MAP_H + '"/>';
+  }
+  for (let lat = -60; lat <= 60; lat += 30) {
+    const y = proj(lat, 0)[1];
+    grid += '<line x1="0" y1="' + y + '" x2="' + MAP_W + '" y2="' + y + '"/>';
+  }
+  const land = LAND.map(poly => '<path d="M' + poly.map(pt => {
+    const xy = proj(pt[0], pt[1]);
+    return xy[0].toFixed(1) + ' ' + xy[1].toFixed(1);
+  }).join('L') + 'Z"/>').join('');
+  const bubbles = pts.map(p =>
+    '<g class="mb" onclick="' + (p.kind === 'country' ? 'drillCountry(' : 'drillRegion(') +
+      "'" + h(p.name).replace(/'/g, "\\'") + (p.kind === 'country' ? "'" : "'") + ')" style="cursor:pointer">' +
+    '<title>' + h(p.name) + ' — ' + p.v + (f.mode === 'buyer' ? '개 바이어' : f.mode === 'size' ? '개 규격' : '개 모델') +
+      (p.kind === 'region' ? ' (지역 단위)' : '') + '</title>' +
+    '<circle cx="' + p.xy[0].toFixed(1) + '" cy="' + p.xy[1].toFixed(1) + '" r="' + radius(p.v).toFixed(1) + '" ' +
+      'fill="' + (RG_COLOR[p.rg] || '#667487') + '" fill-opacity="' + (p.kind === 'region' ? .18 : .42) + '" ' +
+      'stroke="' + (RG_COLOR[p.rg] || '#667487') + '" stroke-width="' + (p.kind === 'region' ? 2 : 1.2) + '" ' +
+      (p.kind === 'region' ? 'stroke-dasharray="4 3" ' : '') + '/></g>').join('');
+  // 라벨은 큰 버블부터 놓되, 이미 놓인 것과 겹치면 건너뛴다.
+  const placed = [], labelParts = [];
+  pts.forEach(p => {
+    if (labelParts.length >= 22) return;
+    const x = p.xy[0], y = p.xy[1] - radius(p.v) - 4;
+    const w = p.name.length * 7 + 6;
+    if (placed.some(q => Math.abs(q.x - x) < (q.w + w) / 2 && Math.abs(q.y - y) < 13)) return;
+    placed.push({x: x, y: y, w: w});
+    labelParts.push('<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" ' +
+      'font-size="11" font-weight="600" fill="#1b2735" stroke="#f7fafd" stroke-width="3" ' +
+      'paint-order="stroke">' + h(p.name) + '</text>');
+  });
+  const labels = labelParts.join('');
+  document.getElementById('mapWrap').innerHTML =
+    '<svg viewBox="0 0 ' + MAP_W + ' ' + MAP_H + '" style="width:100%;min-width:640px;height:auto;background:#f7fafd;border-radius:10px">' +
+    '<g fill="#e3eaf2" stroke="#cfdae6" stroke-width="1" stroke-linejoin="round">' + land + '</g>' +
+    '<g stroke="#dfe5ec" stroke-width="1" opacity=".7">' + grid + '</g>' + bubbles + labels + '</svg>';
+  document.getElementById('mapLegend').innerHTML =
+    '점 ' + pts.length + '개 · 실선 버블은 <b>나라 단위</b>(바이어 DB 임포트), 점선 버블은 <b>지역 단위</b>(국가 정보가 없는 시드 데이터)다. ' +
+    '버블 크기는 ' + (f.mode === 'buyer' ? '바이어 수' : f.mode === 'size' ? '취급 규격 수' : '모델 수') + '. ' +
+    '대륙 윤곽은 위치를 읽기 위한 간이 표시라 국경·해안선이 정확하지 않다. ' +
+    REGIONS.filter(r => pts.some(p => p.rg === r.k)).map(r =>
+      '<span class="dot" style="background:' + (RG_COLOR[r.k] || '#667487') + '"></span>' + h(r.n)).join(' &nbsp;');
+
+  table('tbCtry', [
+    {k: 'name', t: '국가 / 지역', lead: true,
+     r: r => '<a href="javascript:void(0)" onclick="' + (r.kind === 'country' ? 'drillCountry' : 'drillRegion') +
+       "('" + h(r.name).replace(/'/g, "\\'") + "')" + '">' + h(r.name) + ' →</a>' +
+       (r.kind === 'region' ? ' <span class="tag t-std">지역</span>' : '')},
+    {k: 'rgName', t: '지역', sv: r => r.rg, r: r => h(RGN_MAP[r.rg] || r.rg)},
+    {k: 'v', t: '모델', num: true, sv: r => r.d.n, r: r => r.d.n},
+    {k: 'own', t: '자사', num: true, sv: r => r.d.own, r: r => r.d.own},
+    {k: 'buyers', t: '바이어', num: true, sv: r => r.d.buyers || 0,
+     r: r => r.d.buyers ? r.d.buyers : '<span class="muted">-</span>'},
+    {k: 'nsize', t: '규격', num: true, sv: r => Object.keys(r.d.sizes).length,
+     r: r => Object.keys(r.d.sizes).length}
+  ], pts.slice(0, 20), {sortKey: 'ctry', defSort: 'v'});
+  const byRgn = {};
+  pts.forEach(p => byRgn[p.rg] = (byRgn[p.rg] || 0) + p.d.n);
+  barChart('chMapRgn', REGIONS.filter(r => byRgn[r.k])
+    .map(r => ({l: r.n, v: byRgn[r.k], c: RG_COLOR[r.k]})).sort((a, b) => b.v - a.v));
+}
+function drillCountry(name) {
+  filters.cat = {ctry: name};
+  catLimit = 60;
+  go('cat');
+}
+
 /* --- 판매지역 ----------------------------------------------------------- */
 function renderRgn() {
   const ms = allModels();
@@ -2522,7 +2811,7 @@ function parseCSV(text) {
   return rows.filter(r => r.some(c => String(c).trim() !== ''));
 }
 const CSV_COLS = ['구분','제조사','브랜드','모델','규격그룹','규격체계','기술','용도','전압','C20용량','RC분',
-  'CCA_SAE','CCA_EN','판매지역','유통사','고객품번','표기_C20','표기_RC','표기_CCA_SAE','표기_CCA_EN','스펙판정',
+  'CCA_SAE','CCA_EN','국가','판매지역','유통사','바이어수','고객품번','표기_C20','표기_RC','표기_CCA_SAE','표기_CCA_EN','스펙판정',
   '오더23','오더24','오더25','판매25','판매26','검증상태','근거문서','근거페이지','출처','비고'];
 const TECH_ALIAS = {'일반액식':'FLD','액식':'FLD','FLOODED':'FLD','FLD':'FLD','EFB':'EFB','AGM':'AGM','AGM나선형':'AGM나선형'};
 function makerKeyByName(name) {
@@ -2545,13 +2834,18 @@ function importCSV(text, mode) {
     if (!MK_MAP[key] && !newMk[key]) newMk[key] = {k: key, n: mkName, c: '', t: 'M', rg: [], br: get(r, '브랜드'), site: '', st: '수집완료', ed: 'CSV 임포트'};
     const en = num(get(r, 'CCA_EN')), sae = num(get(r, 'CCA_SAE'));
     const rgn = get(r, '판매지역');
+    const ctry = get(r, '국가');
+    // 지역은 한글명·지역키 둘 다 들어올 수 있고, 국가가 있으면 국가에서 끌어온다.
+    let rgKey = REGION_ALIAS[rgn] || (RGN_MAP[rgn] ? rgn : '');
+    if (!rgKey && ctry && WORLD[ctry]) rgKey = WORLD[ctry][2];
     const o = {
       mk: key, br: get(r, '브랜드'), mdl: get(r, '모델'), grp: get(r, '규격그룹'),
       sys: get(r, '규격체계'), tech: TECH_ALIAS[get(r, '기술')] || get(r, '기술') || 'FLD',
       app: get(r, '용도') || '승용SLI', v: num(get(r, '전압')) || 12,
       ah: num(get(r, 'C20용량')), rc: num(get(r, 'RC분')),
       cca: en != null ? en : sae, cs: en != null ? 'EN' : 'SAE',
-      rg: rgn ? [REGION_ALIAS[rgn] || rgn] : [], dist: get(r, '유통사'), cpn: get(r, '고객품번'),
+      rg: rgKey ? [rgKey] : [], ctry: ctry, nbuyer: num(get(r, '바이어수')) || 0,
+      dist: get(r, '유통사'), cpn: get(r, '고객품번'),
       ver: get(r, '검증상태') === '사내설계치' ? 'own' : (get(r, '검증상태') || 'own'),
       doc: get(r, '근거문서'), pg: get(r, '근거페이지'),
       note: [get(r, '출처'), get(r, '비고')].filter(Boolean).join(' / '),
@@ -2567,7 +2861,8 @@ function importCSV(text, mode) {
   });
   Object.keys(newMk).forEach(k => { store.addedMakers.push(newMk[k]); MK_MAP[k] = newMk[k]; });
   store.imported = mode === 'replace' ? out : store.imported.concat(out);
-  save(); invalidate();
+  invalidate();
+  saveImported();
   return {n: out.length, mk: Object.keys(newMk).length};
 }
 /* 카달로그 원본(PDF) 근거 레지스트리 — fetch_catalogs.py 가 뽑아주는 CSV */
@@ -2783,7 +3078,7 @@ function exportCSV(all) {
     const e = m.ext || {};
     return [m.own ? '자사' : '타사', m.mkName, m.br, m.mdl, m.grp, m.sys, m.tech, m.app, m.v, m.ah, m.rc,
       m.cs === 'SAE' ? m.cca : m.ccaSAE, m.cs === 'EN' ? m.cca : m.ccaEN,
-      (m.rg || []).map(x => RGN_MAP[x] || x).join(';'), m.dist, m.cpn,
+      m.ctry || '', (m.rg || []).map(x => RGN_MAP[x] || x).join(';'), m.dist, m.nbuyer || '', m.cpn,
       e.mc20, e.mrc, e.msae, e.men, e.judge, e.o23, e.o24, e.o25, e.s25, e.s26,
       m.ver, m.doc, m.pg, m.note, m.score];
   });
@@ -2798,7 +3093,9 @@ function exportJSON() {
 function resetAll() {
   if (!confirm('직접 입력·수정한 내용과 임포트한 사내 데이터가 모두 지워지고 시드 상태로 돌아간다. 계속?')) return;
   localStorage.removeItem(LS_KEY);
-  store = load(); invalidate(); render();
+  idbClear().catch(function () {}).then(function () {
+    store = load(); invalidate(); render();
+  });
 }
 
 /* --- 데이터 관리 -------------------------------------------------------- */
@@ -2859,16 +3156,21 @@ function renderData() {
 }
 function dropImported() {
   if (!confirm('임포트한 사내 데이터를 모두 지운다. 계속?')) return;
-  store.imported = []; save(); invalidate(); render();
+  store.imported = [];
+  invalidate();
+  idbClear().catch(function () {}).then(function () { save(); render(); });
 }
 function renderStoreInfo() {
   let size = 0;
   try { size = (localStorage.getItem(LS_KEY) || '').length; } catch (e) {}
-  const txt = '저장 용량 ' + (size / 1024).toFixed(0) + ' KB · 임포트 ' + store.imported.length + '행';
+  const txt = '설정 ' + (size / 1024).toFixed(0) + ' KB · 임포트 ' +
+    store.imported.length.toLocaleString() + '행' + (idbFailed ? ' (로컬저장)' : '');
   const a = document.getElementById('storeInfo'); if (a) a.textContent = txt;
   const b = document.getElementById('storeStat');
-  if (b) b.innerHTML = '<dl class="kv">' + kv('브라우저 저장 용량', (size / 1024).toFixed(1) + ' KB') +
-    kv('임포트 행', store.imported.length) + kv('직접 추가한 모델', store.added.length) +
+  if (b) b.innerHTML = '<dl class="kv">' + kv('설정·수정 저장(localStorage)', (size / 1024).toFixed(1) + ' KB') +
+    kv('임포트 행', store.imported.length.toLocaleString() +
+       (idbFailed ? ' <span class="tag t-warn">localStorage</span>'
+                  : ' <span class="tag t-ok">IndexedDB</span>')) + kv('직접 추가한 모델', store.added.length) +
     kv('수정한 모델', Object.keys(store.edits).length) + kv('추가한 차종', store.fitAdded.length) +
     kv('시드 버전', store.v + ' / 현재 ' + SEED_VERSION) + '</dl>';
 }
@@ -2880,6 +3182,7 @@ function render() {
   else if (view === 'fit') renderFit();
   else if (view === 'cmp') renderCmp();
   else if (view === 'xref') renderXref();
+  else if (view === 'map') renderMap();
   else if (view === 'rgn') renderRgn();
   else if (view === 'bm') renderBm();
   else if (view === 'src') renderSrc();
@@ -2954,13 +3257,25 @@ document.getElementById('fileJson').onchange = ev => {
       if (!o || typeof o !== 'object') throw new Error('형식 오류');
       store = Object.assign({}, DEFAULTS, o);
       store.settings = Object.assign({}, DEFAULTS.settings, o.settings || {});
-      save(); invalidate(); render(); alert('복원했다.');
+      invalidate();
+      saveImported().then(function () { render(); alert('복원했다.'); });
     } catch (e) { alert('복원 실패: ' + e.message); }
   };
   rd.readAsText(f, 'utf-8');
 };
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 render();
+// 임포트 행은 IndexedDB 에 있다.  먼저 시드로 그려두고, 읽히면 다시 그린다.
+idbGet().then(rows => {
+  if (rows && rows.length && !store.imported.length) {
+    store.imported = rows;
+    invalidate();
+    render();
+  }
+}).catch(e => {
+  idbFailed = true;
+  console.warn('IndexedDB 를 쓸 수 없다. localStorage 로 동작한다:', e && e.message);
+});
 </script>
 </body>
 </html>
