@@ -1,0 +1,22 @@
+유통사키,유통사,국가,지역,사이트,제품목록URL,브랜드페이지패턴,취급 브랜드,확인,비고
+tayna,Tayna Batteries,영국,EU,https://www.tayna.co.uk,https://www.tayna.co.uk/car-batteries/,https://www.tayna.co.uk/car-batteries/{brand}/,Varta|Bosch|Yuasa|Exide|Numax|Lucas|Powerline|Odyssey|MK|Sonnenschein|Westco,검색확인,브랜드별 목록 URL 이 규칙적이라 통째로 긁기 좋다
+lion_au,Lion Batteries,호주,OCE,https://www.lionbatteries.com.au,https://www.lionbatteries.com.au/product-category/,,Lion|FIAMM|Hoppecke,검색확인,자체 브랜드 + 유럽 브랜드 유통
+cyb_au,Century Yuasa Batteries,호주,OCE,https://www.cyb.com.au,https://www.cyb.com.au/divisions/automotive,,Century|GS Yuasa|Besco|Maxx Yuasa|Katana|Enersun|Intelepower|Optima,검색확인,호주 최대 유통 — 한 곳에서 8개 브랜드
+yuasa_au,Yuasa Batteries Australia,호주,OCE,https://www.yuasabatteries.com.au,https://www.yuasabatteries.com.au/products,,Yuasa,검색확인,Century Yuasa 계열
+stahlgruber,LKQ STAHLGRUBER,독일,EU,https://www.stahlgruber.de,https://kunden.stahlgruber.de/Kataloge/elektrik/index.php?sb=11875,,다브랜드(PKW 배터리 카탈로그),검색확인,LKQ DACH 소속 — 온라인 카탈로그 직링크
+lkq_eu,LKQ Europe,유럽,EU,https://lkqeurope.com,https://lkqeurope.com/businesses/dach,,다브랜드,검색확인,STAHLGRUBER·PV AUTOMOTIVE·NEIMCKE·RHIAG 보유
+aldobowi,Al Dobowi Group,UAE,MEA,https://aldobowi.ae,https://aldobowi.ae/our-presence/middle-east/,,타이어·배터리 다브랜드,검색확인,UAE 7개 에미리트 + 동아프리카·CIS·아프가니스탄
+amap,Al Muqarram Auto Spare Parts (A-MAP),UAE,MEA,,,,한국계 배터리,검색확인,중동·아프리카 재수출 허브
+napa,NAPA (Genuine Parts),미국,NA,https://www.napaonline.com,https://www.napaonline.com/en/c/batteries,,NAPA Legend|다브랜드,미확인,북미 최대 부품 유통
+interstate,Interstate Batteries,미국,NA,https://www.interstatebatteries.com,https://www.interstatebatteries.com/products/car-batteries,,Interstate,미확인,자체 브랜드 + 위탁생산
+oreilly,O'Reilly Auto Parts,미국,NA,https://www.oreillyauto.com,https://www.oreillyauto.com/shop/b/batteries---starting---charging,,Super Start|다브랜드,미확인,
+autozone,AutoZone,미국,NA,https://www.autozone.com,https://www.autozone.com/batteries-starting-and-charging/battery,,Duralast|Optima|Odyssey,미확인,PB Duralast
+advance,Advance Auto Parts,미국,NA,https://shop.advanceautoparts.com,https://shop.advanceautoparts.com/c/batteries,,DieHard|다브랜드,미확인,DieHard 보유
+banner_at,Banner GmbH,오스트리아,EU,https://www.bannerbatterien.com,https://www.bannerbatterien.com/en/products,,Banner,미확인,제조사 겸 유통
+accusudest,Accumulateurs du Sud-Est,프랑스,EU,,,,다브랜드,미확인,프랑스 지역 유통 — 사이트 확인 필요
+natsis,Natsis Apostolos,그리스,EU,,,,다브랜드,미확인,그리스 유통 — 사이트 확인 필요
+kannas,Andreas I Kannas & Sons,키프로스,EU,,,,다브랜드,미확인,키프로스 유통 — 사이트 확인 필요
+batteryzone_au,Battery Zone,호주,OCE,https://batteryzone.com.au,https://batteryzone.com.au/lion-batteries/,,Lion|다브랜드,검색확인,호주 온라인 판매
+mdsbattery,MDS Battery,영국,EU,https://www.mdsbattery.co.uk,https://www.mdsbattery.co.uk/car-batteries,,다브랜드,검색확인,규격 해설 자료가 좋다
+batterybrands_au,Battery Brands Warehouse,호주,OCE,https://batterybrands.com.au,https://batterybrands.com.au/collections/century,,Century|AC Delco|다브랜드,검색확인,브랜드별 컬렉션 URL
+supercharge_au,SuperCharge Batteries,호주,OCE,https://www.supercharge.com.au,https://www.supercharge.com.au,,SuperCharge,검색확인,158쪽 피트먼트 가이드 보유

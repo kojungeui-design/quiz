@@ -19,6 +19,6 @@ const code = html.slice(start, end).replace(/^const /gm, 'var ');
 eval(code);
 
 fs.writeFileSync(out, JSON.stringify(
-  {SPECS, MAKERS, BRAND_MARKETS, MODELS, FITMENT, REGIONS, TECHS, APPS, SEED_VERSION}, null, 1));
+  {SPECS, MAKERS, BRAND_MARKETS, DISTRIBUTORS, MODELS, FITMENT, REGIONS, TECHS, APPS, SEED_VERSION}, null, 1));
 console.log('모델 %d · 규격 %d · 제조사 %d · 브랜드마켓 %d · 차종 %d → %s',
   MODELS.length, SPECS.length, MAKERS.length, BRAND_MARKETS.length, FITMENT.length, out);

@@ -100,6 +100,8 @@ def build(seed, out):
         ('브랜드마켓', '같은 브랜드가 나라마다 다른 시리즈를 판다(Bosch 유럽 S3~S6 vs 북미 BCI vs 인도 S4+/T4/M6). '
                    '그 단위로 실제 카탈로그 주소와 수집상태를 관리한다.'),
         ('제조사', '제조사·유통사 %d곳과 카달로그 수집 현황.' % len(makers)),
+        ('유통사', '유통사가 같이 취급하는 브랜드. 한 진열대에 오르는 브랜드가 그 나라 경쟁 상대다. '
+               'tools/collect.py --brands 로 사이트를 훑어 자동으로 채운다.'),
         ('차량적합성', '차종이 요구하는 규격·용량·CCA·기술과, 그 요구를 만족하는 모델 수.'),
         ('지역커버리지', '판매지역 × 기술 매트릭스 + 지역별 취급 제조사·커버 규격수. 라인업 공백을 보는 표.'),
         ('크로스레퍼런스', '같은 규격에서 자사 최고 스펙과 타사 최고 스펙의 격차.'),
@@ -280,6 +282,31 @@ def build(seed, out):
             c = bw.cell(row=i, column=8, value='=COUNTIF(%s,$A%d)' % (rng('AP'), i))
             c.font = BODY; c.border = BOX; c.number_format = '#,##0'
         bw.auto_filter.ref = 'A1:M%d' % (len(bms) + 1)
+
+    # ── 유통사 ────────────────────────────────────────────────────────────
+    # 바이어(유통사)는 우리 것만 팔지 않는다.  한 진열대에 같이 오르는 브랜드가
+    # 그 나라 경쟁 구도라, 유통사를 경쟁 브랜드 발굴 경로로 쓴다.
+    dists = S.get('DISTRIBUTORS', [])
+    if dists:
+        d_cols = [('유통사키', 14, None, False), ('유통사', 30, None, False),
+                  ('국가', 12, None, False), ('지역', 12, None, False),
+                  ('취급 브랜드 수', 12, '#,##0', False), ('취급 브랜드', 60, None, False),
+                  ('사이트', 34, None, True), ('제품목록 URL', 42, None, True),
+                  ('브랜드 URL 패턴', 40, None, True), ('확인', 10, None, False),
+                  ('비고', 34, None, False)]
+        dw = wb.create_sheet('유통사')
+        head(dw, d_cols)
+        for i, d in enumerate(dists, 2):
+            brands = [b.strip() for b in (d.get('br') or '').split('|')
+                      if b.strip() and '다브랜드' not in b and '배터리' not in b]
+            write_rows(dw, d_cols, [[
+                d.get('k', ''), d.get('n', ''), d.get('c', ''),
+                rgn_name.get(d.get('rg'), d.get('rg', '')), len(brands),
+                ', '.join(brands) or (d.get('br') or ''), d.get('site', ''),
+                d.get('list', ''), d.get('pat', ''),
+                '확인됨' if d.get('chk') == '검색확인' else '미조사', d.get('note', '')
+            ]], i)
+        dw.auto_filter.ref = 'A1:K%d' % (len(dists) + 1)
 
     # ── 차량적합성 ────────────────────────────────────────────────────────
     ft_cols = [

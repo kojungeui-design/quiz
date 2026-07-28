@@ -168,6 +168,7 @@
       <button class="navbtn" data-v="map">🗺️ 세계지도</button>
       <button class="navbtn" data-v="rgn">🌍 판매지역</button>
       <button class="navbtn" data-v="bm">🌐 브랜드·마켓 <span class="cnt" id="cntBm"></span></button>
+      <button class="navbtn" data-v="dist">🚚 유통사·경쟁브랜드 <span class="cnt" id="cntDist"></span></button>
       <button class="navbtn" data-v="src">🏭 제조사·수집관리 <span class="cnt" id="cntSrc"></span></button>
       <button class="navbtn" data-v="data">💾 데이터 관리</button>
     </nav>
@@ -321,6 +322,24 @@
         <div class="tw"><table id="tbBm"></table></div>
         <p class="legend">소스 수는 <code>data/catalog_sources.csv</code> 에 등록된 URL 개수다.
           <code>tools/collect.py</code> 가 이 목록을 돌면서 PDF·제품목록·사이트맵·URL패턴을 훑는다.</p>
+      </section>
+
+      <!-- 유통사 · 경쟁브랜드 -->
+      <section class="view" id="v-dist">
+        <div class="sh">
+          <div><h2>유통사 · 경쟁브랜드</h2><p>유통사 한 곳이 무슨 브랜드를 같이 취급하는지가 그 나라 경쟁 구도다.</p></div>
+        </div>
+        <div class="banner info">
+          <b>바이어는 우리 것만 팔지 않는다.</b> 같은 유통사 진열대에 올라와 있는 브랜드가 곧 그 시장에서 우리와 붙는 상대다.
+          예를 들어 호주 Century Yuasa 한 곳이 Century·GS Yuasa·Besco·Maxx Yuasa·Katana·Enersun·Intelepower·Optima 를 같이 굴린다.
+          <br><code>tools/collect.py --brands</code> 가 이 목록의 사이트를 훑어 취급 브랜드를 자동으로 찾아낸다.
+        </div>
+        <div class="grid g2">
+          <div class="card"><h3>브랜드별 노출 <span class="sub">몇 개 유통사에서 보이는가</span></h3><div id="chBrandExp"></div></div>
+          <div class="card"><h3>지역별 유통사 수</h3><div id="chDistRgn"></div></div>
+        </div>
+        <div class="filters" id="distFilters"></div>
+        <div class="tw"><table id="tbDist"></table></div>
       </section>
 
       <!-- 제조사·수집관리 -->
@@ -600,12 +619,48 @@ const MAKERS = [
   {k:'gsastra',   n:'GS Astra (Astra Otoparts)',c:'인도네시아', t:'M', rg:['SEA'],       br:'GS, Incoe', site:'https://www.astra-otoparts.com', st:'미수집', ed:''},
   {k:'tatagreen', n:'Tata Green Batteries',     c:'인도',   t:'M', rg:['IN'],            br:'Tata Green', site:'https://www.tatagreenbattery.com', st:'미수집', ed:''},
   {k:'wanli',     n:'Wanli (万里)',              c:'중국',   t:'M', rg:['CN','SEA'],      br:'Wanli', site:'', st:'미수집', ed:''},
+  {k:'lion',      n:'Lion Batteries',            c:'호주',   t:'M', rg:['OCE'],      br:'Lion', site:'https://www.lionbatteries.com.au', st:'미수집', ed:''},
+  {k:'manbat',    n:'Manbat',                    c:'영국',   t:'D', rg:['EU'],       br:'Numax', site:'https://www.manbat.co.uk', st:'미수집', ed:''},
+  {k:'napa',      n:'NAPA (Genuine Parts)',      c:'미국',   t:'D', rg:['NA'],       br:'NAPA Legend', site:'https://www.napaonline.com', st:'미수집', ed:''},
+  {k:'oreilly',   n:"O'Reilly Auto Parts",       c:'미국',   t:'D', rg:['NA'],       br:'Super Start', site:'https://www.oreillyauto.com', st:'미수집', ed:''},
+  {k:'advance',   n:'Advance Auto Parts',        c:'미국',   t:'D', rg:['NA'],       br:'DieHard', site:'https://shop.advanceautoparts.com', st:'미수집', ed:''},
+  {k:'tayna',     n:'Tayna Batteries',           c:'영국',   t:'D', rg:['EU'],       br:'Powerline (PB), 다브랜드', site:'https://www.tayna.co.uk', st:'미수집', ed:''},
+  {k:'lkq',       n:'LKQ Europe (STAHLGRUBER 외)', c:'유럽', t:'D', rg:['EU'],       br:'다브랜드', site:'https://lkqeurope.com', st:'미수집', ed:''},
+  {k:'aldobowi',  n:'Al Dobowi Group',           c:'UAE',   t:'D', rg:['MEA'],      br:'다브랜드', site:'https://aldobowi.ae', st:'미수집', ed:''},
   /* 유통사 */
   {k:'interstate',n:'Interstate Batteries',  c:'미국',   t:'D', rg:['NA'],            br:'Interstate (OEM 조달)', site:'https://www.interstatebatteries.com', st:'미수집', ed:''},
   {k:'ecobat',   n:'Ecobat Battery',         c:'미국/유럽', t:'D', rg:['NA','EU'],    br:'다브랜드 유통', site:'https://www.ecobat.com', st:'미수집', ed:''},
   {k:'hella',    n:'HELLA',                 c:'독일',   t:'D', rg:['SEA','CN','EU'], br:'HELLA SLI 유통', site:'https://www.hella.com', st:'미수집', ed:''},
   {k:'jpretail', n:'일본 카용품 리테일 체인',  c:'일본',   t:'D', rg:['JP'],            br:'PB 배터리 (OEM 조달)', site:'', st:'미수집', ed:''},
   {k:'jpwhole',  n:'일본 애프터마켓 도매',     c:'일본',   t:'D', rg:['JP'],            br:'도매 유통 채널', site:'', st:'미수집', ed:''}
+];
+
+/* --- 유통사 -------------------------------------------------------------
+   바이어(유통사)는 우리 것만 팔지 않는다.  한 유통사가 무슨 브랜드를 같이
+   취급하는지가 그 나라 경쟁 구도라, 유통사를 경쟁 브랜드 발굴 경로로 쓴다.
+   tools/collect.py --brands 가 이 목록을 훑어 취급 브랜드를 찾아낸다. */
+const DISTRIBUTORS = [
+  {k:"tayna",n:"Tayna Batteries",c:"영국",rg:"EU",site:"https://www.tayna.co.uk",list:"https://www.tayna.co.uk/car-batteries/",pat:"https://www.tayna.co.uk/car-batteries/{brand}/",br:"Varta|Bosch|Yuasa|Exide|Numax|Lucas|Powerline|Odyssey|MK|Sonnenschein|Westco",chk:"검색확인",note:"브랜드별 목록 URL 이 규칙적이라 통째로 긁기 좋다"},
+  {k:"lion_au",n:"Lion Batteries",c:"호주",rg:"OCE",site:"https://www.lionbatteries.com.au",list:"https://www.lionbatteries.com.au/product-category/",pat:"",br:"Lion|FIAMM|Hoppecke",chk:"검색확인",note:"자체 브랜드 + 유럽 브랜드 유통"},
+  {k:"cyb_au",n:"Century Yuasa Batteries",c:"호주",rg:"OCE",site:"https://www.cyb.com.au",list:"https://www.cyb.com.au/divisions/automotive",pat:"",br:"Century|GS Yuasa|Besco|Maxx Yuasa|Katana|Enersun|Intelepower|Optima",chk:"검색확인",note:"호주 최대 유통 — 한 곳에서 8개 브랜드"},
+  {k:"yuasa_au",n:"Yuasa Batteries Australia",c:"호주",rg:"OCE",site:"https://www.yuasabatteries.com.au",list:"https://www.yuasabatteries.com.au/products",pat:"",br:"Yuasa",chk:"검색확인",note:"Century Yuasa 계열"},
+  {k:"stahlgruber",n:"LKQ STAHLGRUBER",c:"독일",rg:"EU",site:"https://www.stahlgruber.de",list:"https://kunden.stahlgruber.de/Kataloge/elektrik/index.php?sb=11875",pat:"",br:"다브랜드(PKW 배터리 카탈로그)",chk:"검색확인",note:"LKQ DACH 소속 — 온라인 카탈로그 직링크"},
+  {k:"lkq_eu",n:"LKQ Europe",c:"유럽",rg:"EU",site:"https://lkqeurope.com",list:"https://lkqeurope.com/businesses/dach",pat:"",br:"다브랜드",chk:"검색확인",note:"STAHLGRUBER·PV AUTOMOTIVE·NEIMCKE·RHIAG 보유"},
+  {k:"aldobowi",n:"Al Dobowi Group",c:"UAE",rg:"MEA",site:"https://aldobowi.ae",list:"https://aldobowi.ae/our-presence/middle-east/",pat:"",br:"타이어·배터리 다브랜드",chk:"검색확인",note:"UAE 7개 에미리트 + 동아프리카·CIS·아프가니스탄"},
+  {k:"amap",n:"Al Muqarram Auto Spare Parts (A-MAP)",c:"UAE",rg:"MEA",site:"",list:"",pat:"",br:"한국계 배터리",chk:"검색확인",note:"중동·아프리카 재수출 허브"},
+  {k:"napa",n:"NAPA (Genuine Parts)",c:"미국",rg:"NA",site:"https://www.napaonline.com",list:"https://www.napaonline.com/en/c/batteries",pat:"",br:"NAPA Legend|다브랜드",chk:"미확인",note:"북미 최대 부품 유통"},
+  {k:"interstate",n:"Interstate Batteries",c:"미국",rg:"NA",site:"https://www.interstatebatteries.com",list:"https://www.interstatebatteries.com/products/car-batteries",pat:"",br:"Interstate",chk:"미확인",note:"자체 브랜드 + 위탁생산"},
+  {k:"oreilly",n:"O'Reilly Auto Parts",c:"미국",rg:"NA",site:"https://www.oreillyauto.com",list:"https://www.oreillyauto.com/shop/b/batteries---starting---charging",pat:"",br:"Super Start|다브랜드",chk:"미확인",note:""},
+  {k:"autozone",n:"AutoZone",c:"미국",rg:"NA",site:"https://www.autozone.com",list:"https://www.autozone.com/batteries-starting-and-charging/battery",pat:"",br:"Duralast|Optima|Odyssey",chk:"미확인",note:"PB Duralast"},
+  {k:"advance",n:"Advance Auto Parts",c:"미국",rg:"NA",site:"https://shop.advanceautoparts.com",list:"https://shop.advanceautoparts.com/c/batteries",pat:"",br:"DieHard|다브랜드",chk:"미확인",note:"DieHard 보유"},
+  {k:"banner_at",n:"Banner GmbH",c:"오스트리아",rg:"EU",site:"https://www.bannerbatterien.com",list:"https://www.bannerbatterien.com/en/products",pat:"",br:"Banner",chk:"미확인",note:"제조사 겸 유통"},
+  {k:"accusudest",n:"Accumulateurs du Sud-Est",c:"프랑스",rg:"EU",site:"",list:"",pat:"",br:"다브랜드",chk:"미확인",note:"프랑스 지역 유통 — 사이트 확인 필요"},
+  {k:"natsis",n:"Natsis Apostolos",c:"그리스",rg:"EU",site:"",list:"",pat:"",br:"다브랜드",chk:"미확인",note:"그리스 유통 — 사이트 확인 필요"},
+  {k:"kannas",n:"Andreas I Kannas & Sons",c:"키프로스",rg:"EU",site:"",list:"",pat:"",br:"다브랜드",chk:"미확인",note:"키프로스 유통 — 사이트 확인 필요"},
+  {k:"batteryzone_au",n:"Battery Zone",c:"호주",rg:"OCE",site:"https://batteryzone.com.au",list:"https://batteryzone.com.au/lion-batteries/",pat:"",br:"Lion|다브랜드",chk:"검색확인",note:"호주 온라인 판매"},
+  {k:"mdsbattery",n:"MDS Battery",c:"영국",rg:"EU",site:"https://www.mdsbattery.co.uk",list:"https://www.mdsbattery.co.uk/car-batteries",pat:"",br:"다브랜드",chk:"검색확인",note:"규격 해설 자료가 좋다"},
+  {k:"batterybrands_au",n:"Battery Brands Warehouse",c:"호주",rg:"OCE",site:"https://batterybrands.com.au",list:"https://batterybrands.com.au/collections/century",pat:"",br:"Century|AC Delco|다브랜드",chk:"검색확인",note:"브랜드별 컬렉션 URL"},
+  {k:"supercharge_au",n:"SuperCharge Batteries",c:"호주",rg:"OCE",site:"https://www.supercharge.com.au",list:"https://www.supercharge.com.au",pat:"",br:"SuperCharge",chk:"검색확인",note:"158쪽 피트먼트 가이드 보유"},
 ];
 
 /* --- 브랜드 × 마켓 ------------------------------------------------------
@@ -671,6 +726,16 @@ const BRAND_MARKETS = [
   {k:'pinaco_sea',br:'PINACO',mk:'pinaco',rg:'SEA',ctry:'베트남',std:'JIS',series:'Đồng Nai MF',cat:'https://en.pinaco.com/products',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
   {k:'supercharge_oce',br:'SuperCharge',mk:'supercharge',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Gold Plus, Allrounder AGM, EFB',cat:'https://www.supercharge.com.au/wp-content/uploads/2020/09/2019-Battery-Fitment-Guide-158ppCover-page-A4-lo.res_..pdf',fit:'',st:'확인됨',nsrc:1,catKind:'pdf',catChk:'검색확인'},
   {k:'rahim_in',br:'Lucas / Spark',mk:'rahim',rg:'IN',ctry:'방글라데시',std:'DIN/EN + JIS',series:'Lucas DIN, Spark N 시리즈',cat:'http://www.rahimafrooz-batteries.com/wp-content/uploads/2018/01/Automotive-DIN.pdf',fit:'',st:'확인됨',nsrc:2,catKind:'pdf',catChk:'검색확인'},
+  {k:'besco_oce',br:'Besco',mk:'centuryy',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Besco (Century Yuasa 취급)',cat:'https://www.cyb.com.au/divisions/automotive',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'katana_oce',br:'Katana',mk:'centuryy',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Katana (Century Yuasa 취급)',cat:'https://www.cyb.com.au/divisions/automotive',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'enersun_oce',br:'Enersun',mk:'centuryy',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Enersun (Century Yuasa 취급)',cat:'https://www.cyb.com.au/divisions/automotive',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'maxxyuasa_oce',br:'Maxx Yuasa',mk:'centuryy',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Maxx Yuasa (Century Yuasa 취급)',cat:'https://www.cyb.com.au/divisions/automotive',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'lion_oce',br:'Lion',mk:'lion',rg:'OCE',ctry:'호주',std:'DIN/EN + JIS',series:'Lion 자동차·마린·딥사이클',cat:'https://www.lionbatteries.com.au/product-category/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'numax_eu',br:'Numax',mk:'manbat',rg:'EU',ctry:'영국',std:'DIN/EN',series:'Numax 승용·레저·모터사이클',cat:'https://www.tayna.co.uk/car-batteries/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'powerline_eu',br:'Powerline',mk:'tayna',rg:'EU',ctry:'영국',std:'DIN/EN',series:'Powerline (Tayna PB)',cat:'https://www.tayna.co.uk/car-batteries/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'diehard_na',br:'DieHard',mk:'advance',rg:'NA',ctry:'북미',std:'BCI',series:'DieHard Gold·Platinum AGM',cat:'https://shop.advanceautoparts.com/c/batteries',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:''},
+  {k:'superstart_na',br:'Super Start',mk:'oreilly',rg:'NA',ctry:'북미',std:'BCI',series:'Super Start Value·Extreme·Platinum',cat:'https://www.oreillyauto.com/shop/b/batteries---starting---charging',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:''},
+  {k:'napa_na',br:'NAPA Legend',mk:'napa',rg:'NA',ctry:'북미',std:'BCI',series:'NAPA Legend Premium·AGM',cat:'https://www.napaonline.com/en/c/batteries',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:''},
 ];
 
 /* --- 글로벌 SLI 카달로그 시드 ------------------------------------------- */
@@ -1897,6 +1962,7 @@ const TITLES = {
   map:  ['세계지도', '나라별 판매 분포'],
   rgn:  ['판매지역', '지역별 커버리지와 공백'],
   bm:   ['브랜드 · 마켓', '나라마다 다른 라인업과 카탈로그 주소'],
+  dist: ['유통사 · 경쟁브랜드', '한 진열대에 같이 오르는 브랜드'],
   src:  ['제조사 · 수집관리', '카달로그 확보 현황'],
   data: ['데이터 관리', '가져오기 · 백업 · 품질']
 };
@@ -2699,6 +2765,81 @@ function renderBm() {
   document.getElementById('cntBm').textContent = list.length;
 }
 
+/* --- 유통사 · 경쟁브랜드 ------------------------------------------------
+   유통사는 여러 브랜드를 같이 판다.  그 목록을 모으면 나라별 경쟁 구도가 나오고,
+   아직 우리 DB 에 없는 브랜드가 바로 다음 수집 대상이 된다. */
+function brandExposure() {
+  const cnt = {};
+  DISTRIBUTORS.forEach(d => (d.br || '').split('|').forEach(b => {
+    b = b.trim();
+    if (!b || b.indexOf('다브랜드') >= 0 || b.indexOf('배터리') >= 0) return;
+    (cnt[b] = cnt[b] || {n: 0, rg: {}, dists: []}).n++;
+    cnt[b].rg[d.rg] = 1;
+    cnt[b].dists.push(d.n);
+  }));
+  const known = {};
+  allModels().forEach(m => { if (m.br) known[m.br.toLowerCase()] = 1; });
+  BRAND_MARKETS.forEach(b => known[b.br.toLowerCase()] = 1);
+  return Object.keys(cnt).map(b => Object.assign({br: b, inDb: !!known[b.toLowerCase()]}, cnt[b]))
+    .sort((a, b) => b.n - a.n);
+}
+function renderDist() {
+  const f = filters.dist || (filters.dist = {});
+  const q = (f.q || '').trim().toLowerCase();
+  const exp = brandExposure();
+  barChart('chBrandExp', exp.slice(0, 14).map(b => ({
+    l: b.br + (b.inDb ? '' : ' ●'), v: b.n, c: b.inDb ? 'var(--blue)' : 'var(--red)'})));
+  const missing = exp.filter(b => !b.inDb);
+  document.getElementById('chBrandExp').insertAdjacentHTML('beforeend',
+    '<p class="legend">● 는 아직 우리 DB 에 없는 브랜드' +
+    (missing.length ? ' — <b>' + missing.length + '개</b>: ' +
+      missing.map(b => h(b.br) + '(' + b.n + ')').join(', ') : ' (없음)') + '</p>');
+  const byR = {};
+  DISTRIBUTORS.forEach(d => byR[d.rg] = (byR[d.rg] || 0) + 1);
+  barChart('chDistRgn', REGIONS.filter(r => byR[r.k]).map(r => ({l: r.n, v: byR[r.k]})).sort((a, b) => b.v - a.v));
+
+  document.getElementById('distFilters').innerHTML =
+    '<input type="search" id="dq" placeholder="유통사·국가·브랜드 검색" value="' + h(f.q || '') + '">' +
+    '<select id="dRgn"><option value="">지역 전체</option>' +
+      REGIONS.map(r => '<option value="' + r.k + '"' + (f.rgn === r.k ? ' selected' : '') + '>' + h(r.n) + '</option>').join('') + '</select>' +
+    '<label class="chip"><input type="checkbox" id="dChk"' + (f.chkOnly ? ' checked' : '') + '> 확인된 곳만</label>';
+  bindFilter('dq', () => { f.q = document.getElementById('dq').value; renderDist(); });
+  bindFilter('dRgn', () => { f.rgn = document.getElementById('dRgn').value; renderDist(); });
+  bindFilter('dChk', () => { f.chkOnly = document.getElementById('dChk').checked; renderDist(); });
+
+  const known = {};
+  allModels().forEach(m => { if (m.br) known[m.br.toLowerCase()] = 1; });
+  BRAND_MARKETS.forEach(b => known[b.br.toLowerCase()] = 1);
+  const rows = DISTRIBUTORS.filter(d => {
+    if (f.rgn && d.rg !== f.rgn) return false;
+    if (f.chkOnly && d.chk !== '검색확인') return false;
+    if (q && [d.n, d.c, d.br].join(' ').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  }).map(d => Object.assign({}, d, {
+    nbr: (d.br || '').split('|').filter(x => x.trim() && x.indexOf('다브랜드') < 0).length}));
+  table('tbDist', [
+    {k: 'n', t: '유통사', lead: true},
+    {k: 'c', t: '국가'},
+    {k: 'rgName', t: '지역', sv: r => r.rg, r: r => h(RGN_MAP[r.rg] || r.rg)},
+    {k: 'nbr', t: '취급 브랜드', num: true},
+    {k: 'br', t: '브랜드', r: r => (r.br || '').split('|').map(b => {
+      b = b.trim();
+      if (!b) return '';
+      const isNew = b.indexOf('다브랜드') < 0 && b.indexOf('배터리') < 0 && !known[b.toLowerCase()];
+      return '<span class="tag ' + (isNew ? 't-warn' : 't-std') + '">' + h(b) + '</span>';
+    }).join(' ')},
+    {k: 'list', t: '제품목록', nosort: true, r: r => r.list
+      ? '<a href="' + h(r.list) + '" target="_blank" rel="noopener">열기 ↗</a>'
+      : (r.site ? '<a href="' + h(r.site) + '" target="_blank" rel="noopener">사이트 ↗</a>'
+                : '<span class="tag t-warn">사이트 미확인</span>')},
+    {k: 'pat', t: '브랜드 URL 패턴', mh: true, r: r => r.pat ? '<code>' + h(r.pat) + '</code>' : '<span class="muted">-</span>'},
+    {k: 'chk', t: '확인', r: r => '<span class="tag ' + (r.chk === '검색확인' ? 't-ok' : 't-warn') + '">' +
+      (r.chk === '검색확인' ? '확인됨' : '미조사') + '</span>'},
+    {k: 'note', t: '비고', mh: true}
+  ], rows, {sortKey: 'dist', defSort: 'nbr', empty: '조건에 맞는 유통사가 없다.'});
+  document.getElementById('cntDist').textContent = DISTRIBUTORS.length;
+}
+
 /* --- 제조사 · 수집관리 -------------------------------------------------- */
 /* 지역을 눌렀을 때 그 지역 제품 목록으로 넘어간다 — 지역 탭은 요약만 보여주니까 */
 function drillRegion(k) {
@@ -3185,6 +3326,7 @@ function render() {
   else if (view === 'map') renderMap();
   else if (view === 'rgn') renderRgn();
   else if (view === 'bm') renderBm();
+  else if (view === 'dist') renderDist();
   else if (view === 'src') renderSrc();
   else if (view === 'data') renderData();
   document.getElementById('cntCat').textContent = allModels().length;
@@ -3192,6 +3334,7 @@ function render() {
   document.getElementById('cntCmp').textContent = store.cart.length || '';
   document.getElementById('cntSrc').textContent = allMakers().length;
   document.getElementById('cntBm').textContent = BRAND_MARKETS.length;
+  document.getElementById('cntDist').textContent = DISTRIBUTORS.length;
   renderStoreInfo();
 }
 function helpDrawer() {

@@ -24,6 +24,8 @@
   AGM 라인업 공백을 본다.
 - **세계지도** — 나라별 판매 분포를 지도에 찍는다. 버블을 누르면 그 나라 제품 목록으로 간다.
 - **판매지역** — 지역 × 기술 커버리지 매트릭스로 라인업 공백을 찾는다.
+- **유통사·경쟁브랜드** — 유통사 한 곳이 무슨 브랜드를 같이 취급하는지 본다.
+  바이어는 우리 것만 팔지 않으니, 같은 진열대에 오르는 브랜드가 그 나라 경쟁 상대다.
 - **제조사·수집관리** — 카달로그를 어디서 언제 받았는지, 판(edition)·PDF 파일명·
   SHA-256 까지 근거로 남긴다.
 
@@ -68,6 +70,21 @@ python3 tools/buyer_html_to_csv.py 시스템.html 출력폴더
 
 임포트한 행은 **IndexedDB** 에 저장된다. localStorage 는 5MB 근처에서 막혀
 수만 행을 넣으면 새로고침에 날아가기 때문이다.
+
+### 유통사를 경쟁 브랜드 발굴 경로로
+
+바이어(유통사)는 우리 배터리만 취급하지 않는다. 한 유통사 사이트에 같이 올라와
+있는 브랜드가 그 나라 경쟁 구도다. 호주 Century Yuasa 한 곳만 봐도
+Century·GS Yuasa·Besco·Maxx Yuasa·Katana·Enersun·Intelepower·Optima 를 같이 굴리고,
+영국 Tayna 는 Varta·Bosch·Yuasa·Exide·Numax·Lucas·Powerline·Odyssey 를 나란히 판다.
+
+```bash
+python3 tools/collect.py --brands        # 유통사 사이트를 훑어 취급 브랜드를 찾는다
+```
+
+`data/distributor_sources.csv` 에 유통사·사이트·제품목록 URL 을 넣어두면
+브랜드 사전과 대조해 `catalogs/discovered_brands.csv` 를 만든다.
+아직 우리 DB 에 없는 브랜드는 앱 [유통사·경쟁브랜드]에서 붉게 표시된다.
 
 ### 브랜드 × 마켓
 

@@ -55,6 +55,23 @@ MODEL_COLS = ['구분', '제조사', '브랜드', '모델', '규격그룹', '규
               '전압', 'C20용량', 'RC분', 'CCA_SAE', 'CCA_EN', '판매지역', '검증상태',
               '근거문서', '근거페이지', '출처', '비고']
 LOG_COLS = ['브랜드마켓', '유형', 'URL', '상태', '추출건수', '비고']
+BRAND_COLS = ['유통사', '국가', '지역', '브랜드', '근거 URL', '확인일']
+
+# 유통사 페이지에서 찾을 배터리 브랜드.  바이어(유통사)는 우리 것만 팔지 않는다.
+# 그 사이트에 어떤 브랜드가 같이 올라와 있는지가 곧 그 나라 경쟁 구도다.
+BRAND_DICT = [
+    'VARTA', 'Bosch', 'Exide', 'Tudor', 'Centra', 'Fulmen', 'DETA', 'Sonnenschein',
+    'Yuasa', 'GS Yuasa', 'Maxx Yuasa', 'Century', 'Besco', 'Katana', 'Enersun',
+    'Optima', 'Odyssey', 'Hawker', 'NorthStar', 'Deka', 'Duracell', 'Duralast',
+    'DieHard', 'EverStart', 'ACDelco', 'AC Delco', 'Interstate', 'NAPA', 'Super Start',
+    'Banner', 'MOLL', 'FIAMM', 'Monbat', 'Midac', 'Rombat', 'TAB', 'Topla', 'Sznajder',
+    'Hoppecke', 'Numax', 'Powerline', 'Westco', 'Lucas', 'MK Battery', 'Trojan',
+    'Amaron', 'SF Sonic', 'Livguard', 'Tata Green', 'Camel', 'Fengfan', 'Leoch', 'Wanli',
+    'Rocket', 'Delkor', 'Solite', 'Atlas', 'AtlasBX', 'Marshall', 'Global Battery',
+    'Moura', 'Heliar', 'LTH', 'Zetta', 'Mutlu', 'İnci', 'Inci', 'Yigit', 'Sabat',
+    'Willard', 'Chloride', 'MARIBAT', 'Assad', 'SuperCharge', 'Motolite', 'PINACO',
+    '3K', 'GS Astra', 'Lion', 'Intelepower', 'Vision', 'Ritar', 'CSB', 'Narada',
+]
 
 # ── 스펙 인식 ────────────────────────────────────────────────────────────
 # 규격코드는 체계마다 생김새가 달라서 따로 잡는다.
@@ -214,6 +231,9 @@ def main():
     ap.add_argument('--only', nargs='*', help='브랜드마켓 키')
     ap.add_argument('--types', nargs='*', help='pdf / productlist / sitemap / pattern / fitment')
     ap.add_argument('--dry', action='store_true', help='받지 않고 URL 만 펼쳐 본다')
+    ap.add_argument('--dist', help='유통사 소스 CSV (기본 data/distributor_sources.csv)')
+    ap.add_argument('--brands', action='store_true',
+                    help='유통사 사이트를 훑어 취급 브랜드를 찾아낸다')
     ap.add_argument('--loose', action='store_true',
                     help='규격코드가 없어도 용량·CCA 가 있으면 낮은 확신도로 수집')
     ap.add_argument('--max-urls', type=int, default=40, help='한 소스에서 받을 URL 상한')
@@ -305,10 +325,57 @@ def main():
                     src.get('마켓', ''), '수집(자동추출)', os.path.basename(u), '',
                     u, '확신도 %s / %s' % (f['conf'], f['raw'])])
 
+    # ── 유통사 취급 브랜드 탐지 ─────────────────────────────────────────
+    # 바이어(유통사)는 우리 것만 팔지 않는다.  그 사이트에 같이 올라와 있는
+    # 브랜드를 긁으면 그 나라에서 우리와 붙는 상대가 그대로 나온다.
+    brand_rows = []
+    if args.brands:
+        dist_path = args.dist or os.path.join(ROOT, 'data', 'distributor_sources.csv')
+        with open(dist_path, encoding='utf-8-sig') as fp:
+            dists = list(csv.DictReader(fp))
+        for d in dists:
+            urls = [u for u in (d.get('제품목록URL'), d.get('사이트')) if u]
+            if not urls:
+                log.append([d['유통사키'], 'brands', '', '건너뜀', 0, 'URL 없음 — 사이트를 찾아 채울 것'])
+                continue
+            found, src = set(), ''
+            for u in urls[:2]:
+                if args.dry:
+                    print('%-16s brands       %s' % (d['유통사키'], u))
+                    continue
+                try:
+                    resp = session.get(u, timeout=args.timeout)
+                    resp.raise_for_status()
+                except Exception as exc:
+                    log.append([d['유통사키'], 'brands', u, '실패', 0, str(exc)[:120]])
+                    continue
+                text = html_text(resp.text)
+                low = text.lower()
+                for b in BRAND_DICT:
+                    if re.search(r'(?<![A-Za-z])' + re.escape(b.lower()) + r'(?![A-Za-z])', low):
+                        found.add(b)
+                src = src or u
+            if args.dry:
+                continue
+            known = set(x.strip() for x in (d.get('취급 브랜드') or '').split('|') if x.strip())
+            for b in sorted(found):
+                brand_rows.append([d['유통사'], d.get('국가', ''), d.get('지역', ''), b, src, today])
+            new = found - known
+            print('  [브랜드] %-16s %d개 발견%s' % (d['유통사키'], len(found),
+                  (' / 새로 나온 것: ' + ', '.join(sorted(new))) if new else ''))
+            log.append([d['유통사키'], 'brands', src, '성공', len(found),
+                        '새 브랜드 ' + str(len(new)) + '개'])
+
     if args.dry:
         return
 
     os.makedirs(args.out, exist_ok=True)
+    if args.brands:
+        with open(os.path.join(args.out, 'discovered_brands.csv'), 'w',
+                  encoding='utf-8-sig', newline='') as fp:
+            w = csv.writer(fp)
+            w.writerow(BRAND_COLS)
+            w.writerows(brand_rows)
     for name, cols, rows in (('catalog_registry.csv', REGISTRY_COLS, registry),
                              ('collected_models.csv', MODEL_COLS, models),
                              ('collect_log.csv', LOG_COLS, log)):
@@ -316,8 +383,9 @@ def main():
             w = csv.writer(fp)
             w.writerow(cols)
             w.writerows(rows)
-    print('\n원본 %d건 / 추출 스펙 %d행 / 로그 %d줄 → %s'
-          % (len(registry), len(models), len(log), args.out))
+    print('\n원본 %d건 / 추출 스펙 %d행 / 로그 %d줄%s → %s'
+          % (len(registry), len(models), len(log),
+             (' / 유통사 취급 브랜드 %d행' % len(brand_rows)) if brand_rows else '', args.out))
     print('collected_models.csv 는 자동 추출이라 그대로 믿으면 안 된다. '
           '앱에 올린 뒤 확신도 낮은 행부터 원본과 대조할 것.')
 
