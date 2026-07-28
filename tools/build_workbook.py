@@ -97,6 +97,8 @@ def build(seed, out):
         ('지역별판매', '모델 × 판매지역을 한 행씩 편 표. "유럽에서 파는 LN3, 70Ah 이상" 같은 걸 필터 두 번으로 뽑는다. 피벗테이블 원본으로 쓰면 된다.'),
         ('사이즈별요약', '규격마다 치수·용량범위·CCA범위·지역별 취급 수를 한 줄로. 어떤 사이즈가 어디서 얼마짜리로 팔리는지 보는 표.'),
         ('규격마스터', '규격(사이즈)별 표준 치수 %d종. 카달로그 시트의 치수는 여기서 끌어온다.' % len(specs)),
+        ('브랜드마켓', '같은 브랜드가 나라마다 다른 시리즈를 판다(Bosch 유럽 S3~S6 vs 북미 BCI vs 인도 S4+/T4/M6). '
+                   '그 단위로 실제 카탈로그 주소와 수집상태를 관리한다.'),
         ('제조사', '제조사·유통사 %d곳과 카달로그 수집 현황.' % len(makers)),
         ('차량적합성', '차종이 요구하는 규격·용량·CCA·기술과, 그 요구를 만족하는 모델 수.'),
         ('지역커버리지', '판매지역 × 기술 매트릭스 + 지역별 취급 제조사·커버 규격수. 라인업 공백을 보는 표.'),
@@ -180,7 +182,8 @@ def build(seed, out):
     cat_cols += [(r['n'], 9, None, False) for r in regions]
     cat_cols += [('판매지역 수', 10, '#,##0', False), ('판매지역', 30, None, False),
                  ('근거등급', 11, None, False), ('근거문서', 24, None, True),
-                 ('근거페이지', 10, None, True), ('비고', 20, None, False)]
+                 ('근거페이지', 10, None, True), ('비고', 20, None, False),
+                 ('브랜드마켓', 14, None, False)]
     RGN_END = RG0 + len(regions) - 1
     cw = wb.create_sheet(CAT)
     head(cw, cat_cols)
@@ -196,7 +199,8 @@ def build(seed, out):
                m.get('wt'), m.get('cyc'), m.get('v', 12), None, None, None]
         row += ['O' if r['k'] in mrg else '' for r in regions]
         row += [None, ', '.join(r['n'] for r in regions if r['k'] in mrg),
-                VER.get(m.get('ver'), m.get('ver', '')), '', '', m.get('note', '')]
+                VER.get(m.get('ver'), m.get('ver', '')), '', '', m.get('note', ''),
+                m.get('bm', '')]
         write_rows(cw, cat_cols, [row], i)
         # 규격마스터에서 끌어오는 값 (I 규격체계, J·K·L 치수)
         for col, src in (('I', 'B'), ('J', 'C'), ('K', 'D'), ('L', 'E')):
@@ -249,6 +253,33 @@ def build(seed, out):
         if m['k'] == HOME:
             mw['B%d' % i].fill = OWN_FILL
     mw.auto_filter.ref = 'A1:P%d' % (len(makers) + 1)
+
+    # ── 브랜드마켓 ────────────────────────────────────────────────────────
+    # 같은 브랜드라도 나라마다 파는 시리즈와 규격체계가 다르다.
+    # 카탈로그 주소도 그 단위로 따로 있어서 여기에 모아 둔다.
+    bms = S.get('BRAND_MARKETS', [])
+    if bms:
+        bm_cols = [
+            ('브랜드마켓키', 14, None, False), ('브랜드', 14, None, False),
+            ('제조사', 24, None, False), ('지역', 12, None, False), ('마켓/국가', 16, None, False),
+            ('규격체계', 16, None, False), ('판매 시리즈', 46, None, False),
+            ('등록 모델', 10, '#,##0', False), ('소스 URL 수', 11, '#,##0', False),
+            ('카탈로그 주소', 60, None, True), ('주소 확인', 11, None, False),
+            ('피트먼트 검색', 40, None, True), ('수집상태', 11, None, True),
+        ]
+        bw = wb.create_sheet('브랜드마켓')
+        head(bw, bm_cols)
+        for i, b in enumerate(bms, 2):
+            write_rows(bw, bm_cols, [[
+                b['k'], b.get('br', ''), mk_name.get(b.get('mk'), b.get('mk', '')),
+                rgn_name.get(b.get('rg'), b.get('rg', '')), b.get('ctry', ''),
+                b.get('std', ''), b.get('series', ''), None, b.get('nsrc', ''),
+                b.get('cat', ''), {'검색확인': '확인됨'}.get(b.get('catChk', ''), '경로추정' if b.get('cat') else ''),
+                b.get('fit', ''), b.get('st', '미수집')
+            ]], i)
+            c = bw.cell(row=i, column=8, value='=COUNTIF(%s,$A%d)' % (rng('AP'), i))
+            c.font = BODY; c.border = BOX; c.number_format = '#,##0'
+        bw.auto_filter.ref = 'A1:M%d' % (len(bms) + 1)
 
     # ── 차량적합성 ────────────────────────────────────────────────────────
     ft_cols = [

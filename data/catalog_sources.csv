@@ -1,41 +1,65 @@
-제조사키,제조사,카달로그명,판,유형,URL,필터,비고
-sebang,세방전지 (Rocket/GB),글로벌 제품 카달로그,,page,https://www.globalbattery.com,,자사 — 사내 최신본 사용
-clarios,Clarios (VARTA/Bosch/OPTIMA),VARTA Partner Portal 제품자료,,page,https://www.varta-automotive.com,,링크 미검증
-exide,Exide Technologies,Downloads & Documents,,page,https://www.exidegroup.com/eu/en/downloads-documents,,검색결과로 확인된 공식 다운로드 페이지
-exide,Exide Technologies,Technical Guide Lead-Acid Batteries,Edition 5,pdf,https://exide.sk/asset/uploads/na%20stiahnutie/NEW_Exide_Edition5_TechnicalGuid.pdf,,판(edition) 표기가 파일명에 있음
-eastpenn,East Penn (Deka),Deka Battery Literature,,page,https://www.dekabatteries.com/literature/,,링크 미검증
-enersys,EnerSys (Odyssey),Odyssey Battery Documents,,page,https://www.odysseybattery.com,,링크 미검증
-northstar,NorthStar (Ecobat),NorthStar Product Literature,,page,https://www.northstarbattery.com,,링크 미검증
-gsyuasa,GS Yuasa,製品カタログ / YBX Range Guide,,page,https://www.gs-yuasa.com,,링크 미검증
-panasonic,Panasonic Energy,カーバッテリー 適合表・カタログ,,page,https://panasonic.jp/car/battery/,,적합표(피트먼트) 포함
-furukawa,Furukawa Battery,製品カタログ,,page,https://www.furukawadenchi.co.jp,,링크 미검증
-atlasbx,한국앤컴퍼니 (AtlasBX),제품 카탈로그,,page,https://www.hankookncompany.com,,링크 미검증
-delkor,델코 (Clarios Korea),델코 제품 규격표,,page,https://www.delkor.co.kr,,링크 미검증
-solite,현대성우쏠라이트,제품 카탈로그,,page,https://www.sungwoosolite.co.kr,,링크 미검증
-amararaja,Amara Raja (Amaron),Amaron Product Catalogue,,page,https://www.amararaja.com,,링크 미검증
-exideind,Exide Industries,Product Documents,,page,https://www.exideindustries.com,,링크 미검증
-livguard,Livguard,Automotive Battery Range,,page,https://www.livguard.com,,링크 미검증
-camel,Camel Group,骆驼蓄电池 产品手册,,page,https://www.camelgroup.com,,링크 미검증
-fengfan,Fengfan (风帆),风帆 产品目录,,page,http://www.fengfan.com.cn,,링크 미검증
-leoch,Leoch International,Leoch Automotive Catalogue,,page,https://www.leoch.com,,링크 미검증
-banner,Banner Batterien,Banner Batterien Sortiment,,page,https://www.bannerbatterien.com,,링크 미검증
-moll,Moll Batterien,MOLL Produktkatalog,,page,https://www.moll-batterien.de,,링크 미검증
-fiamm,FIAMM Energy Technology,FIAMM Automotive Catalogue,,page,https://www.fiamm.com,,링크 미검증
-monbat,Monbat Group,Monbat Product Catalogue,,page,https://www.monbat.com,,링크 미검증
-midac,Midac Batteries,Midac Starter Range,,page,https://www.midacbatteries.com,,링크 미검증
-rombat,Rombat,Rombat Catalog,,page,https://www.rombat.ro,,링크 미검증
-tab,TAB Batteries,TAB Starter Batteries Catalogue,,page,https://www.tabbatteries.com,,링크 미검증
-autopart,Autopart / Sznajder,Autopart Katalog,,page,https://www.autopart.pl,,링크 미검증
-moura,Baterias Moura,Catálogo de Produtos,,page,https://www.moura.com.br,,링크 미검증
-centuryy,Century Yuasa,Century Battery Range,,page,https://www.centuryyuasa.com.au,,링크 미검증
-mutlu,Mutlu Akü,Mutlu Ürün Kataloğu,,page,https://www.mutlu.com.tr,,링크 미검증
-inci,İnci GS Yuasa,İnci Akü Ürün Kataloğu,,page,https://www.incigsyuasa.com,,링크 미검증
-yigit,Yiğit Akü,Yiğit Akü Katalog,,page,https://www.yigitaku.com.tr,,링크 미검증
-rahim,Rahimafrooz,Automotive Battery Specification,,pdf,http://www.rahimafrooz-batteries.com/wp-content/uploads/2018/01/Automotive-DIN.pdf,,DIN 규격표
-rahim,Rahimafrooz,Automotive Battery Specification,,pdf,http://www.rahimafrooz-batteries.com/wp-content/uploads/2018/01/Automotive-JIS.pdf,,JIS 규격표
-fnb,First National Battery,FNB Product Range,,page,https://www.battery.co.za,,링크 미검증
-metair,Metair (Willard),Willard Battery Range,,page,https://www.willardbatteries.co.za,,링크 미검증
-interstate,Interstate Batteries,Interstate Battery Specs,,page,https://www.interstatebatteries.com,,유통사
-ecobat,Ecobat Battery,Ecobat Product Range,,page,https://www.ecobat.com,,유통사
-hella,HELLA,HELLA Battery Programme,,page,https://www.hella.com,,유통사
-toyota_fit,토요타 (피트먼트 참고),Toyota Battery Application Guide,2023,pdf,https://www.toyotapartsandservice.com/wp-content/uploads/2023/09/03_Batteries2023_hi.pdf,,차량 적합성 대조용 OEM 자료
+브랜드마켓,브랜드,제조사,마켓,유형,URL,패턴변수,확인,비고
+bosch_na,Bosch,Clarios,북미,pdf,https://www.boschautoparts.com/documents/647135/656945/Passenger%20Car%2C%20Light%20Truck%20%26%20Heavy%20Duty%20Batteries%20Catalog.pdf,,검색확인,2025 승용·경트럭·대형 배터리 카탈로그
+bosch_na,Bosch,Clarios,북미,pdf,https://www.boschautoparts.com/documents/647135/656945/Battery%20Trade%20Brochure.pdf,,검색확인,트레이드 브로슈어
+bosch_na,Bosch,Clarios,북미,productlist,https://www.boschautoparts.com/g/batteries,,검색확인,배터리 카테고리 목록
+bosch_na,Bosch,Clarios,북미,productlist,https://www.boschautoparts.com/p/s4-batteries,,검색확인,S4 제품 상세
+bosch_in,Bosch,Clarios,인도,pdf,https://www.boschaftermarket.com/xrm/media/images/country_specific/in/services_and_support_1/downloads_10/pdf_5/battery_catalogue_2023.pdf,,검색확인,인도 배터리 카탈로그 2023
+bosch_in,Bosch,Clarios,인도,pdf,https://www.boschaftermarket.com/xrm/media/images/country_specific/in/parts_11/pdf_8/bosch-automotive-batteries-india-catalogue.pdf,,검색확인,인도 카탈로그 (다른 경로)
+bosch_in,Bosch,Clarios,인도,productlist,https://ap.boschaftermarket.com/in/en/parts/batteries/,,검색확인,인도 배터리 제품 페이지
+bosch_eu,Bosch,Clarios,유럽,pdf,https://www.boschaftermarket.com/xrm/media/images/country_specific/gb/parts_1/parts_pdfs/batteries_s3s4s5_2pp_2017.pdf,,검색확인,영국 S3·S4·S5 개요
+bosch_eu,Bosch,Clarios,유럽,pattern,https://www.boschaftermarket.com/{cc}/{lang}/parts/batteries/,cc=de|gb|fr|es|it|pl|tr|nl|se; lang=en,패턴추정,국가별 배터리 페이지 — 국가코드를 바꿔가며 확인
+bosch_eu,Bosch,Clarios,유럽,pattern,https://www.boschaftermarket.com/xrm/media/images/country_specific/{cc}/,cc=de|gb|fr|es|it|pl|tr|in|au|za,패턴추정,국가별 PDF 저장 경로 — 하위를 훑어서 카탈로그 PDF 를 찾는다
+bosch_lat,Bosch,Clarios,중남미,productlist,https://br.boschaftermarket.com/br/pt/pecas/baterias/,,패턴추정,브라질 포털
+bosch_cn,Bosch,Clarios,중국,productlist,https://www.bosch-mobility-aftermarket.cn,,패턴추정,중국 포털
+bosch_oce,Bosch,Clarios,오세아니아,productlist,https://au.boschaftermarket.com/au/en/parts/batteries/,,패턴추정,호주 포털
+bosch_mea,Bosch,Clarios,중동·아프리카,productlist,https://za.boschaftermarket.com/za/en/parts/batteries/,,패턴추정,남아공 포털
+bosch_eu,Bosch,Clarios,유럽,pdf,https://www.boschoffhighway.com/xc/media/ledi/products/battery/1168_batterie_efb_truck_8s_en_rz_x3.pdf,,검색확인,상용차 EFB 브로슈어
+varta_eu,VARTA,Clarios,유럽,productlist,https://www.varta-automotive.com/en-gb/products,,패턴추정,제품 목록 — 국가 선택 후 경로 확인 필요
+varta_eu,VARTA,Clarios,유럽,fitment,https://www.varta-automotive.com/en-gb/battery-finder,,패턴추정,차량 피트먼트 검색
+varta_eu,VARTA,Clarios,유럽,productlist,https://batteryworld.varta-automotive.com,,패턴추정,기술자료·백서
+exide_eu,Exide,Exide Technologies,유럽,productlist,https://www.exidegroup.com/eu/en/downloads-documents,,검색확인,공식 다운로드 센터 — 여기서 PDF 링크를 훑는다
+exide_eu,Exide,Exide Technologies,유럽,pdf,https://exide.sk/asset/uploads/na%20stiahnutie/NEW_Exide_Edition5_TechnicalGuid.pdf,,검색확인,Technical Guide Edition 5 (판 표기 있음)
+exide_in,Exide,Exide Industries,인도,pdf,https://docs.exideindustries.com/pdf/industrial-export-batteries/products/ups-batteries/12v-agm-vrla-ep-series.pdf,,검색확인,EP 시리즈 (SLI 아님 — 문서 경로 패턴 참고용)
+exide_in,Exide,Exide Industries,인도,pattern,https://docs.exideindustries.com/pdf/,,패턴추정,문서 루트 — 하위 경로를 훑어 SLI 카탈로그를 찾는다
+yuasa_eu,Yuasa,GS Yuasa,유럽,productlist,https://www.yuasa.co.uk/automotive/,,패턴추정,YBX 레인지
+yuasa_eu,Yuasa,GS Yuasa,유럽,fitment,https://www.yuasa.co.uk/battery-lookup/,,패턴추정,차량 검색
+gsyuasa_jp,GS Yuasa,GS Yuasa,일본,productlist,https://gyb.gs-yuasa.com/products/,,패턴추정,일본 제품 페이지
+gsyuasa_jp,GS Yuasa,GS Yuasa,일본,fitment,https://gyb.gs-yuasa.com/search/,,패턴추정,적합표 검색
+yuasa_oce,Yuasa,Century Yuasa,오세아니아,pdf,https://www.yuasabatteries.co.nz/media/qnrj5dgs/yuasa-au-cross-reference-chart-nov19.pdf,,검색확인,호주·뉴질랜드 크로스레퍼런스 (2019.11)
+century_oce,Century,Century Yuasa,오세아니아,pdf,https://www.centurybatteries.com.au/media/3mmlm2ll/amktg-019-century-au-cross-reference-chart_rev.pdf,,검색확인,호주 크로스레퍼런스 차트
+century_oce,Century,Century Yuasa,오세아니아,productlist,https://www.centurybatteries.com.au/products,,패턴추정,제품 목록
+supercharge_oce,SuperCharge,SuperCharge,오세아니아,pdf,https://www.supercharge.com.au/wp-content/uploads/2020/09/2019-Battery-Fitment-Guide-158ppCover-page-A4-lo.res_..pdf,,검색확인,158쪽 차량 적합 가이드 — 피트먼트 원천
+delkor_oce,Delkor,Delkor,오세아니아,pattern,https://www.delkor.com/products/product-details/{code},code=56219|60038|55D23L|80D26L|115D31R,검색확인,규격코드로 제품 상세가 열린다 — 코드 목록을 돌려 긁는다
+delkor_oce,Delkor,Delkor,오세아니아,sitemap,https://www.delkor.com/sitemap.xml,,패턴추정,제품 URL 일괄 발굴
+rocket_kr,Rocket,세방전지,한국,productlist,https://rocketbattery.kr/rocket/batterysize.html,,검색확인,규격·외형·단자위치 표
+rocket_kr,Rocket,세방전지,한국,productlist,https://www.globalbattery.com,,미확인,자사 — 사내 최신본 사용
+atlas_kr,Atlas BX,한국앤컴퍼니,한국,productlist,https://www.hankookncompany.com,,미확인,제품 카탈로그 경로 확인 필요
+amaron_in,Amaron,Amara Raja,인도,productlist,https://www.amaron.in/product-range,,패턴추정,제품 레인지
+amaron_in,Amaron,Amara Raja,인도,fitment,https://www.amaron.in/battery-finder,,패턴추정,차량 검색
+rahim_in,Lucas,Rahimafrooz,방글라데시,pdf,http://www.rahimafrooz-batteries.com/wp-content/uploads/2018/01/Automotive-DIN.pdf,,검색확인,DIN 규격표
+rahim_in,Spark,Rahimafrooz,방글라데시,pdf,http://www.rahimafrooz-batteries.com/wp-content/uploads/2018/01/Automotive-JIS.pdf,,검색확인,JIS 규격표
+banner_eu,Banner,Banner Batterien,유럽,productlist,https://www.bannerbatterien.com/en/products,,패턴추정,제품 목록
+banner_eu,Banner,Banner Batterien,유럽,fitment,https://www.bannerbatterien.com/en/battery-finder,,패턴추정,차량 검색
+tab_eu,TAB,TAB Batteries,유럽,productlist,https://www.tabbatteries.com/en/products/starter-batteries/,,패턴추정,시동 배터리
+moll_eu,MOLL,Moll Batterien,유럽,productlist,https://www.moll-batterien.de/produkte/,,패턴추정,제품 목록
+fiamm_eu,FIAMM,FIAMM,유럽,productlist,https://www.fiamm.com/en/automotive/,,패턴추정,자동차 배터리
+rombat_eu,Rombat,Rombat,유럽,productlist,https://www.rombat.ro/produse/,,패턴추정,제품 목록
+monbat_eu,Monbat,Monbat,유럽,productlist,https://www.monbat.com/en/products/,,패턴추정,제품 목록
+midac_eu,Midac,Midac,유럽,productlist,https://www.midacbatteries.com/en/starter/,,패턴추정,시동 배터리
+mutlu_mea,Mutlu,Mutlu Akü,터키·중동,productlist,https://www.mutlu.com.tr/en/products,,패턴추정,제품 목록
+inci_mea,İnci Akü,İnci GS Yuasa,터키,productlist,https://www.incigsyuasa.com/en/products,,패턴추정,제품 목록
+camel_cn,Camel,Camel Group,중국,productlist,https://www.camelgroup.com/product,,패턴추정,제품 목록
+leoch_cn,Leoch,Leoch,중국,productlist,https://www.leoch.com/products/automotive-battery/,,패턴추정,자동차 배터리
+acdelco_na,ACDelco,ACDelco,북미,productlist,https://www.acdelco.com/parts/batteries.html,,패턴추정,배터리 카테고리
+interstate_na,Interstate,Interstate,북미,fitment,https://www.interstatebatteries.com/battery-finder,,패턴추정,차량 검색
+eastpenn_na,Deka,East Penn,북미,productlist,https://www.dekabatteries.com/products/automotive/,,패턴추정,자동차 배터리
+eastpenn_na,Deka,East Penn,북미,pdf,https://www.dekabatteries.com/literature/,,패턴추정,자료실 — PDF 링크를 훑는다
+moura_lat,Moura,Moura,브라질,productlist,https://www.moura.com.br/produtos/,,패턴추정,제품 목록
+heliar_lat,Heliar,Clarios,브라질,productlist,https://www.heliar.com.br/produtos,,패턴추정,제품 목록
+lth_lat,LTH,Clarios,멕시코,productlist,https://www.lth.com.mx/productos,,패턴추정,제품 목록
+3k_sea,3K,3K Battery,태국,productlist,http://www.3kbattery.com/product,,패턴추정,제품 목록
+motolite_sea,Motolite,Philippine Batteries,필리핀,productlist,https://www.motolite.com/products,,패턴추정,제품 목록
+pinaco_sea,PINACO,PINACO,베트남,productlist,https://en.pinaco.com/products,,패턴추정,제품 목록
+uplus_ref,참고자료,U-Plus,-,pattern,https://www.uplusbattery.com/pdf/sli/automobile-battery/jis-series/{code}.pdf,code=55D23L|75D23R|80D26L|95D31L|115D31R,검색확인,JIS 규격별 스펙시트 — 규격 표준값 대조용
+toyota_fit,토요타,OEM,북미,pdf,https://www.toyotapartsandservice.com/wp-content/uploads/2023/09/03_Batteries2023_hi.pdf,,검색확인,차종별 적용 배터리 (2023) — 피트먼트 대조 원천
+toyota_fit,토요타,OEM,북미,pattern,https://www.toyotapartsandservice.com/wp-content/uploads/{yyyy}/{mm}/03_Batteries{yyyy}_hi.pdf,yyyy=2020|2022|2023,검색확인,연도별 적용표 — 연식 변화 추적용

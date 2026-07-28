@@ -166,6 +166,7 @@
       <button class="navbtn" data-v="cmp">⚖️ 성능 비교 <span class="cnt" id="cntCmp"></span></button>
       <button class="navbtn" data-v="xref">🔀 규격 크로스레퍼런스</button>
       <button class="navbtn" data-v="rgn">🌍 판매지역</button>
+      <button class="navbtn" data-v="bm">🌐 브랜드·마켓 <span class="cnt" id="cntBm"></span></button>
       <button class="navbtn" data-v="src">🏭 제조사·수집관리 <span class="cnt" id="cntSrc"></span></button>
       <button class="navbtn" data-v="data">💾 데이터 관리</button>
     </nav>
@@ -286,6 +287,23 @@
           <h3>지역별 상세</h3>
           <div class="tw" style="max-height:none"><table id="tbRgn"></table></div>
         </div>
+      </section>
+
+      <!-- 브랜드·마켓 -->
+      <section class="view" id="v-bm">
+        <div class="sh">
+          <div><h2>브랜드 · 마켓</h2><p>같은 브랜드라도 나라마다 파는 시리즈와 규격체계가 다르다. 그 단위로 카탈로그를 관리한다.</p></div>
+        </div>
+        <div class="banner info">
+          <b>Bosch 를 보면 안다.</b> 유럽은 S3~S6 에 DIN·ETN, 북미는 S4·S5·S6 AGM 에 BCI 그룹,
+          인도는 S4+·T4·M6 까지, 중국은 저상 L2 계열이다. 브랜드 하나로 뭉쳐두면 이 차이가 사라진다.
+          <br><b>카탈로그 링크는 대표 홈페이지가 아니라 실제 카탈로그·제품목록 주소</b>다.
+          <span class="tag t-ok">확인됨</span> 은 존재를 확인한 주소, 나머지는 경로 추정이라 열어보고 고쳐야 한다.
+        </div>
+        <div class="filters" id="bmFilters"></div>
+        <div class="tw"><table id="tbBm"></table></div>
+        <p class="legend">소스 수는 <code>data/catalog_sources.csv</code> 에 등록된 URL 개수다.
+          <code>tools/collect.py</code> 가 이 목록을 돌면서 PDF·제품목록·사이트맵·URL패턴을 훑는다.</p>
       </section>
 
       <!-- 제조사·수집관리 -->
@@ -518,6 +536,71 @@ const MAKERS = [
   {k:'hella',    n:'HELLA',                 c:'독일',   t:'D', rg:['SEA','CN','EU'], br:'HELLA SLI 유통', site:'https://www.hella.com', st:'미수집', ed:''},
   {k:'jpretail', n:'일본 카용품 리테일 체인',  c:'일본',   t:'D', rg:['JP'],            br:'PB 배터리 (OEM 조달)', site:'', st:'미수집', ed:''},
   {k:'jpwhole',  n:'일본 애프터마켓 도매',     c:'일본',   t:'D', rg:['JP'],            br:'도매 유통 채널', site:'', st:'미수집', ed:''}
+];
+
+/* --- 브랜드 × 마켓 ------------------------------------------------------
+   같은 브랜드라도 나라마다 파는 시리즈와 규격체계가 다르다.  Bosch 가
+   대표적이라 유럽은 S3~S6 + DIN·ETN, 북미는 BCI 그룹, 인도는 S4+/T4/M6,
+   중국은 저상 L2 계열이다.  브랜드 하나로 뭉치면 그 차이가 사라진다.
+   cat/fit 은 대표 홈페이지가 아니라 실제 카탈로그·피트먼트 주소를 넣는다. */
+const BRAND_MARKETS = [
+  {k:'bosch_eu',br:'Bosch',mk:'clarios',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'S3, S4, S5, S6 AGM, S4 EFB, T3·T4·T5(상용)',cat:'https://www.boschaftermarket.com/xrm/media/images/country_specific/gb/parts_1/parts_pdfs/batteries_s3s4s5_2pp_2017.pdf',fit:'',st:'확인됨',nsrc:4,catKind:'pdf',catChk:'검색확인'},
+  {k:'bosch_na',br:'Bosch',mk:'clarios',rg:'NA',ctry:'북미',std:'BCI',series:'S4, S5, S6 AGM, Platinum AGM',cat:'https://www.boschautoparts.com/documents/647135/656945/Passenger%20Car%2C%20Light%20Truck%20%26%20Heavy%20Duty%20Batteries%20Catalog.pdf',fit:'',st:'확인됨',nsrc:4,catKind:'pdf',catChk:'검색확인'},
+  {k:'bosch_in',br:'Bosch',mk:'clarios',rg:'IN',ctry:'인도',std:'DIN/EN + JIS',series:'S3, S4, S5, S4+, S5+, T4(상용), M6(이륜)',cat:'https://www.boschaftermarket.com/xrm/media/images/country_specific/in/services_and_support_1/downloads_10/pdf_5/battery_catalogue_2023.pdf',fit:'',st:'확인됨',nsrc:3,catKind:'pdf',catChk:'검색확인'},
+  {k:'bosch_lat',br:'Bosch',mk:'clarios',rg:'LAT',ctry:'중남미',std:'BCI + 현지',series:'S3, S4, S5',cat:'https://br.boschaftermarket.com/br/pt/pecas/baterias/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'bosch_cn',br:'Bosch',mk:'clarios',rg:'CN',ctry:'중국',std:'DIN/EN 저상',series:'S3, S4, S5, AGM',cat:'https://www.bosch-mobility-aftermarket.cn',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'bosch_oce',br:'Bosch',mk:'clarios',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'S4, S5, S5 AGM',cat:'https://au.boschaftermarket.com/au/en/parts/batteries/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'bosch_mea',br:'Bosch',mk:'clarios',rg:'MEA',ctry:'중동·아프리카',std:'DIN/EN',series:'S3, S4, S5',cat:'https://za.boschaftermarket.com/za/en/parts/batteries/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'bosch_sea',br:'Bosch',mk:'clarios',rg:'SEA',ctry:'동남아',std:'JIS + DIN',series:'S3, S4, S5',cat:'',fit:'',st:'미수집'},
+  {k:'varta_eu',br:'VARTA',mk:'clarios',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'Black·Blue·Silver Dynamic, AGM, EFB, Promotive(상용)',cat:'https://www.varta-automotive.com/en-gb/products',fit:'https://www.varta-automotive.com/en-gb/battery-finder',st:'미수집',nsrc:3,catKind:'productlist',catChk:'패턴추정'},
+  {k:'varta_cn',br:'VARTA',mk:'clarios',rg:'CN',ctry:'중국',std:'DIN/EN 저상',series:'Blue·Silver Dynamic',cat:'',fit:'',st:'미수집'},
+  {k:'varta_mea',br:'VARTA',mk:'clarios',rg:'MEA',ctry:'중동·아프리카',std:'DIN/EN',series:'Blue·Silver Dynamic',cat:'',fit:'',st:'미수집'},
+  {k:'exide_eu',br:'Exide',mk:'exide',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'Excell, Premium, Micro-Hybrid EFB·AGM, StrongPRO(상용)',cat:'https://exide.sk/asset/uploads/na%20stiahnutie/NEW_Exide_Edition5_TechnicalGuid.pdf',fit:'',st:'확인됨',nsrc:2,catKind:'pdf',catChk:'검색확인'},
+  {k:'exide_in',br:'Exide',mk:'exideind',rg:'IN',ctry:'인도',std:'DIN/EN + JIS',series:'Mileage, Matrix, EPIQ, SF Sonic',cat:'https://docs.exideindustries.com/pdf/industrial-export-batteries/products/ups-batteries/12v-agm-vrla-ep-series.pdf',fit:'',st:'확인됨',nsrc:2,catKind:'pdf',catChk:'검색확인'},
+  {k:'exide_mea',br:'Exide',mk:'exide',rg:'MEA',ctry:'중동·아프리카',std:'DIN/EN',series:'Excell, Premium',cat:'',fit:'',st:'미수집'},
+  {k:'yuasa_eu',br:'Yuasa',mk:'gsyuasa',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'YBX3000, YBX5000, YBX7000 EFB, YBX9000 AGM',cat:'https://www.yuasa.co.uk/automotive/',fit:'https://www.yuasa.co.uk/battery-lookup/',st:'미수집',nsrc:2,catKind:'productlist',catChk:'패턴추정'},
+  {k:'gsyuasa_jp',br:'GS Yuasa',mk:'gsyuasa',rg:'JP',ctry:'일본',std:'JIS',series:'ECO.R, ECO.R ISS(EFB), 상용 N 시리즈',cat:'https://gyb.gs-yuasa.com/products/',fit:'https://gyb.gs-yuasa.com/search/',st:'미수집',nsrc:2,catKind:'productlist',catChk:'패턴추정'},
+  {k:'gsyuasa_sea',br:'GS Yuasa',mk:'gsyuasa',rg:'SEA',ctry:'동남아',std:'JIS',series:'GS MF, Yuasa',cat:'',fit:'',st:'미수집'},
+  {k:'yuasa_oce',br:'Yuasa',mk:'centuryy',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Yuasa 시리즈',cat:'https://www.yuasabatteries.co.nz/media/qnrj5dgs/yuasa-au-cross-reference-chart-nov19.pdf',fit:'',st:'확인됨',nsrc:1,catKind:'pdf',catChk:'검색확인'},
+  {k:'acdelco_na',br:'ACDelco',mk:'acdelco',rg:'NA',ctry:'북미',std:'BCI',series:'Gold(Professional), Silver, AGM',cat:'https://www.acdelco.com/parts/batteries.html',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'acdelco_mea',br:'ACDelco',mk:'acdelco',rg:'MEA',ctry:'중동',std:'BCI + DIN',series:'Gold, Advantage',cat:'',fit:'',st:'미수집'},
+  {k:'acdelco_oce',br:'ACDelco',mk:'acdelco',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'ACDelco 시리즈',cat:'',fit:'',st:'미수집'},
+  {k:'acdelco_sea',br:'ACDelco',mk:'acdelco',rg:'SEA',ctry:'동남아',std:'JIS',series:'ACDelco MF',cat:'',fit:'',st:'미수집'},
+  {k:'amaron_in',br:'Amaron',mk:'amararaja',rg:'IN',ctry:'인도',std:'DIN/EN + JIS',series:'Hi-Life, Pro, Flo, Go, Shield, Black(상용)',cat:'https://www.amaron.in/product-range',fit:'https://www.amaron.in/battery-finder',st:'미수집',nsrc:2,catKind:'productlist',catChk:'패턴추정'},
+  {k:'amaron_mea',br:'Amaron',mk:'amararaja',rg:'MEA',ctry:'중동·아프리카',std:'DIN/EN',series:'Hi-Life, Pro',cat:'',fit:'',st:'미수집'},
+  {k:'amaron_sea',br:'Amaron',mk:'amararaja',rg:'SEA',ctry:'동남아',std:'JIS',series:'Amaron MF',cat:'',fit:'',st:'미수집'},
+  {k:'delkor_kr',br:'Delkor',mk:'delkor',rg:'KR',ctry:'한국',std:'DIN/EN + JIS',series:'Delkor MF, AGM, EFB',cat:'',fit:'',st:'미수집'},
+  {k:'delkor_oce',br:'Delkor',mk:'delkor',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Delkor MF',cat:'https://www.delkor.com/products/product-details/{code}',fit:'',st:'확인됨',nsrc:2,catKind:'pattern',catChk:'검색확인'},
+  {k:'century_oce',br:'Century',mk:'centuryy',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Ultra Hi Performance, AGM, Overlander',cat:'https://www.centurybatteries.com.au/media/3mmlm2ll/amktg-019-century-au-cross-reference-chart_rev.pdf',fit:'',st:'확인됨',nsrc:2,catKind:'pdf',catChk:'검색확인'},
+  {k:'camel_cn',br:'Camel',mk:'camel',rg:'CN',ctry:'중국',std:'DIN/EN 저상 + JIS',series:'6-QW 시리즈, AGM, EFB',cat:'https://www.camelgroup.com/product',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'camel_sea',br:'Camel',mk:'camel',rg:'SEA',ctry:'동남아',std:'JIS + DIN',series:'Camel MF',cat:'',fit:'',st:'미수집'},
+  {k:'atlas_kr',br:'Atlas BX',mk:'atlasbx',rg:'KR',ctry:'한국',std:'DIN/EN + JIS',series:'MF, AGM, EFB',cat:'https://www.hankookncompany.com',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'미확인'},
+  {k:'marshall_oce',br:'Marshall',mk:'atlasbx',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Marshall',cat:'',fit:'',st:'미수집'},
+  {k:'rocket_kr',br:'Rocket',mk:'sebang',rg:'KR',ctry:'한국',std:'DIN/EN + JIS',series:'SMF, AGM, EFB',cat:'https://rocketbattery.kr/rocket/batterysize.html',fit:'',st:'확인됨',nsrc:2,catKind:'productlist',catChk:'검색확인'},
+  {k:'gb_export',br:'GB',mk:'sebang',rg:'EU',ctry:'수출(유럽·중동)',std:'DIN/EN',series:'GB DIN, EFB, AGM',cat:'',fit:'',st:'미수집'},
+  {k:'gb_jp',br:'GB',mk:'sebang',rg:'JP',ctry:'일본',std:'JIS',series:'GB JIS, EFB(ISS)',cat:'',fit:'',st:'미수집'},
+  {k:'moura_lat',br:'Moura',mk:'moura',rg:'LAT',ctry:'브라질',std:'BCI + 현지',series:'Moura Light, Log, Start-Stop',cat:'https://www.moura.com.br/produtos/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'heliar_lat',br:'Heliar',mk:'clarios',rg:'LAT',ctry:'브라질',std:'BCI + 현지',series:'Free, Start-Stop',cat:'https://www.heliar.com.br/produtos',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'lth_lat',br:'LTH',mk:'clarios',rg:'LAT',ctry:'멕시코·중미',std:'BCI',series:'LTH, LTH AGM/EFB',cat:'https://www.lth.com.mx/productos',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'mutlu_mea',br:'Mutlu',mk:'mutlu',rg:'MEA',ctry:'터키·중동',std:'DIN/EN',series:'SFB, Silver Evolution, AGM',cat:'https://www.mutlu.com.tr/en/products',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'sabat_mea',br:'Sabat',mk:'fnb',rg:'MEA',ctry:'남아공',std:'BCI + DIN',series:'Sabat',cat:'',fit:'',st:'미수집'},
+  {k:'willard_mea',br:'Willard',mk:'metair',rg:'MEA',ctry:'남아공',std:'BCI + DIN',series:'Willard, Willard EFB',cat:'',fit:'',st:'미수집'},
+  {k:'banner_eu',br:'Banner',mk:'banner',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'Power Bull, Running Bull EFB·AGM, Buffalo Bull(상용)',cat:'https://www.bannerbatterien.com/en/products',fit:'https://www.bannerbatterien.com/en/battery-finder',st:'미수집',nsrc:2,catKind:'productlist',catChk:'패턴추정'},
+  {k:'tab_eu',br:'TAB',mk:'tab',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'Polar, Magic AGM, EFB',cat:'https://www.tabbatteries.com/en/products/starter-batteries/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'moll_eu',br:'MOLL',mk:'moll',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'M3 plus, start|stop plus EFB·AGM',cat:'https://www.moll-batterien.de/produkte/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'fiamm_eu',br:'FIAMM',mk:'fiamm',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'Titanium Pro, ecoForce EFB·AGM',cat:'https://www.fiamm.com/en/automotive/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'rombat_eu',br:'Rombat',mk:'rombat',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'Tornada, Pilot, EFB',cat:'https://www.rombat.ro/produse/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'monbat_eu',br:'Monbat',mk:'monbat',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'Formula, START EFB·AGM',cat:'https://www.monbat.com/en/products/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'midac_eu',br:'Midac',mk:'midac',rg:'EU',ctry:'유럽',std:'DIN/EN',series:'Sprint, Start&Stop AGM',cat:'https://www.midacbatteries.com/en/starter/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'inci_mea',br:'İnci Akü',mk:'inci',rg:'MEA',ctry:'터키',std:'DIN/EN',series:'Maraton Power, Suprex, EFB',cat:'https://www.incigsyuasa.com/en/products',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'leoch_cn',br:'Leoch',mk:'leoch',rg:'CN',ctry:'중국',std:'DIN/EN + JIS',series:'Xtreme, AGM, EFB',cat:'https://www.leoch.com/products/automotive-battery/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'interstate_na',br:'Interstate',mk:'interstate',rg:'NA',ctry:'북미',std:'BCI',series:'MTP, MTZ AGM',cat:'',fit:'https://www.interstatebatteries.com/battery-finder',st:'미수집',nsrc:1,catKind:'',catChk:''},
+  {k:'eastpenn_na',br:'Deka',mk:'eastpenn',rg:'NA',ctry:'북미',std:'BCI',series:'Deka Standard, Intimidator AGM, Duracell',cat:'https://www.dekabatteries.com/literature/',fit:'',st:'미수집',nsrc:2,catKind:'pdf',catChk:'패턴추정'},
+  {k:'3k_sea',br:'3K',mk:'3k',rg:'SEA',ctry:'태국',std:'JIS',series:'VS Premium, EFB',cat:'http://www.3kbattery.com/product',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'motolite_sea',br:'Motolite',mk:'motolite',rg:'SEA',ctry:'필리핀',std:'JIS',series:'Gold, EFB',cat:'https://www.motolite.com/products',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'pinaco_sea',br:'PINACO',mk:'pinaco',rg:'SEA',ctry:'베트남',std:'JIS',series:'Đồng Nai MF',cat:'https://en.pinaco.com/products',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'패턴추정'},
+  {k:'supercharge_oce',br:'SuperCharge',mk:'supercharge',rg:'OCE',ctry:'오세아니아',std:'DIN/EN + JIS',series:'Gold Plus, Allrounder AGM, EFB',cat:'https://www.supercharge.com.au/wp-content/uploads/2020/09/2019-Battery-Fitment-Guide-158ppCover-page-A4-lo.res_..pdf',fit:'',st:'확인됨',nsrc:1,catKind:'pdf',catChk:'검색확인'},
+  {k:'rahim_in',br:'Lucas / Spark',mk:'rahim',rg:'IN',ctry:'방글라데시',std:'DIN/EN + JIS',series:'Lucas DIN, Spark N 시리즈',cat:'http://www.rahimafrooz-batteries.com/wp-content/uploads/2018/01/Automotive-DIN.pdf',fit:'',st:'확인됨',nsrc:2,catKind:'pdf',catChk:'검색확인'},
 ];
 
 /* --- 글로벌 SLI 카달로그 시드 ------------------------------------------- */
@@ -1236,6 +1319,167 @@ const MODELS = [
 {mk:'inci',br:'İnci Akü',mdl:'İnci EFB LN3',sz:'LN3',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:74,rc:125,cca:748,cs:'EN',wt:18.4,cyc:1000,rg:['MEA','EU'],ver:'slot'},
 {mk:'metair',br:'Willard',mdl:'Willard EFB LBN2',sz:'LBN2',grp:'LBN2',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:100,cca:594,cs:'EN',wt:14.8,cyc:1000,rg:['MEA'],ver:'slot'},
 {mk:'eastpenn',br:'Deka',mdl:'Deka Intimidator AGM BCI 49',sz:'BCI 49',grp:'BCI 49',tech:'AGM',app:'스타트스톱',v:12,ah:92,rc:160,cca:977,cs:'SAE',wt:28.2,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 LBN1',bm:'bosch_eu',sz:'LBN1',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:400,cs:'EN',wt:11.2,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 LBN2',bm:'bosch_eu',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 LN1',bm:'bosch_eu',sz:'LN1',grp:'LN1',tech:'FLD',app:'승용SLI',v:12,ah:50,rc:80,cca:450,cs:'EN',wt:12.8,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 LN2',bm:'bosch_eu',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 LN3',bm:'bosch_eu',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 LBN1',bm:'bosch_eu',sz:'LBN1',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:400,cs:'EN',wt:11.2,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 LBN2',bm:'bosch_eu',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 LBN3',bm:'bosch_eu',sz:'LBN3',grp:'LBN3',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:120,cca:640,cs:'EN',wt:17.0,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 LN1',bm:'bosch_eu',sz:'LN1',grp:'LN1',tech:'FLD',app:'승용SLI',v:12,ah:50,rc:80,cca:450,cs:'EN',wt:12.8,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 LN2',bm:'bosch_eu',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 LN3',bm:'bosch_eu',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 LN4',bm:'bosch_eu',sz:'LN4',grp:'LN4',tech:'FLD',app:'승용SLI',v:12,ah:80,rc:140,cca:740,cs:'EN',wt:20.0,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 LN5',bm:'bosch_eu',sz:'LN5',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:95,rc:170,cca:800,cs:'EN',wt:22.5,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 LN2',bm:'bosch_eu',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 LN3',bm:'bosch_eu',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 LN4',bm:'bosch_eu',sz:'LN4',grp:'LN4',tech:'FLD',app:'승용SLI',v:12,ah:80,rc:140,cca:740,cs:'EN',wt:20.0,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 LN5',bm:'bosch_eu',sz:'LN5',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:95,rc:170,cca:800,cs:'EN',wt:22.5,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 LN6',bm:'bosch_eu',sz:'LN6',grp:'LN6',tech:'FLD',app:'승용SLI',v:12,ah:110,rc:200,cca:880,cs:'EN',wt:25.8,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 EFB LBN2',bm:'bosch_eu',sz:'LBN2',grp:'LBN2',tech:'EFB',app:'스타트스톱',v:12,ah:60,rc:100,cca:594,cs:'EN',wt:14.8,cyc:1000,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 EFB LN1',bm:'bosch_eu',sz:'LN1',grp:'LN1',tech:'EFB',app:'스타트스톱',v:12,ah:50,rc:80,cca:495,cs:'EN',wt:13.2,cyc:1000,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 EFB LN2',bm:'bosch_eu',sz:'LN2',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:62,rc:105,cca:594,cs:'EN',wt:15.6,cyc:1000,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 EFB LN3',bm:'bosch_eu',sz:'LN3',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:74,rc:125,cca:748,cs:'EN',wt:18.4,cyc:1000,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 EFB LN4',bm:'bosch_eu',sz:'LN4',grp:'LN4',tech:'EFB',app:'스타트스톱',v:12,ah:80,rc:140,cca:814,cs:'EN',wt:20.6,cyc:1000,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM LN2',bm:'bosch_eu',sz:'LN2',grp:'LN2',tech:'AGM',app:'스타트스톱',v:12,ah:62,rc:105,cca:621,cs:'EN',wt:17.4,cyc:1500,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM LN3',bm:'bosch_eu',sz:'LN3',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:74,rc:125,cca:782,cs:'EN',wt:20.6,cyc:1500,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM LN4',bm:'bosch_eu',sz:'LN4',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:851,cs:'EN',wt:23.0,cyc:1500,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM LN5',bm:'bosch_eu',sz:'LN5',grp:'LN5',tech:'AGM',app:'스타트스톱',v:12,ah:95,rc:170,cca:920,cs:'EN',wt:25.9,cyc:1500,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM LN3',bm:'bosch_eu',sz:'LN3',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:74,rc:125,cca:782,cs:'EN',wt:20.6,cyc:1500,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM LN4',bm:'bosch_eu',sz:'LN4',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:851,cs:'EN',wt:23.0,cyc:1500,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM LN5',bm:'bosch_eu',sz:'LN5',grp:'LN5',tech:'AGM',app:'스타트스톱',v:12,ah:95,rc:170,cca:920,cs:'EN',wt:25.9,cyc:1500,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM LN6',bm:'bosch_eu',sz:'LN6',grp:'LN6',tech:'AGM',app:'스타트스톱',v:12,ah:110,rc:200,cca:1012,cs:'EN',wt:29.7,cyc:1500,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch T4 (상용) EN B',bm:'bosch_eu',sz:'EN B',grp:'EN B',tech:'FLD',app:'상용차',v:12,ah:140,rc:260,cca:800,cs:'EN',wt:34.5,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch T4 (상용) EN C',bm:'bosch_eu',sz:'EN C',grp:'EN C',tech:'FLD',app:'상용차',v:12,ah:180,rc:350,cca:1000,cs:'EN',wt:43.0,rg:['EU'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (NA) BCI 24',bm:'bosch_na',sz:'BCI 24',grp:'BCI 24',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:130,cca:650,cs:'SAE',wt:18.6,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (NA) BCI 35',bm:'bosch_na',sz:'BCI 35',grp:'BCI 35',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:600,cs:'SAE',wt:15.8,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (NA) BCI 47',bm:'bosch_na',sz:'BCI 47',grp:'BCI 47',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:590,cs:'SAE',wt:15.6,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (NA) BCI 51R',bm:'bosch_na',sz:'BCI 51R',grp:'BCI 51R',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:80,cca:500,cs:'SAE',wt:12.4,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (NA) BCI 65',bm:'bosch_na',sz:'BCI 65',grp:'BCI 65',tech:'FLD',app:'승용SLI',v:12,ah:75,rc:150,cca:750,cs:'SAE',wt:20.4,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (NA) BCI 24',bm:'bosch_na',sz:'BCI 24',grp:'BCI 24',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:130,cca:650,cs:'SAE',wt:18.6,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (NA) BCI 48',bm:'bosch_na',sz:'BCI 48',grp:'BCI 48',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:120,cca:730,cs:'SAE',wt:19.8,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (NA) BCI 65',bm:'bosch_na',sz:'BCI 65',grp:'BCI 65',tech:'FLD',app:'승용SLI',v:12,ah:75,rc:150,cca:750,cs:'SAE',wt:20.4,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (NA) BCI 94R',bm:'bosch_na',sz:'BCI 94R',grp:'BCI 94R',tech:'FLD',app:'승용SLI',v:12,ah:80,rc:140,cca:800,cs:'SAE',wt:21.5,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM (NA) BCI 47',bm:'bosch_na',sz:'BCI 47',grp:'BCI 47',tech:'AGM',app:'스타트스톱',v:12,ah:62,rc:105,cca:678,cs:'SAE',wt:17.9,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM (NA) BCI 48',bm:'bosch_na',sz:'BCI 48',grp:'BCI 48',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:839,cs:'SAE',wt:22.8,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM (NA) BCI 49',bm:'bosch_na',sz:'BCI 49',grp:'BCI 49',tech:'AGM',app:'스타트스톱',v:12,ah:92,rc:160,cca:977,cs:'SAE',wt:28.2,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM (NA) BCI 65',bm:'bosch_na',sz:'BCI 65',grp:'BCI 65',tech:'AGM',app:'스타트스톱',v:12,ah:75,rc:150,cca:862,cs:'SAE',wt:23.5,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S6 AGM (NA) BCI 94R',bm:'bosch_na',sz:'BCI 94R',grp:'BCI 94R',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:920,cs:'SAE',wt:24.7,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch Platinum AGM BCI 34',bm:'bosch_na',sz:'BCI 34',grp:'BCI 34',tech:'AGM',app:'스타트스톱',v:12,ah:50,rc:100,cca:805,cs:'SAE',wt:19.5,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch Platinum AGM BCI 48',bm:'bosch_na',sz:'BCI 48',grp:'BCI 48',tech:'AGM',app:'스타트스톱',v:12,ah:70,rc:120,cca:839,cs:'SAE',wt:22.8,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch Platinum AGM BCI 94R',bm:'bosch_na',sz:'BCI 94R',grp:'BCI 94R',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:920,cs:'SAE',wt:24.7,cyc:1500,rg:['NA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 (IN) B19',bm:'bosch_in',sz:'B19',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:33,rc:57,cca:330,cs:'SAE',wt:9.6,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 (IN) B24',bm:'bosch_in',sz:'B24',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:430,cs:'SAE',wt:11.8,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 (IN) LBN1',bm:'bosch_in',sz:'LBN1',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:400,cs:'EN',wt:11.2,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 (IN) LBN2',bm:'bosch_in',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (IN) B19',bm:'bosch_in',sz:'B19',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:33,rc:57,cca:330,cs:'SAE',wt:9.6,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (IN) B24',bm:'bosch_in',sz:'B24',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:430,cs:'SAE',wt:11.8,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (IN) D23',bm:'bosch_in',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (IN) LBN2',bm:'bosch_in',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (IN) LN2',bm:'bosch_in',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (IN) LN3',bm:'bosch_in',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (IN) D23',bm:'bosch_in',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (IN) D26',bm:'bosch_in',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (IN) LN2',bm:'bosch_in',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (IN) LN3',bm:'bosch_in',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 (IN) LN5',bm:'bosch_in',sz:'LN5',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:95,rc:170,cca:800,cs:'EN',wt:22.5,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch T4 (IN 상용) E41',bm:'bosch_in',sz:'E41',grp:'E41',tech:'FLD',app:'상용차',v:12,ah:100,rc:200,cca:750,cs:'SAE',wt:28.0,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch T4 (IN 상용) G51',bm:'bosch_in',sz:'G51',grp:'G51',tech:'FLD',app:'상용차',v:12,ah:150,rc:300,cca:900,cs:'SAE',wt:38.5,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch T4 (IN 상용) H52',bm:'bosch_in',sz:'H52',grp:'H52',tech:'FLD',app:'상용차',v:12,ah:200,rc:430,cca:1150,cs:'SAE',wt:50.0,rg:['IN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 (LAT) BCI 24',bm:'bosch_lat',sz:'BCI 24',grp:'BCI 24',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:130,cca:650,cs:'SAE',wt:18.6,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 (LAT) BCI 25',bm:'bosch_lat',sz:'BCI 25',grp:'BCI 25',tech:'FLD',app:'승용SLI',v:12,ah:55,rc:95,cca:600,cs:'SAE',wt:15.5,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S3 (LAT) BCI 34',bm:'bosch_lat',sz:'BCI 34',grp:'BCI 34',tech:'FLD',app:'승용SLI',v:12,ah:50,rc:100,cca:700,cs:'SAE',wt:17.0,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (LAT) BCI 24',bm:'bosch_lat',sz:'BCI 24',grp:'BCI 24',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:130,cca:650,cs:'SAE',wt:18.6,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (LAT) BCI 27',bm:'bosch_lat',sz:'BCI 27',grp:'BCI 27',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:170,cca:750,cs:'SAE',wt:22.5,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (LAT) BCI 35',bm:'bosch_lat',sz:'BCI 35',grp:'BCI 35',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:600,cs:'SAE',wt:15.8,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (CN) LBN1',bm:'bosch_cn',sz:'LBN1',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:400,cs:'EN',wt:11.2,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (CN) LBN2',bm:'bosch_cn',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (CN) LN2',bm:'bosch_cn',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (CN) LN3',bm:'bosch_cn',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM (CN) LN2',bm:'bosch_cn',sz:'LN2',grp:'LN2',tech:'AGM',app:'스타트스톱',v:12,ah:62,rc:105,cca:621,cs:'EN',wt:17.4,cyc:1500,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM (CN) LN3',bm:'bosch_cn',sz:'LN3',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:74,rc:125,cca:782,cs:'EN',wt:20.6,cyc:1500,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM (CN) LN4',bm:'bosch_cn',sz:'LN4',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:851,cs:'EN',wt:23.0,cyc:1500,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (OCE) D23',bm:'bosch_oce',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (OCE) D26',bm:'bosch_oce',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (OCE) D31',bm:'bosch_oce',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (OCE) LBN2',bm:'bosch_oce',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (OCE) LN2',bm:'bosch_oce',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (OCE) LN3',bm:'bosch_oce',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM (OCE) LN3',bm:'bosch_oce',sz:'LN3',grp:'LN3',tech:'AGM',app:'스타트스톱',v:12,ah:74,rc:125,cca:782,cs:'EN',wt:20.6,cyc:1500,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S5 AGM (OCE) LN4',bm:'bosch_oce',sz:'LN4',grp:'LN4',tech:'AGM',app:'스타트스톱',v:12,ah:80,rc:140,cca:851,cs:'EN',wt:23.0,cyc:1500,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (MEA) LBN1',bm:'bosch_mea',sz:'LBN1',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:400,cs:'EN',wt:11.2,rg:['MEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (MEA) LBN2',bm:'bosch_mea',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['MEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (MEA) LN2',bm:'bosch_mea',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['MEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (MEA) LN3',bm:'bosch_mea',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['MEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (MEA) LN5',bm:'bosch_mea',sz:'LN5',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:95,rc:170,cca:800,cs:'EN',wt:22.5,rg:['MEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (SEA) B19',bm:'bosch_sea',sz:'B19',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:33,rc:57,cca:330,cs:'SAE',wt:9.6,rg:['SEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (SEA) B24',bm:'bosch_sea',sz:'B24',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:430,cs:'SAE',wt:11.8,rg:['SEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (SEA) D23',bm:'bosch_sea',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['SEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (SEA) D26',bm:'bosch_sea',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['SEA'],ver:'slot'},
+{mk:'clarios',br:'Bosch',mdl:'Bosch S4 (SEA) D31',bm:'bosch_sea',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['SEA'],ver:'slot'},
+{mk:'clarios',br:'VARTA',mdl:'VARTA Blue Dynamic (CN) LBN1',bm:'varta_cn',sz:'LBN1',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:400,cs:'EN',wt:11.2,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'VARTA',mdl:'VARTA Blue Dynamic (CN) LBN2',bm:'varta_cn',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'VARTA',mdl:'VARTA Blue Dynamic (CN) LN2',bm:'varta_cn',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'VARTA',mdl:'VARTA Blue Dynamic (CN) LN3',bm:'varta_cn',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['CN'],ver:'slot'},
+{mk:'clarios',br:'VARTA',mdl:'VARTA Blue Dynamic (MEA) LBN2',bm:'varta_mea',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['MEA'],ver:'slot'},
+{mk:'clarios',br:'VARTA',mdl:'VARTA Blue Dynamic (MEA) LN2',bm:'varta_mea',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['MEA'],ver:'slot'},
+{mk:'clarios',br:'VARTA',mdl:'VARTA Blue Dynamic (MEA) LN3',bm:'varta_mea',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['MEA'],ver:'slot'},
+{mk:'clarios',br:'VARTA',mdl:'VARTA Blue Dynamic (MEA) LN5',bm:'varta_mea',sz:'LN5',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:95,rc:170,cca:800,cs:'EN',wt:22.5,rg:['MEA'],ver:'slot'},
+{mk:'exide',br:'Exide',mdl:'Exide Excell (MEA) LBN1',bm:'exide_mea',sz:'LBN1',grp:'LBN1',tech:'FLD',app:'승용SLI',v:12,ah:44,rc:70,cca:400,cs:'EN',wt:11.2,rg:['MEA'],ver:'slot'},
+{mk:'exide',br:'Exide',mdl:'Exide Excell (MEA) LBN2',bm:'exide_mea',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['MEA'],ver:'slot'},
+{mk:'exide',br:'Exide',mdl:'Exide Excell (MEA) LN2',bm:'exide_mea',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['MEA'],ver:'slot'},
+{mk:'exide',br:'Exide',mdl:'Exide Excell (MEA) LN3',bm:'exide_mea',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['MEA'],ver:'slot'},
+{mk:'exide',br:'Exide',mdl:'Exide Excell (MEA) LN5',bm:'exide_mea',sz:'LN5',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:95,rc:170,cca:800,cs:'EN',wt:22.5,rg:['MEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco Gold (MEA) LBN2',bm:'acdelco_mea',sz:'LBN2',grp:'LBN2',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:100,cca:540,cs:'EN',wt:14.4,rg:['MEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco Gold (MEA) LN2',bm:'acdelco_mea',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['MEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco Gold (MEA) LN3',bm:'acdelco_mea',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['MEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco Gold (MEA) BCI 24',bm:'acdelco_mea',sz:'BCI 24',grp:'BCI 24',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:130,cca:650,cs:'SAE',wt:18.6,rg:['MEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco Gold (MEA) BCI 65',bm:'acdelco_mea',sz:'BCI 65',grp:'BCI 65',tech:'FLD',app:'승용SLI',v:12,ah:75,rc:150,cca:750,cs:'SAE',wt:20.4,rg:['MEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco (OCE) D23',bm:'acdelco_oce',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['OCE'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco (OCE) D26',bm:'acdelco_oce',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['OCE'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco (OCE) D31',bm:'acdelco_oce',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['OCE'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco (OCE) LN2',bm:'acdelco_oce',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['OCE'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco (OCE) LN3',bm:'acdelco_oce',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['OCE'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco MF (SEA) B19',bm:'acdelco_sea',sz:'B19',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:33,rc:57,cca:330,cs:'SAE',wt:9.6,rg:['SEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco MF (SEA) B24',bm:'acdelco_sea',sz:'B24',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:430,cs:'SAE',wt:11.8,rg:['SEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco MF (SEA) D23',bm:'acdelco_sea',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['SEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco MF (SEA) D26',bm:'acdelco_sea',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['SEA'],ver:'slot'},
+{mk:'acdelco',br:'ACDelco',mdl:'ACDelco MF (SEA) D31',bm:'acdelco_sea',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['SEA'],ver:'slot'},
+{mk:'amararaja',br:'Amaron',mdl:'Amaron MF (SEA) B19',bm:'amaron_sea',sz:'B19',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:33,rc:57,cca:330,cs:'SAE',wt:9.6,rg:['SEA'],ver:'slot'},
+{mk:'amararaja',br:'Amaron',mdl:'Amaron MF (SEA) B24',bm:'amaron_sea',sz:'B24',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:430,cs:'SAE',wt:11.8,rg:['SEA'],ver:'slot'},
+{mk:'amararaja',br:'Amaron',mdl:'Amaron MF (SEA) D23',bm:'amaron_sea',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['SEA'],ver:'slot'},
+{mk:'amararaja',br:'Amaron',mdl:'Amaron MF (SEA) D26',bm:'amaron_sea',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['SEA'],ver:'slot'},
+{mk:'amararaja',br:'Amaron',mdl:'Amaron MF (SEA) D31',bm:'amaron_sea',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['SEA'],ver:'slot'},
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'GS MF (SEA) B19',bm:'gsyuasa_sea',sz:'B19',grp:'B19',tech:'FLD',app:'승용SLI',v:12,ah:33,rc:57,cca:330,cs:'SAE',wt:9.6,rg:['SEA'],ver:'slot'},
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'GS MF (SEA) B24',bm:'gsyuasa_sea',sz:'B24',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:430,cs:'SAE',wt:11.8,rg:['SEA'],ver:'slot'},
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'GS MF (SEA) D23',bm:'gsyuasa_sea',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['SEA'],ver:'slot'},
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'GS MF (SEA) D26',bm:'gsyuasa_sea',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['SEA'],ver:'slot'},
+{mk:'gsyuasa',br:'GS Yuasa',mdl:'GS MF (SEA) D31',bm:'gsyuasa_sea',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['SEA'],ver:'slot'},
+{mk:'camel',br:'Camel',mdl:'Camel MF (SEA) B24',bm:'camel_sea',sz:'B24',grp:'B24',tech:'FLD',app:'승용SLI',v:12,ah:45,rc:75,cca:430,cs:'SAE',wt:11.8,rg:['SEA'],ver:'slot'},
+{mk:'camel',br:'Camel',mdl:'Camel MF (SEA) D23',bm:'camel_sea',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['SEA'],ver:'slot'},
+{mk:'camel',br:'Camel',mdl:'Camel MF (SEA) D26',bm:'camel_sea',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['SEA'],ver:'slot'},
+{mk:'camel',br:'Camel',mdl:'Camel MF (SEA) D31',bm:'camel_sea',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['SEA'],ver:'slot'},
+{mk:'centuryy',br:'Yuasa',mdl:'Yuasa (OCE) D23',bm:'yuasa_oce',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['OCE'],ver:'slot'},
+{mk:'centuryy',br:'Yuasa',mdl:'Yuasa (OCE) D26',bm:'yuasa_oce',sz:'D26',grp:'D26',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:125,cca:620,cs:'SAE',wt:17.6,rg:['OCE'],ver:'slot'},
+{mk:'centuryy',br:'Yuasa',mdl:'Yuasa (OCE) D31',bm:'yuasa_oce',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['OCE'],ver:'slot'},
+{mk:'centuryy',br:'Yuasa',mdl:'Yuasa (OCE) LN2',bm:'yuasa_oce',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['OCE'],ver:'slot'},
+{mk:'centuryy',br:'Yuasa',mdl:'Yuasa (OCE) LN3',bm:'yuasa_oce',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['OCE'],ver:'slot'},
+{mk:'atlasbx',br:'Marshall',mdl:'Marshall (OCE) LN2',bm:'marshall_oce',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['OCE'],ver:'slot'},
+{mk:'atlasbx',br:'Marshall',mdl:'Marshall (OCE) LN3',bm:'marshall_oce',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['OCE'],ver:'slot'},
+{mk:'atlasbx',br:'Marshall',mdl:'Marshall (OCE) LN5',bm:'marshall_oce',sz:'LN5',grp:'LN5',tech:'FLD',app:'승용SLI',v:12,ah:95,rc:170,cca:800,cs:'EN',wt:22.5,rg:['OCE'],ver:'slot'},
+{mk:'clarios',br:'Heliar',mdl:'Heliar Start-Stop EFB (LAT) LN2',bm:'heliar_lat',sz:'LN2',grp:'LN2',tech:'EFB',app:'스타트스톱',v:12,ah:62,rc:105,cca:594,cs:'EN',wt:15.6,cyc:1000,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'Heliar',mdl:'Heliar Start-Stop EFB (LAT) LN3',bm:'heliar_lat',sz:'LN3',grp:'LN3',tech:'EFB',app:'스타트스톱',v:12,ah:74,rc:125,cca:748,cs:'EN',wt:18.4,cyc:1000,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'LTH',mdl:'LTH AGM (LAT) BCI 47',bm:'lth_lat',sz:'BCI 47',grp:'BCI 47',tech:'AGM',app:'스타트스톱',v:12,ah:62,rc:105,cca:678,cs:'SAE',wt:17.9,cyc:1500,rg:['LAT'],ver:'slot'},
+{mk:'clarios',br:'LTH',mdl:'LTH AGM (LAT) BCI 49',bm:'lth_lat',sz:'BCI 49',grp:'BCI 49',tech:'AGM',app:'스타트스톱',v:12,ah:92,rc:160,cca:977,cs:'SAE',wt:28.2,cyc:1500,rg:['LAT'],ver:'slot'},
+{mk:'metair',br:'Willard',mdl:'Willard (MEA) BCI 24',bm:'willard_mea',sz:'BCI 24',grp:'BCI 24',tech:'FLD',app:'승용SLI',v:12,ah:70,rc:130,cca:650,cs:'SAE',wt:18.6,rg:['MEA'],ver:'slot'},
+{mk:'metair',br:'Willard',mdl:'Willard (MEA) BCI 25',bm:'willard_mea',sz:'BCI 25',grp:'BCI 25',tech:'FLD',app:'승용SLI',v:12,ah:55,rc:95,cca:600,cs:'SAE',wt:15.5,rg:['MEA'],ver:'slot'},
+{mk:'metair',br:'Willard',mdl:'Willard (MEA) LN2',bm:'willard_mea',sz:'LN2',grp:'LN2',tech:'FLD',app:'승용SLI',v:12,ah:62,rc:105,cca:540,cs:'EN',wt:15.1,rg:['MEA'],ver:'slot'},
+{mk:'metair',br:'Willard',mdl:'Willard (MEA) LN3',bm:'willard_mea',sz:'LN3',grp:'LN3',tech:'FLD',app:'승용SLI',v:12,ah:74,rc:125,cca:680,cs:'EN',wt:17.9,rg:['MEA'],ver:'slot'},
+{mk:'fnb',br:'Sabat',mdl:'Sabat (MEA) BCI 25',bm:'sabat_mea',sz:'BCI 25',grp:'BCI 25',tech:'FLD',app:'승용SLI',v:12,ah:55,rc:95,cca:600,cs:'SAE',wt:15.5,rg:['MEA'],ver:'slot'},
+{mk:'fnb',br:'Sabat',mdl:'Sabat (MEA) BCI 27',bm:'sabat_mea',sz:'BCI 27',grp:'BCI 27',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:170,cca:750,cs:'SAE',wt:22.5,rg:['MEA'],ver:'slot'},
+{mk:'fnb',br:'Sabat',mdl:'Sabat (MEA) D23',bm:'sabat_mea',sz:'D23',grp:'D23',tech:'FLD',app:'승용SLI',v:12,ah:60,rc:105,cca:550,cs:'SAE',wt:15.5,rg:['MEA'],ver:'slot'},
+{mk:'fnb',br:'Sabat',mdl:'Sabat (MEA) D31',bm:'sabat_mea',sz:'D31',grp:'D31',tech:'FLD',app:'승용SLI',v:12,ah:90,rc:165,cca:730,cs:'SAE',wt:22.8,rg:['MEA'],ver:'slot'},
 ];
 
 /* --- 차량 적합성 (피트먼트) --------------------------------------------- */
@@ -1533,6 +1777,7 @@ const TITLES = {
   cmp:  ['성능 비교', '용도군 내 상대 성능'],
   xref: ['규격 크로스레퍼런스', '같은 규격에서의 스펙 격차'],
   rgn:  ['판매지역', '지역별 커버리지와 공백'],
+  bm:   ['브랜드 · 마켓', '나라마다 다른 라인업과 카탈로그 주소'],
   src:  ['제조사 · 수집관리', '카달로그 확보 현황'],
   data: ['데이터 관리', '가져오기 · 백업 · 품질']
 };
@@ -1733,6 +1978,12 @@ function openDetail(id) {
     (e.judge ? kv('스펙 판정', e.judge) : '') +
     (e.mc20 || e.mcca ? kv('표기치', [e.mc20 ? 'C20 ' + e.mc20 : '', e.mrc ? 'RC ' + e.mrc : '', e.msae ? 'SAE ' + e.msae : '', e.men ? 'EN ' + e.men : ''].filter(Boolean).join(' / ')) : '') +
     ((e.o25 || e.s25) ? kv('오더/판매', ['25년 오더 ' + (e.o25 || 0), '25년 판매 ' + (e.s25 || 0), '26년 판매 ' + (e.s26 || 0)].join(' / ')) : '') +
+    kv('브랜드·마켓', (function () {
+      const b = BRAND_MARKETS.filter(x => x.k === m.bm)[0];
+      if (!b) return null;
+      return h(b.br) + ' / ' + h(b.ctry) + ' · ' + h(b.std) +
+        (b.cat ? ' <a href="' + h(b.cat) + '" target="_blank" rel="noopener">카탈로그 ↗</a>' : '');
+    })()) +
     kv('근거 카달로그', m.doc ? h(m.doc) + (m.pg ? ' p.' + h(m.pg) : '') : null) +
     kv('출처', m.note || (m.src === 'import' ? '사내 임포트' : m.src === 'user' ? '직접 입력' : '시드 데이터')) +
     '</dl>' +
@@ -2103,6 +2354,60 @@ function renderRgn() {
     {k: 'apps', t: '용도 구성', r: r => Object.keys(r.app).map(a => a + ' ' + r.app[a]).join(' · ') || '-'},
     {k: 'sales', t: '판매실적(임포트)', num: true, r: r => r.sales ? r.sales.toLocaleString() : '<span class="muted">-</span>'}
   ], list, {sortKey: 'rgn', defSort: 'all'});
+}
+
+/* --- 브랜드 · 마켓 ------------------------------------------------------
+   같은 브랜드가 나라마다 다른 시리즈를 판다.  카탈로그도 그 단위로 따로 있다. */
+function allBrandMarkets() {
+  const models = allModels();
+  return BRAND_MARKETS.map(b => Object.assign({}, b, store.bmEdits && store.bmEdits[b.k], {
+    n: models.filter(m => m.bm === b.k).length,
+    nBr: models.filter(m => !m.bm && m.br === b.br && (m.rg || []).indexOf(b.rg) >= 0).length,
+    rgName: RGN_MAP[b.rg] || b.rg
+  }));
+}
+function renderBm() {
+  const list = allBrandMarkets(), f = filters.bm || (filters.bm = {});
+  const q = (f.q || '').trim().toLowerCase();
+  document.getElementById('bmFilters').innerHTML =
+    '<input type="search" id="bq" placeholder="브랜드·제조사·마켓 검색" value="' + h(f.q || '') + '">' +
+    '<select id="bRgn"><option value="">지역 전체</option>' +
+      REGIONS.map(r => '<option value="' + r.k + '"' + (f.rgn === r.k ? ' selected' : '') + '>' + h(r.n) + '</option>').join('') + '</select>' +
+    '<select id="bStd"><option value="">규격체계 전체</option>' + selOpts(uniq(list.map(x => x.std)), f.std) + '</select>' +
+    '<label class="chip"><input type="checkbox" id="bChk"' + (f.chkOnly ? ' checked' : '') + '> 주소 확인된 것만</label>' +
+    '<button class="btn sm" onclick="filters.bm={};render()">초기화</button>';
+  ['q:bq', 'rgn:bRgn', 'std:bStd'].forEach(pair => {
+    const key = pair.split(':')[0], id = pair.split(':')[1];
+    bindFilter(id, () => { f[key] = document.getElementById(id).value; renderBm(); });
+  });
+  bindFilter('bChk', () => { f.chkOnly = document.getElementById('bChk').checked; renderBm(); });
+
+  const rows = list.filter(b => {
+    if (f.rgn && b.rg !== f.rgn) return false;
+    if (f.std && b.std !== f.std) return false;
+    if (f.chkOnly && b.st !== '확인됨') return false;
+    if (q && [b.br, b.ctry, b.series, (MK_MAP[b.mk] || {}).n].join(' ').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  const link = (url, kind, chk) => {
+    if (!url) return '<span class="tag t-warn">주소 없음</span>';
+    const label = {pdf: 'PDF', productlist: '제품목록', pattern: 'URL패턴', sitemap: '사이트맵'}[kind] || '열기';
+    return '<a href="' + h(url) + '" target="_blank" rel="noopener" title="' + h(url) + '">' + label + ' ↗</a>' +
+      (chk === '검색확인' ? ' <span class="tag t-ok">확인됨</span>' : ' <span class="tag t-warn">경로추정</span>');
+  };
+  table('tbBm', [
+    {k: 'br', t: '브랜드', lead: true, r: r => h(r.br) + ' <span class="muted">' + h(r.ctry) + '</span>'},
+    {k: 'mkName', t: '제조사', sv: r => (MK_MAP[r.mk] || {}).n, r: r => h((MK_MAP[r.mk] || {}).n || r.mk)},
+    {k: 'rgName', t: '지역'},
+    {k: 'std', t: '규격체계'},
+    {k: 'series', t: '판매 시리즈', mh: true, r: r => '<span title="' + h(r.series) + '">' + h(r.series.slice(0, 46)) + (r.series.length > 46 ? '…' : '') + '</span>'},
+    {k: 'n', t: '등록 모델', num: true, r: r => r.n ? r.n : (r.nBr ? '<span class="muted">' + r.nBr + ' (브랜드 전체)</span>' : '<span class="tag t-warn">0</span>')},
+    {k: 'nsrc', t: '소스 URL', num: true, mh: true, r: r => r.nsrc || '<span class="muted">0</span>'},
+    {k: 'cat', t: '카탈로그', nosort: true, r: r => link(r.cat, r.catKind, r.catChk)},
+    {k: 'fit', t: '피트먼트', nosort: true, r: r => r.fit ? '<a href="' + h(r.fit) + '" target="_blank" rel="noopener">차량검색 ↗</a>' : '<span class="muted">-</span>'},
+    {k: 'st', t: '상태', r: r => '<span class="tag ' + (r.st === '확인됨' ? 't-ok' : 't-warn') + '">' + h(r.st) + '</span>'}
+  ], rows, {sortKey: 'bm', defSort: 'n', empty: '조건에 맞는 브랜드·마켓이 없다.'});
+  document.getElementById('cntBm').textContent = list.length;
 }
 
 /* --- 제조사 · 수집관리 -------------------------------------------------- */
@@ -2576,12 +2881,14 @@ function render() {
   else if (view === 'cmp') renderCmp();
   else if (view === 'xref') renderXref();
   else if (view === 'rgn') renderRgn();
+  else if (view === 'bm') renderBm();
   else if (view === 'src') renderSrc();
   else if (view === 'data') renderData();
   document.getElementById('cntCat').textContent = allModels().length;
   document.getElementById('cntFit').textContent = allFitment().length;
   document.getElementById('cntCmp').textContent = store.cart.length || '';
   document.getElementById('cntSrc').textContent = allMakers().length;
+  document.getElementById('cntBm').textContent = BRAND_MARKETS.length;
   renderStoreInfo();
 }
 function helpDrawer() {

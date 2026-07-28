@@ -50,6 +50,15 @@ CSV·백업 내보내기는 공유 시트로 떠서 메신저·메일로 바로 
   폰과 PC 를 같이 쓰려면 [전체 JSON 백업]으로 내보내 옮긴다.
 - 제조사 카달로그 PDF 원본은 저작물이라 `catalogs/` 를 `.gitignore` 처리했다.
 
+### 브랜드 × 마켓
+
+같은 브랜드라도 나라마다 파는 시리즈와 규격체계가 다르다. Bosch 가 대표적이라
+유럽은 S3~S6 에 DIN·ETN, 북미는 S4·S5·S6 AGM 에 BCI 그룹, 인도는 S4+·T4·M6 까지,
+중국은 저상 L2 계열이다. 그래서 **브랜드 × 마켓**을 1급 단위로 두고 카탈로그
+주소·수집상태를 그 단위로 관리한다. `data/catalog_sources.csv` 의 URL 은
+대표 홈페이지가 아니라 **실제 카탈로그·제품목록 주소**이고, 존재를 확인한
+것과 경로를 추정한 것을 구분해 뒀다.
+
 ### 도구 (PC 가 있을 때)
 
 ```bash
@@ -57,10 +66,12 @@ CSV·백업 내보내기는 공유 시트로 떠서 메신저·메일로 바로 
 pip install openpyxl
 python3 tools/gb_japan_to_catalog_csv.py 일본제품리스트.xlsx gb_japan.csv
 
-# 제조사 카달로그 PDF 수집 + 근거(SHA-256·페이지수·수집일) 기록
-pip install requests
-python3 tools/fetch_catalogs.py            # data/catalog_sources.csv 를 돈다
-python3 tools/fetch_catalogs.py --only exide banner
+# 카탈로그 수집 — PDF·제품목록·사이트맵·URL패턴을 훑고 스펙까지 뽑는다
+pip install requests pypdf
+python3 tools/collect.py --dry                   # 받을 URL 먼저 확인
+python3 tools/collect.py                         # 전체 수집
+python3 tools/collect.py --only bosch_na bosch_in
+python3 tools/collect.py --types pdf --loose     # 규격코드 없는 줄까지 주워담기
 ```
 
 ```bash
