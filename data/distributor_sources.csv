@@ -1,4 +1,4 @@
-유통사키,유통사,국가,지역,사이트,제품목록URL,브랜드페이지패턴,취급 브랜드,확인,비고
+﻿유통사키,유통사,국가,지역,사이트,제품목록URL,브랜드페이지패턴,취급 브랜드,확인,비고
 tayna,Tayna Batteries,영국,EU,https://www.tayna.co.uk,https://www.tayna.co.uk/car-batteries/,https://www.tayna.co.uk/car-batteries/{brand}/,Varta|Bosch|Yuasa|Exide|Numax|Lucas|Powerline|Odyssey|MK|Sonnenschein|Westco,검색확인,브랜드별 목록 URL 이 규칙적이라 통째로 긁기 좋다
 lion_au,Lion Batteries,호주,OCE,https://www.lionbatteries.com.au,https://www.lionbatteries.com.au/product-category/,,Lion|FIAMM|Hoppecke,검색확인,자체 브랜드 + 유럽 브랜드 유통
 cyb_au,Century Yuasa Batteries,호주,OCE,https://www.cyb.com.au,https://www.cyb.com.au/divisions/automotive,,Century|GS Yuasa|Besco|Maxx Yuasa|Katana|Enersun|Intelepower|Optima,검색확인,호주 최대 유통 — 한 곳에서 8개 브랜드
@@ -20,3 +20,11 @@ batteryzone_au,Battery Zone,호주,OCE,https://batteryzone.com.au,https://batter
 mdsbattery,MDS Battery,영국,EU,https://www.mdsbattery.co.uk,https://www.mdsbattery.co.uk/car-batteries,,다브랜드,검색확인,규격 해설 자료가 좋다
 batterybrands_au,Battery Brands Warehouse,호주,OCE,https://batterybrands.com.au,https://batterybrands.com.au/collections/century,,Century|AC Delco|다브랜드,검색확인,브랜드별 컬렉션 URL
 supercharge_au,SuperCharge Batteries,호주,OCE,https://www.supercharge.com.au,https://www.supercharge.com.au,,SuperCharge,검색확인,158쪽 피트먼트 가이드 보유
+azb,AZB Group (Abdul Zahir Bashir),UAE,MEA,https://azb.ae,https://azb.ae/automotive/car-battery,https://azb.ae/automotive/car-battery/{brand}/,Delkor|Global|SBK|3K|Platinum,검색확인,두바이 마스터 디스트리뷰터 — MENA 전역. 브랜드별 URL 규칙적
+giaphat,Gia Phat (VN),베트남,SEA,http://giaphatvn.com,http://giaphatvn.com/en/about-us,,VARTA|GS|Delkor|Bosch|Vision,검색확인,"한국·태국산 조달, 5개 브랜드 병행"
+gsyuasa_eu,GS Yuasa Battery Europe (YBS),영국·독일·프랑스·스페인·스웨덴,EU,https://www.yuasaeurope.com,https://www.gs-yuasa.eu/uk/distributor-locator,,Yuasa|GS Yuasa,검색확인,유럽 판매법인 — YBS/YBEU/YBF/YBIB/YBIT 가 이 조직
+advbatt,Advanced Battery Supplies,영국,EU,https://advancedbatterysupplies.co.uk,https://advancedbatterysupplies.co.uk/trade-sales/,,다브랜드,검색확인,영국 온라인 도매 50년
+aceon,AceOn Group,영국,EU,https://www.aceongroup.com,https://www.aceongroup.com/battery-distribution/,,다브랜드,검색확인,영국 배터리 유통
+envirobatt,enviroBATT,영국,EU,https://www.envirobatt.co.uk,https://www.envirobatt.co.uk,,다브랜드,검색확인,영국 유통
+emerald_lk,Emerald International (Pvt) Ltd,스리랑카,IN,,,,다브랜드,미확인,스리랑카 수입상 — 사이트 확인 필요
+bosch_dist,Robert Bosch 현지법인망,다국,ETC,https://www.boschaftermarket.com,,https://{cc}.boschaftermarket.com/{cc}/en/parts/batteries/,Bosch,검색확인,아프리카·중남미·동남아 25개국 이상에서 배터리 유통 — 국가별 포털

@@ -627,6 +627,8 @@ const MAKERS = [
   {k:'tayna',     n:'Tayna Batteries',           c:'영국',   t:'D', rg:['EU'],       br:'Powerline (PB), 다브랜드', site:'https://www.tayna.co.uk', st:'미수집', ed:''},
   {k:'lkq',       n:'LKQ Europe (STAHLGRUBER 외)', c:'유럽', t:'D', rg:['EU'],       br:'다브랜드', site:'https://lkqeurope.com', st:'미수집', ed:''},
   {k:'aldobowi',  n:'Al Dobowi Group',           c:'UAE',   t:'D', rg:['MEA'],      br:'다브랜드', site:'https://aldobowi.ae', st:'미수집', ed:''},
+  {k:'azb',       n:'AZB Group (Abdul Zahir Bashir)', c:'UAE', t:'D', rg:['MEA'], br:'SBK, Platinum (자체) + 다브랜드', site:'https://azb.ae', st:'미수집', ed:''},
+  {k:'giaphat',   n:'Gia Phat (VN)',             c:'베트남', t:'D', rg:['SEA'],     br:'다브랜드 유통', site:'http://giaphatvn.com', st:'미수집', ed:''},
   /* 유통사 */
   {k:'interstate',n:'Interstate Batteries',  c:'미국',   t:'D', rg:['NA'],            br:'Interstate (OEM 조달)', site:'https://www.interstatebatteries.com', st:'미수집', ed:''},
   {k:'ecobat',   n:'Ecobat Battery',         c:'미국/유럽', t:'D', rg:['NA','EU'],    br:'다브랜드 유통', site:'https://www.ecobat.com', st:'미수집', ed:''},
@@ -661,6 +663,14 @@ const DISTRIBUTORS = [
   {k:"mdsbattery",n:"MDS Battery",c:"영국",rg:"EU",site:"https://www.mdsbattery.co.uk",list:"https://www.mdsbattery.co.uk/car-batteries",pat:"",br:"다브랜드",chk:"검색확인",note:"규격 해설 자료가 좋다"},
   {k:"batterybrands_au",n:"Battery Brands Warehouse",c:"호주",rg:"OCE",site:"https://batterybrands.com.au",list:"https://batterybrands.com.au/collections/century",pat:"",br:"Century|AC Delco|다브랜드",chk:"검색확인",note:"브랜드별 컬렉션 URL"},
   {k:"supercharge_au",n:"SuperCharge Batteries",c:"호주",rg:"OCE",site:"https://www.supercharge.com.au",list:"https://www.supercharge.com.au",pat:"",br:"SuperCharge",chk:"검색확인",note:"158쪽 피트먼트 가이드 보유"},
+  {k:"azb",n:"AZB Group (Abdul Zahir Bashir)",c:"UAE",rg:"MEA",site:"https://azb.ae",list:"https://azb.ae/automotive/car-battery",pat:"https://azb.ae/automotive/car-battery/{brand}/",br:"Delkor|Global|SBK|3K|Platinum",chk:"검색확인",note:"두바이 마스터 디스트리뷰터 — MENA 전역. 브랜드별 URL 규칙적"},
+  {k:"giaphat",n:"Gia Phat (VN)",c:"베트남",rg:"SEA",site:"http://giaphatvn.com",list:"http://giaphatvn.com/en/about-us",pat:"",br:"VARTA|GS|Delkor|Bosch|Vision",chk:"검색확인",note:"한국·태국산 조달, 5개 브랜드 병행"},
+  {k:"gsyuasa_eu",n:"GS Yuasa Battery Europe (YBS)",c:"영국·독일·프랑스·스페인·스웨덴",rg:"EU",site:"https://www.yuasaeurope.com",list:"https://www.gs-yuasa.eu/uk/distributor-locator",pat:"",br:"Yuasa|GS Yuasa",chk:"검색확인",note:"유럽 판매법인 — YBS/YBEU/YBF/YBIB/YBIT 가 이 조직"},
+  {k:"advbatt",n:"Advanced Battery Supplies",c:"영국",rg:"EU",site:"https://advancedbatterysupplies.co.uk",list:"https://advancedbatterysupplies.co.uk/trade-sales/",pat:"",br:"다브랜드",chk:"검색확인",note:"영국 온라인 도매 50년"},
+  {k:"aceon",n:"AceOn Group",c:"영국",rg:"EU",site:"https://www.aceongroup.com",list:"https://www.aceongroup.com/battery-distribution/",pat:"",br:"다브랜드",chk:"검색확인",note:"영국 배터리 유통"},
+  {k:"envirobatt",n:"enviroBATT",c:"영국",rg:"EU",site:"https://www.envirobatt.co.uk",list:"https://www.envirobatt.co.uk",pat:"",br:"다브랜드",chk:"검색확인",note:"영국 유통"},
+  {k:"emerald_lk",n:"Emerald International (Pvt) Ltd",c:"스리랑카",rg:"IN",site:"",list:"",pat:"",br:"다브랜드",chk:"미확인",note:"스리랑카 수입상 — 사이트 확인 필요"},
+  {k:"bosch_dist",n:"Robert Bosch 현지법인망",c:"다국",rg:"ETC",site:"https://www.boschaftermarket.com",list:"",pat:"https://{cc}.boschaftermarket.com/{cc}/en/parts/batteries/",br:"Bosch",chk:"검색확인",note:"아프리카·중남미·동남아 25개국 이상에서 배터리 유통 — 국가별 포털"},
 ];
 
 /* --- 브랜드 × 마켓 ------------------------------------------------------
@@ -736,6 +746,8 @@ const BRAND_MARKETS = [
   {k:'diehard_na',br:'DieHard',mk:'advance',rg:'NA',ctry:'북미',std:'BCI',series:'DieHard Gold·Platinum AGM',cat:'https://shop.advanceautoparts.com/c/batteries',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:''},
   {k:'superstart_na',br:'Super Start',mk:'oreilly',rg:'NA',ctry:'북미',std:'BCI',series:'Super Start Value·Extreme·Platinum',cat:'https://www.oreillyauto.com/shop/b/batteries---starting---charging',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:''},
   {k:'napa_na',br:'NAPA Legend',mk:'napa',rg:'NA',ctry:'북미',std:'BCI',series:'NAPA Legend Premium·AGM',cat:'https://www.napaonline.com/en/c/batteries',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:''},
+  {k:'sbk_mea',br:'SBK',mk:'azb',rg:'MEA',ctry:'UAE·MENA',std:'DIN/EN + JIS',series:'SBK (AZB 자체 브랜드)',cat:'https://azb.ae/automotive/car-battery/sbk/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
+  {k:'platinum_mea',br:'Platinum',mk:'azb',rg:'MEA',ctry:'UAE·MENA',std:'DIN/EN + JIS',series:'Platinum (AZB 취급)',cat:'https://azb.ae/automotive/car-battery/platinum/',fit:'',st:'미수집',nsrc:1,catKind:'productlist',catChk:'검색확인'},
 ];
 
 /* --- 글로벌 SLI 카달로그 시드 ------------------------------------------- */
