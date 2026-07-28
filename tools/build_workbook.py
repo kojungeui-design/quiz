@@ -92,11 +92,14 @@ def build(seed, out):
     lines = [
         ('', ''),
         ('시트 구성', ''),
-        ('카달로그', '제조사·유통사별 SLI 모델 %d종. 파생지표(CCA/Ah, Wh/kg, Wh/L)는 수식이라 스펙을 고치면 따라 바뀐다.' % n),
+        ('카달로그', '제조사·유통사별 SLI 모델 %d종. 왼쪽부터 제품 → 사이즈(규격·치수) → 용량·CCA 순으로 놓았다. '
+                  '판매지역은 지역마다 열이 따로 있어서(O 표시) 필터로 바로 뽑을 수 있다.' % n),
+        ('지역별판매', '모델 × 판매지역을 한 행씩 편 표. "유럽에서 파는 LN3, 70Ah 이상" 같은 걸 필터 두 번으로 뽑는다. 피벗테이블 원본으로 쓰면 된다.'),
+        ('사이즈별요약', '규격마다 치수·용량범위·CCA범위·지역별 취급 수를 한 줄로. 어떤 사이즈가 어디서 얼마짜리로 팔리는지 보는 표.'),
         ('규격마스터', '규격(사이즈)별 표준 치수 %d종. 카달로그 시트의 치수는 여기서 끌어온다.' % len(specs)),
         ('제조사', '제조사·유통사 %d곳과 카달로그 수집 현황.' % len(makers)),
         ('차량적합성', '차종이 요구하는 규격·용량·CCA·기술과, 그 요구를 만족하는 모델 수.'),
-        ('지역커버리지', '판매지역 × 기술 매트릭스. 라인업 공백을 보는 표.'),
+        ('지역커버리지', '판매지역 × 기술 매트릭스 + 지역별 취급 제조사·커버 규격수. 라인업 공백을 보는 표.'),
         ('크로스레퍼런스', '같은 규격에서 자사 최고 스펙과 타사 최고 스펙의 격차.'),
         ('설정', 'SAE→EN 환산계수. 이 값을 바꾸면 카달로그의 CCA 환산이 전부 다시 계산된다.'),
         ('', ''),
@@ -107,7 +110,7 @@ def build(seed, out):
         ('라인업슬롯', '브랜드·시리즈·규격 커버리지만 확인한 칸. 실제 모델번호와 스펙은 카달로그를 받아야 채워진다.'),
         ('', ''),
         ('채워 넣는 칸 (연노랑)', ''),
-        ('카달로그 AA·AB열', '근거문서 / 근거페이지 — 어느 카달로그 몇 판 몇 쪽에서 본 값인지 적는다.'),
+        ('카달로그 근거문서·근거페이지', '어느 카달로그 몇 판 몇 쪽에서 본 값인지 적는다(맨 오른쪽 두 열).'),
         ('제조사 J~P열', '카달로그명 / 판 / 발행연도 / PDF파일명 / SHA-256 / 페이지수 / 수집일.'),
         ('', '예시 →  Exide Technical Guide | Edition 5 | 2019 | exide_guide_ed5.pdf | 7e76bbee70d6… | 84 | 2026-07-28'),
         ('', ''),
@@ -159,52 +162,68 @@ def build(seed, out):
     sw.auto_filter.ref = 'A1:H%d' % (len(specs) + 1)
 
     # ── 카달로그 ──────────────────────────────────────────────────────────
+    # 보는 순서대로 놓는다: 누가 만든 무슨 제품인지 → 어떤 사이즈인지 →
+    # 용량·CCA 가 얼마인지 → 어느 지역에서 파는지.  지역은 텍스트 한 칸에
+    # 뭉치면 필터가 안 되므로 지역마다 열을 준다.
     cat_cols = [
         ('구분', 7, None, False), ('제조사', 26, None, False), ('브랜드', 13, None, False),
-        ('모델', 30, None, False), ('규격그룹', 11, None, False), ('규격코드', 14, None, False),
-        ('규격체계', 10, None, False), ('길이', 7, '#,##0', False), ('폭', 7, '#,##0', False),
-        ('높이', 7, '#,##0', False), ('기술', 9, None, False), ('용도', 11, None, False),
-        ('전압', 6, '0', False), ('C20 용량(Ah)', 11, '#,##0', False), ('RC(분)', 8, '#,##0', False),
-        ('CCA 표기', 9, '#,##0', False), ('표기규격', 9, None, False),
+        ('모델', 30, None, False), ('기술', 9, None, False), ('용도', 11, None, False),
+        ('규격그룹', 11, None, False), ('규격코드', 14, None, False), ('규격체계', 10, None, False),
+        ('길이(mm)', 9, '#,##0', False), ('폭(mm)', 9, '#,##0', False), ('높이(mm)', 9, '#,##0', False),
+        ('용량 C20(Ah)', 12, '#,##0', False), ('RC(분)', 8, '#,##0', False),
+        ('CCA 표기(A)', 11, '#,##0', False), ('표기규격', 9, None, False),
         ('CCA(EN)', 9, '#,##0', False), ('CCA(SAE)', 9, '#,##0', False),
-        ('무게(kg)', 9, '0.0', False), ('사이클', 8, '#,##0', False),
+        ('무게(kg)', 9, '0.0', False), ('사이클', 8, '#,##0', False), ('전압', 6, '0', False),
         ('CCA/Ah', 9, '0.00', False), ('Wh/kg', 8, '0.0', False), ('Wh/L', 8, '0.0', False),
-        ('판매지역', 26, None, False), ('근거등급', 11, None, False),
-        ('근거문서', 24, None, True), ('근거페이지', 10, None, True), ('비고', 20, None, False),
     ]
+    RG0 = len(cat_cols) + 1                       # 지역 열 시작 (1-base)
+    cat_cols += [(r['n'], 9, None, False) for r in regions]
+    cat_cols += [('판매지역 수', 10, '#,##0', False), ('판매지역', 30, None, False),
+                 ('근거등급', 11, None, False), ('근거문서', 24, None, True),
+                 ('근거페이지', 10, None, True), ('비고', 20, None, False)]
+    RGN_END = RG0 + len(regions) - 1
     cw = wb.create_sheet(CAT)
     head(cw, cat_cols)
     VER = {'pub': '공개스펙', 'std': '규격표준', 'est': '추정', 'slot': '라인업슬롯',
            'own': '사내설계치', 'user': '직접입력'}
     for i, m in enumerate(models, 2):
         own = '자사' if m['mk'] == HOME else '타사'
-        write_rows(cw, cat_cols, [[
-            own, mk_name.get(m['mk'], m['mk']), m.get('br', ''), m['mdl'], m.get('grp', ''),
-            m.get('sz', ''), None, None, None, None, m.get('tech', ''), m.get('app', ''),
-            m.get('v', 12), m.get('ah'), m.get('rc'), m.get('cca'), m.get('cs', ''),
-            None, None, m.get('wt'), m.get('cyc'), None, None, None,
-            ', '.join(rgn_name.get(x, x) for x in m.get('rg', [])),
-            VER.get(m.get('ver'), m.get('ver', '')), '', '', m.get('note', '')
-        ]], i)
-        # 규격마스터에서 끌어오는 값
-        for col, src in (('G', 'B'), ('H', 'C'), ('I', 'D'), ('J', 'E')):
+        mrg = set(m.get('rg', []))
+        row = [own, mk_name.get(m['mk'], m['mk']), m.get('br', ''), m['mdl'],
+               m.get('tech', ''), m.get('app', ''), m.get('grp', ''), m.get('sz', ''),
+               None, None, None, None,
+               m.get('ah'), m.get('rc'), m.get('cca'), m.get('cs', ''), None, None,
+               m.get('wt'), m.get('cyc'), m.get('v', 12), None, None, None]
+        row += ['O' if r['k'] in mrg else '' for r in regions]
+        row += [None, ', '.join(r['n'] for r in regions if r['k'] in mrg),
+                VER.get(m.get('ver'), m.get('ver', '')), '', '', m.get('note', '')]
+        write_rows(cw, cat_cols, [row], i)
+        # 규격마스터에서 끌어오는 값 (I 규격체계, J·K·L 치수)
+        for col, src in (('I', 'B'), ('J', 'C'), ('K', 'D'), ('L', 'E')):
             cw['%s%d' % (col, i)] = ('=IFERROR(INDEX(규격마스터!$%s$2:$%s$%d,'
-                                     'MATCH($E%d,규격마스터!$A$2:$A$%d,0)),"")'
+                                     'MATCH($G%d,규격마스터!$A$2:$A$%d,0)),"")'
                                      % (src, src, len(specs) + 1, i, len(specs) + 1))
-        cw['R%d' % i] = '=IF($Q%d="EN",$P%d,ROUND($P%d*설정!$B$2,0))' % (i, i, i)
-        cw['S%d' % i] = '=IF($Q%d="SAE",$P%d,ROUND($P%d/설정!$B$2,0))' % (i, i, i)
-        cw['V%d' % i] = '=IFERROR($R%d/$N%d,"")' % (i, i)
-        cw['W%d' % i] = '=IFERROR($M%d*$N%d/$T%d,"")' % (i, i, i)
-        cw['X%d' % i] = '=IFERROR($M%d*$N%d*1000000/($H%d*$I%d*$J%d),"")' % (i, i, i, i, i)
-        for col, fmt in (('G', None), ('H', '#,##0'), ('I', '#,##0'), ('J', '#,##0'),
-                         ('R', '#,##0'), ('S', '#,##0'), ('V', '0.00'), ('W', '0.0'), ('X', '0.0')):
+        cw['Q%d' % i] = '=IF($P%d="EN",$O%d,ROUND($O%d*설정!$B$2,0))' % (i, i, i)
+        cw['R%d' % i] = '=IF($P%d="SAE",$O%d,ROUND($O%d/설정!$B$2,0))' % (i, i, i)
+        cw['V%d' % i] = '=IFERROR($Q%d/$M%d,"")' % (i, i)
+        cw['W%d' % i] = '=IFERROR($U%d*$M%d/$S%d,"")' % (i, i, i)
+        cw['X%d' % i] = '=IFERROR($U%d*$M%d*1000000/($J%d*$K%d*$L%d),"")' % (i, i, i, i, i)
+        cw.cell(row=i, column=RGN_END + 1).value = (
+            '=COUNTIF(%s%d:%s%d,"O")' % (get_column_letter(RG0), i, get_column_letter(RGN_END), i))
+        for col, fmt in (('I', None), ('J', '#,##0'), ('K', '#,##0'), ('L', '#,##0'),
+                         ('Q', '#,##0'), ('R', '#,##0'), ('V', '0.00'), ('W', '0.0'), ('X', '0.0'),
+                         (get_column_letter(RGN_END + 1), '#,##0')):
             c = cw['%s%d' % (col, i)]
             c.font = BODY; c.border = BOX
             if fmt:
                 c.number_format = fmt
+        for j in range(RG0, RGN_END + 1):
+            cw.cell(row=i, column=j).alignment = Alignment(horizontal='center')
         if own == '자사':
             cw['A%d' % i].fill = OWN_FILL
-    cw.auto_filter.ref = 'A1:AC%d' % LAST
+    cw.auto_filter.ref = 'A1:%s%d' % (get_column_letter(len(cat_cols)), LAST)
+    # 사이즈·용량·CCA 가 한눈에 들어오게 모델명까지 고정
+    cw.freeze_panes = 'E2'
 
     # ── 제조사 ────────────────────────────────────────────────────────────
     mk_cols = [
@@ -251,13 +270,13 @@ def build(seed, out):
         ]], i)
         tech = f.get('tech', '')
         if tech == 'AGM':
-            tcond = '*ISNUMBER(SEARCH("AGM",%s))' % rng('K')
+            tcond = '*ISNUMBER(SEARCH("AGM",%s))' % rng('E')
         elif tech == 'EFB':
-            tcond = '*((ISNUMBER(SEARCH("AGM",%s))+ISNUMBER(SEARCH("EFB",%s)))>0)' % (rng('K'), rng('K'))
+            tcond = '*((ISNUMBER(SEARCH("AGM",%s))+ISNUMBER(SEARCH("EFB",%s)))>0)' % (rng('E'), rng('E'))
         else:
             tcond = ''
         base = ('(%s=$G%d)*(%s>=$H%d*0.95)*(%s>=$I%d*0.95)%s'
-                % (rng('E'), i, rng('N'), i, rng('R'), i, tcond))
+                % (rng('G'), i, rng('M'), i, rng('Q'), i, tcond))
         fw['M%d' % i] = '=SUMPRODUCT(%s)' % base
         fw['N%d' % i] = '=SUMPRODUCT(%s*(%s="자사"))' % (base, rng('A'))
         for col in ('M', 'N'):
@@ -266,30 +285,114 @@ def build(seed, out):
     fw.auto_filter.ref = 'A1:N%d' % (len(fits) + 1)
 
     # ── 지역커버리지 ──────────────────────────────────────────────────────
+    # 카달로그의 지역 열(O 표시)을 그대로 센다. 텍스트를 뒤지지 않아 정확하다.
     rg_cols = ([('판매지역', 16, None, False)]
                + [(t, 11, '#,##0', False) for t in techs]
                + [('합계', 10, '#,##0', False), ('자사', 9, '#,##0', False),
-                  ('타사', 9, '#,##0', False), ('자사 비중', 10, '0.0%', False)])
+                  ('타사', 9, '#,##0', False), ('자사 비중', 10, '0.0%', False),
+                  ('취급 제조사', 11, '#,##0', False), ('커버 규격수', 11, '#,##0', False)])
     rw = wb.create_sheet('지역커버리지')
     head(rw, rg_cols)
+    MEND = len(makers) + 1
     for i, rg in enumerate(regions, 2):
+        col = get_column_letter(RG0 + i - 2)
+        rgcol = '%s!$%s$2:$%s$%d' % (CAT, col, col, LAST)
         rw.cell(row=i, column=1, value=rg['n']).font = BODY
         rw.cell(row=i, column=1).border = BOX
+        cells = []
         for j, t in enumerate(techs, 2):
-            c = rw.cell(row=i, column=j)
-            c.value = ('=SUMPRODUCT(ISNUMBER(SEARCH($A%d,%s))*(%s="%s"))'
-                       % (i, rng('Y'), rng('K'), t))
-            c.font = BODY; c.border = BOX; c.number_format = '#,##0'
+            cells.append((j, '=COUNTIFS(%s,"O",%s,"%s")' % (rgcol, rng('E'), t), '#,##0'))
         last_t = get_column_letter(1 + len(techs))
-        for col, formula, fmt in (
-            (2 + len(techs), '=SUM(B%d:%s%d)' % (i, last_t, i), '#,##0'),
-            (3 + len(techs), '=SUMPRODUCT(ISNUMBER(SEARCH($A%d,%s))*(%s="자사"))' % (i, rng('Y'), rng('A')), '#,##0'),
-            (4 + len(techs), '=SUMPRODUCT(ISNUMBER(SEARCH($A%d,%s))*(%s="타사"))' % (i, rng('Y'), rng('A')), '#,##0'),
-            (5 + len(techs), '=IFERROR(%s%d/%s%d,"")' % (get_column_letter(3 + len(techs)), i,
-                                                          get_column_letter(2 + len(techs)), i), '0.0%'),
-        ):
-            c = rw.cell(row=i, column=col, value=formula)
+        base = 2 + len(techs)
+        cells += [
+            (base,     '=SUM(B%d:%s%d)' % (i, last_t, i), '#,##0'),
+            (base + 1, '=COUNTIFS(%s,"O",%s,"자사")' % (rgcol, rng('A')), '#,##0'),
+            (base + 2, '=COUNTIFS(%s,"O",%s,"타사")' % (rgcol, rng('A')), '#,##0'),
+            (base + 3, '=IFERROR(%s%d/%s%d,"")' % (get_column_letter(base + 1), i,
+                                                   get_column_letter(base), i), '0.0%'),
+            (base + 4, '=SUMPRODUCT(--(COUNTIFS(%s,"O",%s,제조사!$B$2:$B$%d)>0))'
+                       % (rgcol, rng('B'), MEND), '#,##0'),
+            (base + 5, '=SUMPRODUCT(--(COUNTIFS(%s,"O",%s,규격마스터!$A$2:$A$%d)>0))'
+                       % (rgcol, rng('G'), len(specs) + 1), '#,##0'),
+        ]
+        for cidx, formula, fmt in cells:
+            c = rw.cell(row=i, column=cidx, value=formula)
             c.font = BODY; c.border = BOX; c.number_format = fmt
+
+    # ── 지역별 판매 (롱포맷) ──────────────────────────────────────────────
+    # 모델 × 판매지역을 한 행씩 편다.  "유럽에서 파는 LN3, 70Ah 이상" 같은 걸
+    # 필터 두 번으로 뽑을 수 있고, 피벗테이블 원본으로도 이 시트를 쓴다.
+    lg_cols = [
+        ('판매지역', 14, None, False), ('구분', 7, None, False), ('제조사', 26, None, False),
+        ('브랜드', 13, None, False), ('모델', 30, None, False), ('기술', 9, None, False),
+        ('용도', 11, None, False), ('규격그룹', 11, None, False), ('규격코드', 14, None, False),
+        ('치수 L×W×H', 17, None, False), ('용량 C20(Ah)', 12, '#,##0', False),
+        ('RC(분)', 8, '#,##0', False), ('CCA 표기(A)', 11, '#,##0', False),
+        ('표기규격', 9, None, False), ('CCA(EN)', 9, '#,##0', False),
+        ('무게(kg)', 9, '0.0', False), ('근거등급', 11, None, False),
+    ]
+    lw = wb.create_sheet('지역별판매')
+    head(lw, lg_cols)
+    order = {r['k']: n for n, r in enumerate(regions)}
+    long_rows = []
+    for m in models:
+        sp = spec_of.get(m.get('grp'), {})
+        dim = ('%d×%d×%d' % (sp['L'], sp['W'], sp['H'])) if sp else ''
+        for rk in m.get('rg', []):
+            long_rows.append((order.get(rk, 99), m.get('grp') or '', -(m.get('cca') or 0), [
+                rgn_name.get(rk, rk), '자사' if m['mk'] == HOME else '타사',
+                mk_name.get(m['mk'], m['mk']), m.get('br', ''), m['mdl'],
+                m.get('tech', ''), m.get('app', ''), m.get('grp', ''), m.get('sz', ''),
+                dim, m.get('ah'), m.get('rc'), m.get('cca'), m.get('cs', ''), None,
+                m.get('wt'), VER.get(m.get('ver'), m.get('ver', ''))]))
+    long_rows.sort(key=lambda x: (x[0], x[1], x[2]))
+    for i, (_a, _b, _c, vals) in enumerate(long_rows, 2):
+        write_rows(lw, lg_cols, [vals], i)
+        c = lw.cell(row=i, column=15, value='=IF($N%d="EN",$M%d,ROUND($M%d*설정!$B$2,0))' % (i, i, i))
+        c.font = BODY; c.border = BOX; c.number_format = '#,##0'
+        if vals[1] == '자사':
+            lw.cell(row=i, column=2).fill = OWN_FILL
+    lw.auto_filter.ref = 'A1:Q%d' % (len(long_rows) + 1)
+    lw.freeze_panes = 'F2'
+    LONG_END = len(long_rows) + 1
+
+    # ── 사이즈별 요약 ─────────────────────────────────────────────────────
+    # "이 사이즈는 몇 mm 이고, 용량·CCA 가 어디부터 어디까지이고,
+    #  어느 지역에서 몇 개 팔리는지" 를 한 줄로 본다.
+    sz_cols = ([('규격그룹', 12, None, False), ('규격체계', 11, None, False),
+                ('길이(mm)', 9, '#,##0', False), ('폭(mm)', 9, '#,##0', False),
+                ('높이(mm)', 9, '#,##0', False), ('부피(L)', 9, '0.0', False),
+                ('통용 용량대(Ah)', 14, None, False), ('모델수', 8, '#,##0', False),
+                ('용량 최소', 10, '#,##0', False), ('용량 최대', 10, '#,##0', False),
+                ('CCA(EN) 최소', 12, '#,##0', False), ('CCA(EN) 최대', 12, '#,##0', False),
+                ('자사 보유', 9, '#,##0', False)]
+               + [(r['n'], 9, '#,##0', False) for r in regions])
+    zw = wb.create_sheet('사이즈별요약')
+    head(zw, sz_cols)
+    used_all = [s2 for s2 in specs if any(m.get('grp') == s2['k'] for m in models)]
+    for i, s2 in enumerate(used_all, 2):
+        write_rows(zw, sz_cols, [[s2['k'], s2['sys'], s2['L'], s2['W'], s2['H'], None,
+                                  s2.get('ah', '')] + [None] * (6 + len(regions))], i)
+        f = {
+            6: '=C%d*D%d*E%d/1000000' % (i, i, i),
+            8: '=COUNTIF(%s,$A%d)' % (rng('G'), i),
+            9: '=IF($H%d=0,"",100000-SUMPRODUCT(MAX((%s=$A%d)*(100000-%s))))'
+               % (i, rng('G'), i, rng('M')),
+            10: '=IF($H%d=0,"",SUMPRODUCT(MAX((%s=$A%d)*%s)))' % (i, rng('G'), i, rng('M')),
+            11: '=IF($H%d=0,"",100000-SUMPRODUCT(MAX((%s=$A%d)*(100000-%s))))'
+                % (i, rng('G'), i, rng('Q')),
+            12: '=IF($H%d=0,"",SUMPRODUCT(MAX((%s=$A%d)*%s)))' % (i, rng('G'), i, rng('Q')),
+            13: '=COUNTIFS(%s,$A%d,%s,"자사")' % (rng('G'), i, rng('A')),
+        }
+        for j, _r in enumerate(regions):
+            col = get_column_letter(RG0 + j)
+            f[14 + j] = ('=COUNTIFS(%s,$A%d,%s!$%s$2:$%s$%d,"O")'
+                         % (rng('G'), i, CAT, col, col, LAST))
+        for cidx, formula in f.items():
+            c = zw.cell(row=i, column=cidx, value=formula)
+            c.font = BODY; c.border = BOX
+            c.number_format = sz_cols[cidx - 1][2] or 'General'
+    zw.auto_filter.ref = 'A1:%s%d' % (get_column_letter(len(sz_cols)), len(used_all) + 1)
 
     # ── 크로스레퍼런스 ────────────────────────────────────────────────────
     xr_cols = [
@@ -312,21 +415,21 @@ def build(seed, out):
             None, None, None, None, None, None, None, None, None, None
         ]], i)
         f = {}
-        f[4] = '=COUNTIF(%s,$A%d)' % (rng('E'), i)
+        f[4] = '=COUNTIF(%s,$A%d)' % (rng('G'), i)
         f[5] = ('=SUMPRODUCT(--(COUNTIFS(%s,$A%d,%s,제조사!$B$2:$B$%d)>0))'
-                % (rng('E'), i, rng('B'), MEND))
-        for col, cat_col, side in ((6, 'R', '자사'), (7, 'R', '타사'), (9, 'N', '자사'), (10, 'N', '타사')):
+                % (rng('G'), i, rng('B'), MEND))
+        for col, cat_col, side in ((6, 'Q', '자사'), (7, 'Q', '타사'), (9, 'M', '자사'), (10, 'M', '타사')):
             # MAXIFS 는 엑셀 2016 이상 전용이라 구버전에서 #NAME? 가 된다.
             # SUMPRODUCT(MAX(...)) 는 2007 부터 배열 입력 없이도 도는 고전 패턴이다.
             f[col] = ('=IF(COUNTIFS(%s,$A%d,%s,"%s")=0,"",'
                       'SUMPRODUCT(MAX((%s=$A%d)*(%s="%s")*%s)))'
-                      % (rng('E'), i, rng('A'), side,
-                         rng('E'), i, rng('A'), side, rng(cat_col)))
+                      % (rng('G'), i, rng('A'), side,
+                         rng('G'), i, rng('A'), side, rng(cat_col)))
         f[8] = '=IFERROR(($F%d-$G%d)/$G%d,"")' % (i, i, i)
         f[11] = '=IFERROR(($I%d-$J%d)/$J%d,"")' % (i, i, i)
         f[12] = ('=SUMPRODUCT((%s=$A%d)*(%s="자사")*ISNUMBER(SEARCH("AGM",%s)))'
-                 % (rng('E'), i, rng('A'), rng('K')))
-        f[13] = '=SUMPRODUCT((%s=$A%d)*ISNUMBER(SEARCH("AGM",%s)))' % (rng('E'), i, rng('K'))
+                 % (rng('G'), i, rng('A'), rng('E')))
+        f[13] = '=SUMPRODUCT((%s=$A%d)*ISNUMBER(SEARCH("AGM",%s)))' % (rng('G'), i, rng('E'))
         for col, formula in f.items():
             c = xw.cell(row=i, column=col, value=formula)
             c.font = BODY; c.border = BOX

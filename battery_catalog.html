@@ -1668,6 +1668,8 @@ function renderCatTable() {
     {k: 'mkName', t: '제조사', r: r => h(r.mkName) + (r.own ? ' <span class="tag t-own">자사</span>' : '')},
     {k: 'br', t: '브랜드', mh: true},
     {k: 'grp', t: '규격', r: r => h(r.grp || '') + (r.sz && r.sz !== r.grp ? ' <span class="muted">' + h(r.sz) + '</span>' : '')},
+    {k: 'dim', t: '치수 L×W×H', sv: r => r.L ? r.L * r.W * r.H : null,
+     r: r => r.L ? r.L + '×' + r.W + '×' + r.H : '<span class="muted">-</span>'},
     {k: 'tech', t: '기술', r: r => techTag(r.tech)},
     {k: 'app', t: '용도', mh: true},
     {k: 'ah', t: 'Ah', num: true},
@@ -1994,10 +1996,13 @@ function renderXref() {
     '<select id="xSys"><option value="">규격체계 전체</option>' +
       selOpts(uniq(SPECS.map(s => s.sys)), f.sys) + '</select>' +
     '<select id="xApp"><option value="">용도 전체</option>' + selOpts(uniq(ms.map(m => m.app)), f.app) + '</select>' +
+    '<select id="xRgn"><option value="">지역 전체</option>' +
+      REGIONS.map(r => '<option value="' + r.k + '"' + (f.rgn === r.k ? ' selected' : '') + '>' + h(r.n) + '</option>').join('') + '</select>' +
     '<label class="chip"><input type="checkbox" id="xGap"' + (f.gapOnly ? ' checked' : '') + '> 자사가 뒤지는 규격만</label>' +
     '<span class="muted">자사 기준: ' + h((MK_MAP[store.settings.home] || {}).n || store.settings.home) + '</span>';
   bindFilter('xSys', () => { f.sys = document.getElementById('xSys').value; renderXrefTable(); });
   bindFilter('xApp', () => { f.app = document.getElementById('xApp').value; renderXrefTable(); });
+  bindFilter('xRgn', () => { f.rgn = document.getElementById('xRgn').value; renderXrefTable(); });
   bindFilter('xGap', () => { f.gapOnly = document.getElementById('xGap').checked; renderXrefTable(); });
   renderXrefTable();
 }
@@ -2008,6 +2013,7 @@ function renderXrefTable() {
   ms.forEach(m => {
     if (!m.grp) return;
     if (f.app && m.app !== f.app) return;
+    if (f.rgn && (m.rg || []).indexOf(f.rgn) < 0) return;
     const sp = SPEC_MAP[m.grp];
     if (f.sys && (!sp || sp.sys !== f.sys)) return;
     (g[m.grp] = g[m.grp] || []).push(m);
@@ -2025,6 +2031,8 @@ function renderXrefTable() {
       n: l.length, nMk: new Set(l.map(m => m.mk)).size,
       ahRange: (mn(l, m => m.ah) || '-') + '~' + (mx(l, m => m.ah) || '-'),
       ccaRange: (mn(l, m => m.ccaEN) || '-') + '~' + (mx(l, m => m.ccaEN) || '-'),
+      nRgn: new Set(l.reduce((a, m) => a.concat(m.rg || []), [])).size,
+      rgns: REGIONS.filter(r => l.some(m => (m.rg || []).indexOf(r.k) >= 0)).map(r => r.n).join(', '),
       ownCca: ownCca, othCca: othCca,
       gapCca: (ownCca && othCca) ? (ownCca - othCca) / othCca * 100 : null,
       gapAh: (ownAh && othAh) ? (ownAh - othAh) / othAh * 100 : null,
@@ -2040,7 +2048,9 @@ function renderXrefTable() {
     {k: 'grp', t: '규격', lead: true}, {k: 'sys', t: '체계', mh: true},
     {k: 'dim', t: '치수 L×W×H', mh: true},
     {k: 'nMk', t: '제조사', num: true}, {k: 'n', t: '모델', num: true},
-    {k: 'ahRange', t: 'Ah 범위', mh: true}, {k: 'ccaRange', t: 'CCA(EN) 범위', mh: true},
+    {k: 'ahRange', t: '용량 범위(Ah)'}, {k: 'ccaRange', t: 'CCA(EN) 범위'},
+    {k: 'nRgn', t: '판매지역', num: true, mh: true,
+     r: r => '<span title="' + h(r.rgns) + '">' + r.nRgn + '곳</span>'},
     {k: 'ownCca', t: '자사 최고 CCA', num: true, r: r => r.ownCca == null ? '<span class="tag t-warn">미보유</span>' : fmt(r.ownCca)},
     {k: 'othCca', t: '타사 최고 CCA', num: true, r: r => fmt(r.othCca)},
     {k: 'gapCca', t: 'CCA 갭', num: true, sv: r => r.gapCca, r: r => pct(r.gapCca)},
@@ -2084,7 +2094,8 @@ function renderRgn() {
   barChart('chRgnMk', list.filter(s => s.all).map(s => ({l: s.n, v: Object.keys(s.mk).length})).sort((a, b) => b.v - a.v));
 
   table('tbRgn', [
-    {k: 'n', t: '지역'},
+    {k: 'n', t: '지역', lead: true,
+     r: r => '<a href="javascript:void(0)" onclick="drillRegion(\'' + h(r.k) + '\')">' + h(r.n) + ' →</a>'},
     {k: 'all', t: '전체 모델', num: true},
     {k: 'own', t: '자사 모델', num: true, r: r => r.own ? r.own : '<span class="tag t-warn">0</span>'},
     {k: 'nmk', t: '제조사 수', num: true, sv: r => Object.keys(r.mk).length, r: r => Object.keys(r.mk).length},
@@ -2095,6 +2106,12 @@ function renderRgn() {
 }
 
 /* --- 제조사 · 수집관리 -------------------------------------------------- */
+/* 지역을 눌렀을 때 그 지역 제품 목록으로 넘어간다 — 지역 탭은 요약만 보여주니까 */
+function drillRegion(k) {
+  filters.cat = {rgn: k};
+  catLimit = 60;
+  go('cat');
+}
 function renderSrc() { renderSrcFilters(); renderSrcTable(); }
 function renderSrcFilters() {
   const mk = allMakers(), f = filters.src;
