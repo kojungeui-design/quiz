@@ -139,7 +139,8 @@ python3 tools/gb_japan_to_catalog_csv.py 일본제품리스트.xlsx gb_japan.csv
 
 # 카탈로그 수집 — PDF·제품목록·사이트맵·URL패턴을 훑고 스펙까지 뽑는다
 pip install requests pypdf
-python3 tools/collect.py --dry                   # 받을 URL 먼저 확인
+python3 tools/collect.py --check                 # 몇 개나 열리는지 먼저 (파일 안 받음)
+python3 tools/collect.py --dry                   # 받을 URL 목록만 화면에
 python3 tools/collect.py                         # 전체 수집
 python3 tools/collect.py --only bosch_na bosch_in
 python3 tools/collect.py --types pdf --loose     # 규격코드 없는 줄까지 주워담기
@@ -171,5 +172,6 @@ python3 tools/build_workbook.py seed.json 글로벌_SLI_배터리_카달로그.x
 - `catalogs/collected_models.csv` — 자동 추출한 스펙. 앱의 [CSV 가져오기] 에 올린다.
   **자동 파싱이라 그대로 믿으면 안 된다.** 확신도가 같이 들어가니 낮은 행부터 원본과 대조한다.
 - `catalogs/collect_log.csv` — URL 별 성공·실패·추출 건수.
+- `catalogs/url_check.csv` — `--check` 결과. 주소별 응답코드와 열림/막힘.
 
 받은 원본과 결과는 `catalogs/` 아래에 떨어지고 `.gitignore` 로 막아뒀다.

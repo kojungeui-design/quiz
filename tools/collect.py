@@ -18,6 +18,7 @@ fetch_catalogs.py 가 PDF 만 받았다면 이건 네 가지를 다 훑는다.
     catalogs/catalog_registry.csv      근거 (파일·판·SHA-256·페이지수·수집일)
     catalogs/collected_models.csv      앱 [데이터 관리 → CSV 가져오기] 용 스펙
     catalogs/collect_log.csv           URL 별 성공·실패·추출 건수
+    catalogs/url_check.csv             --check 결과 (주소별 응답코드·열림/막힘)
 
 사용법
     pip install requests pypdf
@@ -25,6 +26,7 @@ fetch_catalogs.py 가 PDF 만 받았다면 이건 네 가지를 다 훑는다.
     python3 tools/collect.py --only bosch_na bosch_in # 브랜드마켓만
     python3 tools/collect.py --types pdf productlist  # 유형만
     python3 tools/collect.py --dry                    # URL 만 펼쳐 보기
+    python3 tools/collect.py --check                  # 받지 않고 몇 개나 열리는지만
 
 이 저장소는 공개다.  받은 원본과 결과 CSV 는 catalogs/ 아래에 떨어지고
 .gitignore 로 막아뒀다.  커밋하지 말 것.
@@ -253,6 +255,9 @@ def main():
                     help='규격코드가 없어도 용량·CCA 가 있으면 낮은 확신도로 수집')
     ap.add_argument('--max-urls', type=int, default=40, help='한 소스에서 받을 URL 상한')
     ap.add_argument('--timeout', type=int, default=60)
+    ap.add_argument('--check', action='store_true',
+                    help='받지 않고 URL 이 열리는지만 확인해 url_check.csv 를 낸다')
+    ap.add_argument('--check-timeout', type=int, default=15)
     args = ap.parse_args()
 
     with open(args.sources, encoding='utf-8-sig') as fp:
@@ -265,7 +270,7 @@ def main():
     session = requests.Session()
     session.headers.update({'User-Agent': UA, 'Accept': '*/*'})
     today = datetime.date.today().isoformat()
-    registry, models, log = [], [], []
+    registry, models, log, check = [], [], [], []
     seen_model = set()
 
     for src in sources:
@@ -278,6 +283,29 @@ def main():
         if args.dry:
             for u in urls:
                 print('%-14s %-12s %s' % (bm, kind, u))
+            continue
+
+        # --check: 받지 않고 살아있는지만 본다.  본 수집을 걸기 전에
+        # "이 회사 네트워크에서 몇 개나 열리나" 를 1~2분에 답하려고 있다.
+        if args.check:
+            for u in urls:
+                try:
+                    r = session.head(u, timeout=args.check_timeout, allow_redirects=True)
+                    # HEAD 를 막아둔 서버가 많다.  그때는 GET 으로 한 번 더 본다.
+                    if r.status_code in (400, 401, 403, 405, 501):
+                        r = session.get(u, timeout=args.check_timeout,
+                                        allow_redirects=True, stream=True)
+                        r.close()
+                    ok = r.status_code < 400
+                    size = r.headers.get('content-length', '')
+                    check.append([bm, kind, u, r.status_code,
+                                  '열림' if ok else '막힘', size,
+                                  r.headers.get('content-type', '')[:40]])
+                    print('  %s %-12s %s %s' % ('OK ' if ok else '   ', bm,
+                                                r.status_code, u[:70]))
+                except Exception as exc:
+                    check.append([bm, kind, u, '', '실패', '', str(exc)[:80]])
+                    print('   X  %-12s %s' % (bm, str(exc)[:70]))
             continue
 
         folder = os.path.join(args.out, bm)
@@ -385,6 +413,27 @@ def main():
         return
 
     os.makedirs(args.out, exist_ok=True)
+
+    if args.check:
+        CHECK_COLS = ['브랜드마켓', '유형', 'URL', '응답코드', '결과', '크기', '비고']
+        path = os.path.join(args.out, 'url_check.csv')
+        with open(path, 'w', encoding='utf-8-sig', newline='') as fp:
+            w = csv.writer(fp)
+            w.writerow(CHECK_COLS)
+            w.writerows(check)
+        ok = sum(1 for r in check if r[4] == '열림')
+        print('\n' + '=' * 52)
+        print('  주소 %d개 중 %d개가 열린다.' % (len(check), ok))
+        if ok >= 30:
+            print('  아주 좋다 — 바로 전체 수집(2번)으로 가도 된다.')
+        elif ok >= 10:
+            print('  쓸 만하다 — PDF 만(3번) 먼저 돌려봐라.')
+        else:
+            print('  너무 적다 — 회사 방화벽이 막는 것 같다.')
+            print('  폰 핫스팟에 물려서 다시 돌려봐라.')
+        print('  자세한 내역: %s' % path)
+        print('=' * 52)
+        return
     if args.brands:
         with open(os.path.join(args.out, 'discovered_brands.csv'), 'w',
                   encoding='utf-8-sig', newline='') as fp:

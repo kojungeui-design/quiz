@@ -55,15 +55,20 @@ echo.
 rem ── 3. 무엇을 할지 고르기 ──────────────────────────────────────
 echo [3/3] 무엇을 할까요?
 echo.
-echo    1  주소가 살아있는지만 확인 ^(1분, 아무것도 안 받음^)  ^<-- 처음엔 이것부터
+echo    1  주소가 살아있는지 확인 ^(1~2분, 파일은 안 받음^)  ^<-- 처음엔 이것부터
 echo    2  카달로그 전체 수집 ^(수십 분^)
 echo    3  PDF 만 수집 ^(빠름^)
 echo    4  유통사 사이트에서 경쟁 브랜드 찾기
+echo    5  받을 주소 목록만 화면에 보기 ^(확인도 안 함^)
 echo    0  그냥 나가기
 echo.
 set /p SEL="번호를 넣고 엔터: "
 
 if "%SEL%"=="1" (
+  !PY! tools\collect.py --check
+  goto done
+)
+if "%SEL%"=="5" (
   !PY! tools\collect.py --dry
   goto done
 )
@@ -81,7 +86,7 @@ if "%SEL%"=="4" (
 )
 if "%SEL%"=="0" exit /b 0
 
-echo 1, 2, 3, 4, 0 중에서 골라주세요.
+echo 1, 2, 3, 4, 5, 0 중에서 골라주세요.
 pause
 exit /b 1
 
@@ -91,7 +96,8 @@ echo ==========================================
 echo  끝났습니다.
 echo.
 echo  결과는 catalogs 폴더 안에 있습니다:
-echo    collect_log.csv        어느 주소가 되고 안 됐는지
+echo    url_check.csv          1번을 돌렸을 때 - 주소별로 열림/막힘
+echo    collect_log.csv        2,3,4번을 돌렸을 때 - 되고 안 된 내역
 echo    collected_models.csv   뽑아낸 스펙  -^> 앱에 올릴 파일
 echo    catalog_registry.csv   근거 ^(파일명, SHA-256, 페이지수^)
 echo ==========================================

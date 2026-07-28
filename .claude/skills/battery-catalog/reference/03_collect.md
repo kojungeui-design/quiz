@@ -10,6 +10,18 @@ Bosch·Exide·Amaron·GS Yuasa 전부 403 CONNECT 가 돌아온다. 그래서 �
 
 이걸 **처음부터 사용자에게 말해라.** 다 만든 뒤에 "사실 못 받았다" 고 하면 안 된다.
 
+그리고 **가장 먼저 만들 모드는 `--check` 다.** 사용자가 자기 네트워크에서
+"몇 개나 열리나" 를 1~2분에 알아야 그 다음을 정할 수 있다.  받지 않고 HEAD 만
+날리되, HEAD 를 막는 서버가 많으니 400/401/403/405/501 이면 GET 으로 한 번 더
+본다.  끝에 **판정 문장을 직접 찍어라** — 사용자가 CSV 를 열어 세게 하지 마라.
+
+    주소 77개 중 41개가 열린다.
+    아주 좋다 — 바로 전체 수집으로 가도 된다.
+
+`--dry`(목록만 출력)와 `--check`(실제로 두드려 봄)를 **헷갈리게 이름 짓지 마라.**
+`--dry` 는 아무 파일도 안 만든다.  이걸 "살아있는지 확인" 이라고 안내했다가
+사용자가 있지도 않은 결과 파일을 찾은 적이 있다.
+
 ## 1. URL 레지스트리 — `data/catalog_sources.csv`
 
 ```csv
@@ -28,7 +40,8 @@ bosch_lat,Bosch,Clarios,중남미,productlist,https://br.boschaftermarket.com/br
 ## 2. 수집 엔진 — `tools/collect.py`
 
 ```bash
-python3 collect.py --dry                    # 받을 URL 먼저 확인
+python3 collect.py --dry                    # 받을 URL 목록만 화면에 (요청 안 함)
+python3 collect.py --check                  # 받지 않고 몇 개나 열리는지 (제일 먼저)
 python3 collect.py                          # 전체
 python3 collect.py --only bosch_na bosch_in
 python3 collect.py --types pdf --loose      # 규격코드 없는 줄까지
@@ -69,6 +82,7 @@ CCA_RE = re.compile(
 | `catalogs/collected_models.csv` | 자동 추출 스펙 + 확신도 |
 | `catalogs/collect_log.csv` | URL 별 성공·실패·추출 건수 |
 | `catalogs/discovered_brands.csv` | 유통사별 발견 브랜드 |
+| `catalogs/url_check.csv` | `--check` 결과 — 주소별 응답코드·열림/막힘 |
 
 `catalogs/` 는 `.gitignore` 한다 — 제조사 저작물이다.
 
