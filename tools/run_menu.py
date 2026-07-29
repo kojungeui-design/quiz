@@ -30,6 +30,8 @@ MENU = [
     ('5', '받을 주소 목록만 화면에 보기 (확인도 안 함)',     ['--dry'],  False),
 ]
 
+ORGANIZE = os.path.join(HERE, 'organize_catalogs.py')
+
 
 def line(ch='=', n=52):
     print(ch * n)
@@ -96,6 +98,7 @@ def main():
     print('[3/3] 무엇을 할까요?\n')
     for key, label, _args, first in MENU:
         print('   %s  %s%s' % (key, label, '   <-- 처음엔 이것부터' if first else ''))
+    print('   6  받은 카달로그를 폴더로 정리 (지역 > 브랜드)')
     print('   0  그냥 나가기\n')
 
     try:
@@ -104,6 +107,11 @@ def main():
         return 0
     if sel == '0':
         return 0
+
+    if sel == '6':
+        print()
+        rc = subprocess.call([PY, ORGANIZE])
+        return rc
 
     for key, _label, args, _first in MENU:
         if sel == key:
@@ -122,7 +130,7 @@ def main():
             line()
             return rc
 
-    print('\n0, 1, 2, 3, 4, 5 중에서 골라주세요.')
+    print('\n0, 1, 2, 3, 4, 5, 6 중에서 골라주세요.')
     return 1
 
 
