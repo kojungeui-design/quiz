@@ -32,6 +32,7 @@ MENU = [
 
 ORGANIZE = os.path.join(HERE, 'organize_catalogs.py')
 SUMMARY  = os.path.join(HERE, 'summary.py')
+LOCAL    = os.path.join(HERE, 'local_ingest.py')
 
 
 def line(ch='=', n=52):
@@ -101,6 +102,7 @@ def main():
         print('   %s  %s%s' % (key, label, '   <-- 처음엔 이것부터' if first else ''))
     print('   6  받은 카달로그를 폴더로 정리 (지역 > 브랜드)')
     print('   7  결과 요약 보기 (몇 건 나왔는지)')
+    print('   8  사내자료 폴더의 카달로그 읽기 (PDF·엑셀)')
     print('   0  그냥 나가기\n')
 
     try:
@@ -110,9 +112,10 @@ def main():
     if sel == '0':
         return 0
 
-    if sel in ('6', '7'):
+    if sel in ('6', '7', '8'):
         print()
-        return subprocess.call([PY, ORGANIZE if sel == '6' else SUMMARY])
+        return subprocess.call(
+            [PY, {'6': ORGANIZE, '7': SUMMARY, '8': LOCAL}[sel]])
 
     for key, _label, args, _first in MENU:
         if sel == key:
@@ -131,7 +134,7 @@ def main():
             line()
             return rc
 
-    print('\n0~7 중에서 골라주세요.')
+    print('\n0~8 중에서 골라주세요.')
     return 1
 
 
