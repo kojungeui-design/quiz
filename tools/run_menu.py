@@ -42,7 +42,10 @@ def line(ch='=', n=52):
 def ensure_deps():
     """필요한 부품을 깐다.  이미 있으면 건너뛴다."""
     need = []
-    for mod, pkg in (('requests', 'requests'), ('pypdf', 'pypdf')):
+    # openpyxl 은 8번(사내 엑셀 읽기)에 필요하다.  빠뜨렸더니 엑셀이 전부
+    # 0건으로 나왔다.
+    for mod, pkg in (('requests', 'requests'), ('pypdf', 'pypdf'),
+                     ('openpyxl', 'openpyxl')):
         try:
             __import__(mod)
         except (KeyboardInterrupt, SystemExit):
@@ -68,7 +71,8 @@ def ensure_deps():
           % (PY, ' '.join(need)))
     print()
     print('    requests 만 있어도 1번(주소 확인)은 돌아갑니다.')
-    print('    pypdf 가 없으면 PDF 본문 추출만 건너뜁니다.')
+    print('    pypdf 가 없으면 PDF 본문 추출만, openpyxl 이 없으면')
+    print('    엑셀 읽기만 건너뜁니다.')
     print()
     try:
         __import__('requests')

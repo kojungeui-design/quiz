@@ -102,8 +102,16 @@ def xlsx_specs(path):
     try:
         import openpyxl
     except ImportError:
-        print('   (엑셀을 읽으려면:  pip install openpyxl)')
-        return [], 0
+        # 한 번은 스스로 깔아본다.  이것 때문에 엑셀이 전부 0건이 됐었다.
+        import subprocess
+        subprocess.call([sys.executable, '-m', 'pip', 'install',
+                         '--user', '--quiet', 'openpyxl'])
+        try:
+            import openpyxl
+        except ImportError:
+            print('   [X] 엑셀을 읽으려면 openpyxl 이 필요합니다. 명령 프롬프트에:')
+            print('       "%s" -m pip install --user openpyxl' % sys.executable)
+            return [], 0
     try:
         wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     except Exception as exc:
