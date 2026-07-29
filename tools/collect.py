@@ -86,13 +86,60 @@ PAT = {
     'L2':   re.compile(r'\b(L[1-6]-\d{3})\b', re.I),                        # L2-400
     'BCI':  re.compile(r'\bgroup\s*(?:size\s*)?(\d{2,3}[RF]?|H[3-9])\b', re.I),
 }
+
+# BCI 그룹을 'group' 키워드로만 잡으면 카달로그 표를 통째로 놓친다.  표에는
+# 그 단어가 없고 `S4 24F-525B  24F  525  650` 처럼 코드만 온다.  357쪽짜리
+# 북미 카달로그에서 4건밖에 못 뽑은 게 이 때문이었다.
+#
+# 그렇다고 아무 두세 자리 숫자나 주우면 쪽번호·연도까지 삼킨다.  그래서
+# 실재하는 BCI 그룹 목록으로만 대조한다.
+BCI_LETTER = [  # 글자가 붙은 것 — 다른 숫자와 헷갈릴 일이 없다
+    '22F', '22NF', '21R', '24F', '24H', '24R', '24T', '26R', '27F', '27H',
+    '29NF', '31A', '31P', '31T', '34R', '36R', '40R', '51R', '58R', '78R',
+    '94R', '95R', '96R', '97R', '98R', '99R', '121R', '151R',
+    '4D', '6D', '8D', 'GC2', 'GC8', 'H4', 'H5', 'H6', 'H7', 'H8',
+]
+BCI_PLAIN = [   # 맨숫자 — 쪽번호일 수 있어 증거를 더 요구한다
+    '21', '22', '24', '25', '26', '27', '31', '33', '34', '35', '41', '42',
+    '45', '47', '48', '49', '51', '52', '55', '56', '58', '59', '62', '65',
+    '70', '71', '72', '73', '74', '75', '76', '78', '85', '86', '90', '91',
+    '92', '93', '100', '101', '124',
+]
+# JIS 는 보통 용량이 앞에 붙어 오지만(75D23L) 규격표에는 D23 처럼 그룹만
+# 나오기도 한다.  일본·동남아 카달로그에서 이게 꽤 된다.
+JISG_RE = re.compile(r'(?<![\w.-])([BDEFGH]\d{2})([LR]?)(?![\w.])')
+
+_alt = lambda xs: '|'.join(sorted((re.escape(x) for x in xs), key=len, reverse=True))
+BCI_L_RE = re.compile(r'(?<![\w.-])(' + _alt(BCI_LETTER) + r')(?![\w.])', re.I)
+BCI_P_RE = re.compile(r'(?<![\w.-])(' + _alt(BCI_PLAIN) + r')(?![\w.])')
 AH_RE   = re.compile(r'(\d{2,3})\s*Ah\b', re.I)
 # 'A' 뒤에 글자가 오면 Ah 같은 다른 단위다.  그걸 CCA 로 읽던 버그가 있었다.
-CCA_RE  = re.compile(r'(?:CCA|cold\s*crank\w*)\s*[:\-]?\s*(\d{3,4})'
-                     r'|(\d{3,4})\s*A(?![a-z])\s*\(?(EN|SAE|DIN)?\)?', re.I)
+CCA_RE  = re.compile(r'(?:CCA|cold\s*crank\w*)\s*[:\-]?\s*(\d{3,4})'        # CCA 750
+                     # 750 CCA / 750A (EN) — 숫자가 먼저 오는 표기가 더 흔하다
+                     r'|(\d{3,4})\s*(?:CCA\b|A(?![a-z]))\s*\(?(EN|SAE|DIN)?\)?', re.I)
 DIM_RE  = re.compile(r'(\d{3})\s*[x×*]\s*(\d{2,3})\s*[x×*]\s*(\d{2,3})')
 VOLT_RE = re.compile(r'\b(6|12)\s*V\b', re.I)
 TECH_RE = re.compile(r'\b(AGM|EFB|GEL|SLI|MF)\b', re.I)
+
+
+def find_bci(line, strong):
+    """BCI 그룹을 표에서 찾는다.
+
+    글자가 붙은 코드(24F·94R·8D·H6)는 그것만으로 확실하다.  맨숫자(24·65)는
+    쪽번호와 구분이 안 되므로 그 줄에 용량과 CCA 가 둘 다 있을 때(strong)만
+    받는다."""
+    m = BCI_L_RE.search(line)
+    if m:
+        return 'BCI ' + m.group(1).upper()
+    for m in BCI_P_RE.finditer(line):
+        g = m.group(1)
+        # 표에서는 그룹번호가 품번(65-750B)과 제 칸에 두 번 나온다.  한 번만
+        # 나오는 숫자는 쪽번호·연도일 수 있어 용량과 CCA 가 다 있을 때만 받는다.
+        twice = len(BCI_P_RE.findall(line)) > 1 or re.search(
+            r'(?<![\w.])' + re.escape(g) + r'-\d{3}', line)
+        if strong or twice:
+            return 'BCI ' + g
+    return ''
 
 
 def find_size(text):
@@ -115,45 +162,124 @@ def find_size(text):
     return '', ''
 
 
-def parse_specs(text, limit=400, loose=False):
+# 단위가 안 붙은 표 숫자.  `24F  525  650  70  18.6` 같은 줄에서 뽑는다.
+NUM_RE = re.compile(r'(?<![\w.])(\d{2,4}(?:\.\d)?)(?![\w.])')
+
+
+def _row(line, loose):
+    """한 줄에서 스펙 후보를 뽑는다.  못 뽑으면 None."""
+    line = line.strip()
+    if len(line) < 8 or len(line) > 300:
+        return None
+    ah = AH_RE.search(line)
+    cca = None
+    for m in CCA_RE.finditer(line):
+        val = m.group(1) or m.group(2)
+        if val and 100 <= int(val) <= 2000:
+            cca = (int(val), (m.group(3) or '').upper())
+            break
+    size, std = find_size(line)
+    if not size:
+        # 카달로그 표에는 'group' 이라는 단어가 없다.  BCI 코드를 따로 본다.
+        bci = find_bci(line, strong=bool(ah and cca))
+        if bci:
+            size, std = bci, 'BCI'
+    if not size:
+        m = JISG_RE.search(line)            # D23 / B24 / D31R
+        if m and (ah or cca):
+            size, std = m.group(1).upper(), 'JIS'
+    if not size and not (loose and ah):
+        return None
+
+    dim = DIM_RE.search(line)
+    volt = VOLT_RE.search(line)
+    tech = TECH_RE.search(line)
+
+    # 단위 없는 숫자는 어느 칸인지 모른다.  카달로그마다 열 순서가 달라서
+    # 추측하면 틀린 값을 사실처럼 넣게 된다.  그래서 Ah·CCA 칸은 비워두고
+    # 숫자를 그대로 남긴다 — 사람이 표 머리글 한 번만 보면 일괄로 채운다.
+    nums = ''
+    if size and not ah and not cca:
+        cand = [x for x in NUM_RE.findall(line) if 3 <= len(x.split('.')[0]) <= 4]
+        if len(cand) >= 2:
+            nums = ' '.join(cand[:6])
+
+    score = sum([bool(ah), bool(cca), bool(dim)])
+    if score == 0 and not nums:
+        return None
+    if not size and not (ah and cca):
+        return None
+    if score >= 2 and size:
+        conf = '높음'
+    elif size and score == 1:
+        conf = '보통'
+    else:
+        conf = '낮음'
+    return {
+        'size': size, 'std': std,
+        'ah': int(ah.group(1)) if ah else '',
+        'cca': cca[0] if cca else '',
+        'ccaStd': (cca[1] if cca and cca[1] in ('EN', 'SAE') else ''),
+        'dim': 'x'.join(dim.groups()) if dim else '',
+        'v': volt.group(1) if volt else '12',
+        'tech': (tech.group(1).upper() if tech else ''),
+        'nums': nums, 'conf': conf, 'raw': line[:160],
+    }
+
+
+def _cells_to_rows(lines):
+    """칸이 줄마다 쪼개진 표를 한 행으로 되붙인다.
+
+    PDF 에서 글자를 뽑으면 표의 칸이 저마다 한 줄이 되는 문서가 있다.  그때는
+    규격코드만 덩그러니 있는 줄이 나오고 숫자가 그 뒤에 따라온다.  이웃 줄을
+    무턱대고 붙이면 남의 행이 섞이므로, **짧은 줄만** 이어 붙인다."""
+    out = []
+    for i, raw in enumerate(lines):
+        head = raw.strip()
+        if not head or len(head) > 24:
+            continue
+        size, _ = find_size(head)
+        if not size and not BCI_L_RE.fullmatch(head):
+            continue
+        tail = []
+        for j in range(i + 1, min(i + 7, len(lines))):
+            cell = lines[j].strip()
+            # 표의 칸은 짧고, 숫자거나 아주 짧은 표기(AGM·R·Yes)다.
+            # 설명 문장이 붙으면 남의 행이 섞인다.
+            if (not cell or len(cell) > 24
+                    or (not any(c.isdigit() for c in cell) and len(cell) > 4)):
+                break
+            tail.append(cell)
+        if tail:
+            out.append(head + '  ' + '  '.join(tail))
+    return out
+
+
+def parse_specs(text, limit=4000, loose=False):
     """한 문서/페이지에서 (규격, 체계, Ah, CCA, 치수, 기술) 후보를 긁는다.
 
-    줄 단위로 본다.  카탈로그 표는 한 줄에 한 제품이 오는 경우가 많아서
-    줄 안에 규격과 숫자가 같이 있으면 신뢰도가 올라간다."""
-    out = []
-    for line in text.splitlines():
-        line = line.strip()
-        if len(line) < 8 or len(line) > 300:
-            continue
-        size, std = find_size(line)
-        ah = AH_RE.search(line)
-        if not size and not (loose and ah):
-            continue
-        cca = None
-        for m in CCA_RE.finditer(line):
-            val = m.group(1) or m.group(2)
-            if val and 100 <= int(val) <= 2000:
-                cca = (int(val), (m.group(3) or '').upper())
-                break
-        dim = DIM_RE.search(line)
-        volt = VOLT_RE.search(line)
-        tech = TECH_RE.search(line)
-        score = sum([bool(ah), bool(cca), bool(dim)])
-        if score == 0 or (not size and not (ah and cca)):
-            continue
-        out.append({
-            'size': size, 'std': std,
-            'ah': int(ah.group(1)) if ah else '',
-            'cca': cca[0] if cca else '',
-            'ccaStd': (cca[1] if cca and cca[1] in ('EN', 'SAE') else ''),
-            'dim': 'x'.join(dim.groups()) if dim else '',
-            'v': volt.group(1) if volt else '12',
-            'tech': (tech.group(1).upper() if tech else ''),
-            'conf': ('낮음' if not size else ['낮음', '보통', '높음'][min(score, 3) - 1]),
-            'raw': line[:160],
-        })
-        if len(out) >= limit:
-            break
+    카탈로그 표는 보통 한 줄에 한 제품이라 줄 단위로 본다.  거의 아무것도 못
+    건지면 칸이 쪼개진 문서로 보고 행을 되붙여 한 번 더 훑는다."""
+    lines = text.splitlines()
+    out, seen = [], set()
+
+    def take(src):
+        for line in src:
+            r = _row(line, loose)
+            if not r:
+                continue
+            key = (r['size'], r['ah'], r['cca'], r['nums'])
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(r)
+            if len(out) >= limit:
+                return True
+        return False
+
+    take(lines)
+    if len(out) < 3 and len(lines) > 40:
+        take(_cells_to_rows(lines))
     return out
 
 
@@ -366,7 +492,9 @@ def main():
                     f['cca'] if f['ccaStd'] != 'EN' else '',
                     f['cca'] if f['ccaStd'] == 'EN' else '',
                     src.get('마켓', ''), '수집(자동추출)', os.path.basename(u), '',
-                    u, '확신도 %s / %s' % (f['conf'], f['raw'])])
+                    u, '확신도 %s%s / %s' % (f['conf'],
+                        (' / 표 숫자(열 미확정) ' + f['nums']) if f['nums'] else '',
+                        f['raw'])])
 
     # ── 유통사 취급 브랜드 탐지 ─────────────────────────────────────────
     # 바이어(유통사)는 우리 것만 팔지 않는다.  그 사이트에 같이 올라와 있는
