@@ -9,6 +9,7 @@ import csv
 import io
 import os
 import sys
+import unicodedata
 
 try:
     sys.stdout.reconfigure(errors='replace')
@@ -30,6 +31,15 @@ def rows(name):
 
 def bar(n, top, width=22):
     return '█' * max(1, int(round(n / max(top, 1) * width)))
+
+
+def pad(text, width):
+    """한글은 콘솔에서 두 칸을 차지한다.  len() 으로 맞추면 줄이 어긋난다."""
+    w = sum(2 if unicodedata.east_asian_width(c) in 'WF' else 1 for c in text)
+    while w > width and text:
+        text = text[:-1]
+        w = sum(2 if unicodedata.east_asian_width(c) in 'WF' else 1 for c in text)
+    return text + ' ' * (width - w)
 
 
 def main():
@@ -88,7 +98,7 @@ def main():
         top = by.most_common(1)[0][1]
         print('\n[브랜드별]')
         for name, n in by.most_common(12):
-            print('   %-16s %5d  %s' % (name[:16], n, bar(n, top)))
+            print('   %s %5d  %s' % (pad(name, 16), n, bar(n, top)))
         if len(by) > 12:
             print('   ... 그 외 %d개 브랜드' % (len(by) - 12))
 
