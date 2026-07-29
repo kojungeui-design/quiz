@@ -106,3 +106,19 @@ C20 셀에 `1452` 가 들어 있어서 "D23 용량 57~1452Ah" 가 나왔다.
 - **긴 국가 사전은 긴 이름부터.** `GUINEA` 가 `EQ. GUINEA` 를 먹는다.
 - **LibreOffice 가 클라우드 환경에서 안 뜬다**(`failed to launch javaldx`).
   못 돌렸으면 못 돌렸다고 보고해라. 조용히 넘어가면 안 된다.
+
+---
+
+## 윈도우로 전달할 때 (전부 실제로 겪음)
+
+자세한 건 `06_delivery.md`. 요약만.
+
+| 증상 | 원인 | 해법 |
+|---|---|---|
+| `.bat` 가 `'ho'은(는) 내부 또는 외부 명령...` 을 쏟는다 | 한글 cmd 가 `.bat` 를 CP949 로 읽어 UTF-8 한글이 줄을 잘라먹는다 | 배치는 **순수 ASCII**, 한글은 파이썬이 출력 |
+| zip 이 "압축 폴더가 올바르지 않습니다" | 리눅스 `zip` 이 한글 이름에 UTF-8 플래그(0x800)를 안 단다 | 파이썬 `zipfile` 로 굽는다 |
+| CSV 가 엑셀에서 전부 깨진다 | BOM 이 없어 CP949 로 읽힌다 | `utf-8-sig` + CRLF 로 통일 |
+| 콘솔 표의 한글 줄만 밀린다 | 한글은 두 칸인데 `%-16s` 는 글자 수로 센다 | `east_asian_width` 로 실제 폭 계산 |
+| 엑셀 읽기가 조용히 0건 | 설치 목록에 `openpyxl` 이 없었다 | 의존성에 넣고, 없으면 스스로 깔게 |
+| PDF 하나 때문에 수집 전체가 멈춘다 | `pyo3 PanicException` 은 `Exception` 이 아니라 `BaseException` 상속 | `except BaseException` (`KeyboardInterrupt`·`SystemExit` 은 재발생) |
+| 안내한 결과 파일이 없다 | `--dry` 는 아무 파일도 안 만든다 | `--dry`(목록)와 `--check`(실제 확인)를 분리 |
