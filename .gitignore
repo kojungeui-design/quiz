@@ -1,0 +1,14 @@
+# 제조사 카달로그 원본(PDF)은 저작물이고 이 저장소는 공개다. 커밋 금지.
+catalogs/
+*.pdf
+
+# 사내 제품 데이터(고객품번·납품처·오더량)도 커밋 금지.
+*_internal.csv
+gb_japan*.csv
+gb_japan*.json
+*.xlsx
+
+# 파이썬 캐시
+__pycache__/
+*.pyc
+사내자료/
