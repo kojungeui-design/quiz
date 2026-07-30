@@ -27,6 +27,7 @@ Global $BTS = "BTS-600"
 Global $EXPORT_WIN = "Battery - Data export"
 Global $TESTSEC_WIN = "Battery - Test sections"
 Global $CONV_WIN = "Data file conversion"
+Global $CONV_WIN2 = "Please wait!"      ; 실제 변환창 제목(2026-07-30 스크린샷 확인)
 Global $ERR_WIN = "Application Error"
 Global $OUT_DIR = "E:\bts_csv"
 Global $LOG = $OUT_DIR & "\_all_log.txt"
@@ -122,11 +123,13 @@ Func exportSelected(ByRef $battID)
     Local $t = TimerInit()
     While 1
         If WinExists($ERR_WIN) Then Return "crash"
-        If Not WinExists($CONV_WIN) And FileExists($tmp) Then ExitLoop
+        ; 변환창("Please wait!" 또는 "Data file conversion")이 닫히고
+        ; 파일이 생겼을 때만 완료로 인정 (파일 반쯤 쓴 상태 방지)
+        If Not WinExists($CONV_WIN) And Not WinExists($CONV_WIN2) And FileExists($tmp) Then ExitLoop
         If TimerDiff($t) > $WAIT_CONV * 1000 Then Return "timeout"
         Sleep(2000)
     WEnd
-    Sleep(1000)                                      ; 파일 쓰기 마무리 여유
+    Sleep(1500)                                      ; 파일 쓰기 마무리 여유
 
     ; 내용의 Battery ID 로 최종 파일명 결정
     Local $first = FileReadLine($tmp, 1)

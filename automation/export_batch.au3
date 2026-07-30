@@ -14,6 +14,7 @@ Global $BTS = "BTS-600"
 Global $EXPORT_WIN = "Battery - Data export"
 Global $TESTSEC_WIN = "Battery - Test sections"
 Global $CONV_WIN = "Data file conversion"
+Global $CONV_WIN2 = "Please wait!"      ; 실제 변환창 제목(스크린샷 확인)
 Global $ERR_WIN = "Application Error"
 Global $OUT_DIR = "E:\bts_csv"
 Global $LOG = $OUT_DIR & "\_batch_log.txt"
@@ -99,7 +100,7 @@ Func exportOne($circ, $rowIdx)
     Local $t = TimerInit()
     While 1
         If WinExists($ERR_WIN) Then Return "crash"      ; BTSEXP 죽음
-        If Not WinExists($CONV_WIN) And FileExists($fname) Then ExitLoop  ; 성공
+        If Not WinExists($CONV_WIN) And Not WinExists($CONV_WIN2) And FileExists($fname) Then ExitLoop  ; 성공
         If TimerDiff($t) > 900000 Then Return "timeout"
         Sleep(1500)
     WEnd
