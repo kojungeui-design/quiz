@@ -40,6 +40,10 @@ Global $SCROLL_UP[2] = [1252, 201], $SCROLL_DOWN[2] = [1252, 819]   ; 목록 스
 Global $MAX_SAME = 3        ; 같은 ID 연속 N회면 끝으로 판단
 Global $MAX_STEPS = 200     ; 안전 상한(스크롤 최대 횟수)
 
+; ── 대기시간 (초) — 시험 데이터가 크면 창 뜨는 것도 오래 걸림 ──
+Global $WAIT_OPEN = 60      ; Test sections / Export 창 뜰 때까지 (1분)
+Global $WAIT_CONV = 1800    ; 변환(CSV 생성) 완료까지 (30분, 수명시험 대비)
+
 Func note($m)
     ToolTip($m, 10, 10)
 EndFunc
@@ -85,11 +89,11 @@ Func exportSelected(ByRef $battID)
     WinActivate($BTS)
     Sleep(300)
     Send("{ENTER}")                                  ; 선택 회로 열기 (확인됨)
-    If Not WinWait($TESTSEC_WIN, "", 6) Then Return "none"
-    Sleep(800)
+    If Not WinWait($TESTSEC_WIN, "", $WAIT_OPEN) Then Return "none"
+    Sleep(1200)                                      ; 목록 로딩 여유
 
     MouseClick("left", $EXPORT[0], $EXPORT[1], 1, 20)
-    If Not WinWait($EXPORT_WIN, "", 8) Then
+    If Not WinWait($EXPORT_WIN, "", $WAIT_OPEN) Then
         returnToMain()
         Return "fail"
     EndIf
@@ -106,8 +110,8 @@ Func exportSelected(ByRef $battID)
     Sleep(400)
 
     clickBtn($EXPORT_WIN, "Copy", $COPY[0], $COPY[1])
-    Sleep(900)
-    Local $ov = WinWait("", "data file exists", 3)
+    Sleep(1200)
+    Local $ov = WinWait("", "data file exists", 5)
     If $ov <> 0 Then
         ControlClick($ov, "", "[TEXT:Yes]")
         Sleep(400)
@@ -119,9 +123,10 @@ Func exportSelected(ByRef $battID)
     While 1
         If WinExists($ERR_WIN) Then Return "crash"
         If Not WinExists($CONV_WIN) And FileExists($tmp) Then ExitLoop
-        If TimerDiff($t) > 900000 Then Return "timeout"
-        Sleep(1500)
+        If TimerDiff($t) > $WAIT_CONV * 1000 Then Return "timeout"
+        Sleep(2000)
     WEnd
+    Sleep(1000)                                      ; 파일 쓰기 마무리 여유
 
     ; 내용의 Battery ID 로 최종 파일명 결정
     Local $first = FileReadLine($tmp, 1)
