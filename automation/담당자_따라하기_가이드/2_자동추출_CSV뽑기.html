@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>시험 데이터 자동으로 뽑기 - 따라하기</title>
+<style type="text/css">
+body{background:#eef4f6;color:#152229;margin:0;padding:20px;
+  font-family:"맑은 고딕","Malgun Gothic",dotum,sans-serif;font-size:15px;line-height:1.7;}
+.wrap{width:660px;margin:0 auto;}
+.hd{text-align:center;margin-bottom:24px;}
+.badge{display:inline-block;background:#dcf0f2;color:#0a6d79;font-weight:bold;
+  padding:5px 15px;border-radius:20px;font-size:14px;margin-bottom:10px;}
+h1{font-size:29px;margin:8px 0;line-height:1.25;}
+.lead{color:#3f545e;font-size:17px;margin:0;}
+.safety{background:#fbe2e5;border:2px solid #d1495b;padding:16px 20px;margin-bottom:24px;}
+.safety h3{margin:0 0 12px;font-size:19px;color:#b23545;}
+.pr{padding:8px 0;border-top:1px solid #f0c9cf;}
+.pr:first-of-type{border-top:none;}
+.prn{display:inline-block;background:#d1495b;color:#fff;font-weight:bold;width:24px;height:24px;
+  line-height:24px;text-align:center;border-radius:12px;margin-right:8px;}
+.pr b{color:#b23545;}
+.prep{background:#f6fafb;border:1px dashed #cfd9dd;padding:14px 18px;margin-bottom:24px;}
+.box{background:#fff;border:1px solid #d9e5e9;padding:18px 22px;margin-bottom:18px;}
+.stepno{display:inline-block;background:#0d8a99;color:#fff;font-weight:bold;font-size:19px;
+  width:34px;height:34px;line-height:34px;text-align:center;border-radius:17px;margin-right:10px;}
+h2{font-size:20px;margin:0 0 6px;display:inline;vertical-align:middle;}
+.do{font-size:16px;margin:10px 0 0;}
+.do b{color:#0a6d79;}
+.mock{background:#f6fafb;border:1px solid #e2eaee;padding:16px;margin:14px 0 4px;text-align:center;}
+.icon{display:inline-block;width:70px;padding:8px 0;color:#fff;font-weight:bold;
+  font-size:13px;text-align:center;background:#4a5a66;}
+.ttip{display:inline-block;background:#fffcd6;border:1px solid #e2d97a;color:#5a5010;
+  padding:6px 12px;font-size:13px;font-family:consolas,monospace;margin-top:10px;}
+.cap{font-size:13px;color:#728690;margin-top:6px;}
+.ok{background:#dcf3e6;padding:10px 14px;margin-top:12px;}
+.ok b{color:#1c9a54;}
+.dont{background:#fdeecf;padding:10px 14px;margin-top:12px;}
+.dont b{color:#a86400;}
+table.grid{border-collapse:collapse;margin:0 auto;font-size:11px;font-family:consolas,monospace;}
+table.grid td{border:1px solid #cfd5dc;background:#fff;padding:4px 10px;color:#5a6672;}
+table.grid td.run{background:#d6ecff;color:#1c6fc0;}
+.tb{background:#fdeecf;padding:18px 22px;margin-bottom:18px;}
+.tb h3{margin:0 0 12px;font-size:19px;}
+.ti{background:#fff;padding:10px 14px;margin-bottom:8px;}
+.ti .q{font-weight:bold;}
+.ti .a{color:#3f545e;}
+.ti .a b{color:#a86400;}
+.next{background:#0d8a99;color:#fff;padding:20px;text-align:center;}
+.next h3{margin:0 0 6px;font-size:19px;}
+.foot{text-align:center;color:#728690;font-size:13px;margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hd">
+    <span class="badge">시험실 담당자용 · 자동 추출 편</span>
+    <h1>시험 데이터를<br>자동으로 뽑기 (CSV 만들기)</h1>
+    <p class="lead">컴퓨터가 <b>스스로 클릭</b>해서 시험 데이터를 CSV로 저장해요.<br>
+      실행하면 <b>손만 떼고 기다리면</b> 됩니다.</p>
+  </div>
+
+  <div class="safety">
+    <h3>시작 전, 딱 3가지 약속</h3>
+    <div class="pr"><span class="prn">1</span>
+      <b>마우스·키보드를 건드리지 마세요.</b> 컴퓨터가 대신 클릭하는 중이라,
+      건드리면 엉뚱한 곳을 눌러요. 실행하면 손 떼고 지켜보기!</div>
+    <div class="pr"><span class="prn">2</span>
+      화면에 <b>회로 목록</b>이 보이는 상태여야 해요. 다른 창은 닫아주세요.</div>
+    <div class="pr"><span class="prn">3</span>
+      뭔가 <b>이상하면 멈추고 담당자를 부르세요.</b> 무리해서 계속하지 않기.</div>
+  </div>
+
+  <div class="prep">
+    <b>참고</b><br>
+    로그인 창이 떠 있어도 괜찮아요. 프로그램이 <b>알아서 로그인</b>하고 시작합니다.
+  </div>
+
+  <div class="box">
+    <span class="stepno">1</span><h2>BTS-600 회로 목록 화면 띄우기</h2>
+    <p class="do">회로들이 <b>쭉 나열된 화면</b>을 띄워 두세요. (다른 창은 닫기)</p>
+    <div class="mock">
+      <table class="grid">
+        <tr><td>Batt0007</td><td class="run">DCH</td><td>Batt0008</td><td class="run">CHA</td></tr>
+        <tr><td>Batt0009</td><td>STO</td><td>Batt0010</td><td class="run">DCH</td></tr>
+        <tr><td>Batt0011</td><td class="run">CHA</td><td>Batt0012</td><td>STO</td></tr>
+      </table>
+      <div class="cap">이런 회로 목록 화면이 보이면 준비 완료</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <span class="stepno">2</span><h2>export_all 을 두 번 클릭</h2>
+    <p class="do"><b>export_all</b> 파일을 두 번 클릭하세요.</p>
+    <div class="mock">
+      <span class="icon">&#9654;<br>export_all</span>
+      <div class="ttip">전 회로 자동 export - 4초 후 시작. 마우스를 건드리지 마세요!</div>
+      <div class="cap">화면 왼쪽 위에 위 같은 노란 안내글이 잠깐 떠요.</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <span class="stepno">3</span><h2>손 떼고 기다리기</h2>
+    <p class="do">4초 뒤 컴퓨터가 <b>스스로 회로를 하나씩 열어 저장</b>합니다.
+      마우스가 혼자 움직이는 건 <b>정상</b>이에요!</p>
+    <div class="mock">
+      <div class="ttip">[3] export 중...  (완료 2, 마지막 Circ0009)</div>
+      <div class="cap">회로 하나에 약 20초 &mdash; 40개면 15분쯤 걸려요.</div>
+    </div>
+    <div class="dont"><b>지금 절대 마우스·키보드 만지지 마세요.</b>
+      자리를 비워도 괜찮아요 &mdash; 알아서 합니다.</div>
+  </div>
+
+  <div class="box">
+    <span class="stepno">4</span><h2>"완료!" 뜨면 끝</h2>
+    <p class="do">다 되면 <b>전 회로 export 완료!</b> 안내가 떠요. 이제 마우스 만져도 됩니다.</p>
+    <div class="mock">
+      <div class="ttip">&#10004; 전 회로 export 완료! 성공 32 / 건너뜀 2 / 실패 0</div>
+    </div>
+    <div class="ok"><b>&#10004; E:\bts_csv 폴더</b>에 CIRC0007.csv, CIRC0008.csv ... 가
+      쌓였으면 성공! (기록은 같은 폴더 <b>_all_log.txt</b>)</div>
+  </div>
+
+  <div class="tb">
+    <h3>이럴 땐 이렇게</h3>
+    <div class="ti"><div class="q">마우스가 엉뚱한 곳을 클릭해요</div>
+      <div class="a">화면 위치(좌표)가 안 맞는 거예요. 담당자에게
+        <b>"영점(좌표)이 안 맞아요"</b>라고 전하면 다시 맞춰 줍니다.</div></div>
+    <div class="ti"><div class="q">"Application Error" 에러창이 떠요</div>
+      <div class="a">시험기 프로그램이 잠깐 멈춘 거예요. <b>자동으로 닫고 다시 시도</b>합니다.
+        계속 반복되면 멈추고 담당자를 부르세요.</div></div>
+    <div class="ti"><div class="q">"건너뜀"이 많아요</div>
+      <div class="a">데이터가 아주 큰 시험은 시간이 오래 걸려 건너뜁니다.
+        꼭 필요하면 담당자에게 <b>"대기시간 늘려주세요"</b>라고 전하세요.</div></div>
+    <div class="ti"><div class="q">중간에 급히 멈추고 싶어요</div>
+      <div class="a">화면 <b>오른쪽 아래 시계 옆</b>의 파란 AutoIt 아이콘을 마우스 오른쪽 클릭 →
+        <b>Exit</b> 를 누르면 멈춰요.</div></div>
+  </div>
+
+  <div class="next">
+    <h3>다음은 "표시 엑셀" 만들기</h3>
+    <p>CSV가 준비됐으니, 다른 안내(1_표시엑셀_만들기)대로
+      <b>make_report에 CSV를 끌어다 놓기</b>만 하면 리포트 완성!</p>
+  </div>
+
+  <p class="foot">처음엔 담당자와 함께 한 번만 돌려보세요. 두 번째부터는 정말 쉬워요.</p>
+</div>
+</body>
+</html>

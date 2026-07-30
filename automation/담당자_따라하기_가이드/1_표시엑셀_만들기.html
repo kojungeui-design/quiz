@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>시험 리포트 자동 만들기 - 따라하기</title>
+<style type="text/css">
+body{background:#eef4f6;color:#152229;margin:0;padding:20px;
+  font-family:"맑은 고딕","Malgun Gothic",dotum,sans-serif;font-size:15px;line-height:1.7;}
+.wrap{width:660px;margin:0 auto;}
+.hd{text-align:center;margin-bottom:26px;}
+.badge{display:inline-block;background:#dcf0f2;color:#0a6d79;font-weight:bold;
+  padding:5px 15px;border-radius:20px;font-size:14px;margin-bottom:10px;}
+h1{font-size:30px;margin:8px 0;line-height:1.25;}
+.lead{color:#3f545e;font-size:17px;margin:0;}
+.prep{background:#f6fafb;border:1px dashed #cfd9dd;padding:14px 18px;margin-bottom:26px;}
+.prep b{color:#152229;}
+.box{background:#fff;border:1px solid #d9e5e9;padding:18px 22px;margin-bottom:18px;}
+.stepno{display:inline-block;background:#0d8a99;color:#fff;font-weight:bold;font-size:19px;
+  width:34px;height:34px;line-height:34px;text-align:center;border-radius:17px;margin-right:10px;}
+h2{font-size:20px;margin:0 0 6px;display:inline;vertical-align:middle;}
+.do{font-size:16px;margin:10px 0 0;}
+.do b{color:#0a6d79;}
+.mock{background:#f6fafb;border:1px solid #e2eaee;padding:16px;margin:14px 0 4px;text-align:center;}
+.icon{display:inline-block;width:62px;padding:8px 0;color:#fff;font-weight:bold;
+  font-size:13px;text-align:center;margin:0 12px;vertical-align:middle;}
+.i-csv{background:#3aa06b;}
+.i-bat{background:#4a5a66;}
+.arrow{display:inline-block;font-size:26px;color:#0d8a99;vertical-align:middle;margin:0 4px;}
+.cap{font-size:13px;color:#728690;margin-top:6px;}
+.ok{background:#dcf3e6;padding:10px 14px;margin-top:12px;}
+.ok b{color:#1c9a54;}
+.star{background:#fff7d6;padding:10px 14px;margin-top:12px;}
+.popup{border:1px solid #b9c4cb;background:#fff;width:280px;margin:10px auto;}
+.popup .tt{background:#e9edf1;padding:4px 8px;font-size:12px;text-align:left;}
+.popup .ms{padding:14px;text-align:center;font-size:15px;}
+.popup .btn{display:inline-block;background:#0d8a99;color:#fff;font-weight:bold;
+  padding:4px 20px;font-size:13px;margin-top:10px;}
+table.xl{border-collapse:collapse;margin:0 auto;font-size:12px;font-family:consolas,monospace;}
+table.xl td,table.xl th{border:1px solid #ccd6da;padding:4px 9px;text-align:right;}
+table.xl th{background:#f0f4f6;color:#5b6c75;}
+tr.hl td{background:#ffe14d;font-weight:bold;}
+.tb{background:#fdeecf;padding:18px 22px;margin-bottom:18px;}
+.tb h3{margin:0 0 12px;font-size:19px;}
+.ti{background:#fff;padding:10px 14px;margin-bottom:8px;}
+.ti .q{font-weight:bold;}
+.ti .a{color:#3f545e;}
+.ti .a b{color:#a86400;}
+.rm{background:#0d8a99;color:#fff;padding:20px;text-align:center;}
+.rm h3{margin:0 0 14px;font-size:19px;}
+.rm td{color:#fff;text-align:center;padding:10px;font-size:15px;width:33%;}
+.foot{text-align:center;color:#728690;font-size:13px;margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hd">
+    <span class="badge">시험실 담당자용 · 혼자 따라하기</span>
+    <h1>시험 데이터를<br>엑셀 리포트로 자동 만들기</h1>
+    <p class="lead">프로그램 설치 필요 없어요.<br><b>파일을 끌어다 놓기</b> 한 번이면 끝납니다.</p>
+  </div>
+
+  <div class="prep">
+    <b>준비물 (이미 다 있어요)</b><br>
+    이 컴퓨터엔 <b>AutoIt</b>(자동추출에 쓰는 것)과 <b>Excel</b>이 이미 깔려 있어요.
+    따로 설치할 것 없습니다. 폴더 안에 <b>make_report</b> 와 <b>make_report.au3</b>
+    두 파일이 같이 있으면 준비 끝.
+  </div>
+
+  <div class="box">
+    <span class="stepno">1</span><h2>CSV 파일을 준비하기</h2>
+    <p class="do">시험기에서 뽑은 <b>CSV 파일</b>을 하나 준비하세요.
+      (연습용으로 <b>연습용_0C20.csv</b> 를 써도 돼요.)</p>
+    <div class="mock">
+      <span class="icon i-csv">CSV<br>0C20</span>
+      <div class="cap">이런 파일</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <span class="stepno">2</span><h2>CSV를 make_report 위로 끌어다 놓기</h2>
+    <p class="do">CSV 파일을 마우스로 꾹 잡아서, <b>make_report</b> 아이콘 위에 올려놓고 손을 떼세요.</p>
+    <div class="mock">
+      <span class="icon i-csv">CSV<br>0C20</span>
+      <span class="arrow">&#10142;</span>
+      <span class="icon i-bat">&#9654;<br>make_report</span>
+      <div class="cap">왼쪽 버튼을 누른 채 끌고 가서, 아이콘 위에서 손을 떼면 돼요.</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <span class="stepno">3</span><h2>Excel이 잠깐 떴다 사라져요</h2>
+    <p class="do">엑셀 화면이 <b>혼자 잠깐</b> 나타났다 없어져요. 표시하는 중이니 <b>가만히 두세요.</b></p>
+    <div class="mock">
+      <div class="popup">
+        <div class="tt">완료</div>
+        <div class="ms">
+          표시 엑셀 생성 완료!<br>성공 1 / 실패 0
+          <div class="btn">확인</div>
+        </div>
+      </div>
+    </div>
+    <div class="ok"><b>&#10004; "완료!" 창이 뜨면 성공</b>이에요. 확인을 누르세요.</div>
+  </div>
+
+  <div class="box">
+    <span class="stepno">4</span><h2>"표시" 엑셀을 열어보세요</h2>
+    <p class="do">CSV와 <b>같은 폴더</b>에 <b>"○○ - 표시.xlsx"</b> 가 새로 생겼어요. 더블클릭해서 열면...</p>
+    <div class="mock">
+      <table class="xl">
+        <tr><th>&nbsp;</th><th>상태</th><th>전압(V)</th><th>방전Ah</th></tr>
+        <tr><td>3</td><td>PAU</td><td>12.901</td><td>0.000</td></tr>
+        <tr class="hl"><td>4</td><td>DCH</td><td>12.899</td><td>0.000</td></tr>
+        <tr><td>4</td><td>DCH</td><td>12.629</td><td>0.833</td></tr>
+        <tr><td>...</td><td>...</td><td>...</td><td>...</td></tr>
+        <tr class="hl"><td>4</td><td>DCH</td><td>10.50</td><td>78.4</td></tr>
+        <tr class="hl"><td>5</td><td>CHA</td><td>14.40</td><td>78.4</td></tr>
+      </table>
+    </div>
+    <div class="star"><b>&#9733; 노란색 칸</b>이 "중요한 값"이에요 &mdash; 방전 시작·방전 끝·충전 끝 같은
+      핵심 지점을 자동으로 칠해줍니다. 나머지는 원본 그대로라 값이 정확해요.</div>
+  </div>
+
+  <div class="tb">
+    <h3>이럴 땐 이렇게</h3>
+    <div class="ti"><div class="q">"표시" 엑셀이 안 생겨요</div>
+      <div class="a">(1) 끌어다 놓은 게 <b>CSV 파일</b>이 맞는지, (2) <b>make_report</b> 옆에
+        <b>make_report.au3</b> 파일이 같이 있는지 확인하세요.</div></div>
+    <div class="ti"><div class="q">"Excel이 설치되어 있어야 합니다" 창</div>
+      <div class="a">이 PC에 <b>엑셀</b>이 없다는 뜻이에요. 담당자에게 <b>Excel 설치</b>를 요청하세요.</div></div>
+    <div class="ti"><div class="q">"AutoIt not found" 글씨</div>
+      <div class="a"><b>AutoIt</b>이 없다는 뜻이에요. 담당자에게 <b>AutoIt 설치</b>를 요청하세요.</div></div>
+    <div class="ti"><div class="q">노란색 칸 위치가 좀 이상해요</div>
+      <div class="a">수명(반복)·CCA 시험은 표시 지점을 맞춰야 할 수 있어요. 담당자에게
+        <b>어떤 시험인지</b> 알려주면 조정해 줍니다.</div></div>
+  </div>
+
+  <div class="rm">
+    <h3>딱 3가지만 기억하세요</h3>
+    <table width="100%"><tr>
+      <td><b>CSV</b>를<br>준비하고</td>
+      <td><b>make_report</b>에<br>끌어다 놓고</td>
+      <td><b>표시.xlsx</b>를<br>열어보기</td>
+    </tr></table>
+  </div>
+
+  <p class="foot">막히면 언제든 담당자에게 물어보세요. 처음 한 번만 해보면 정말 쉬워요.</p>
+</div>
+</body>
+</html>
