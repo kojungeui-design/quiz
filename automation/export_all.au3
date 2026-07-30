@@ -43,8 +43,9 @@ Global $MAX_STEPS = 200     ; 안전 상한(스크롤 최대 횟수)
 
 ; ── 대기시간 (초) ──
 Global $WAIT_OPEN = 60      ; Test sections / Export 창 뜰 때까지 (1분)
-Global $WAIT_CONV = 30      ; 변환(CSV 생성) 한도 — 넘으면 취소하고 건너뜀
-;                             (대용량 J2801 등은 몇 분씩 걸림 → 어차피 리포트 제외라 스킵)
+Global $WAIT_CONV = 120     ; 변환(CSV 생성) 한도(초) — 넘으면 취소하고 건너뜀
+;   30초로 두면 mf126#4(2.3MB) 같은 대용량이 잘림. 2분이면 대부분 통과하고,
+;   정말 오래 걸리는 것만 건너뛴다. 더 빨리 넘기려면 이 숫자를 줄이면 됨.
 
 Func note($m)
     ToolTip($m, 10, 10)
@@ -81,11 +82,45 @@ Func returnToMain()
     Sleep(600)
 EndFunc
 
+; 이번 export 로 새로 생긴 CSV 찾기 (이름이 잘렸을 때 대비).
+; CIRC*.csv(이미 정리된 결과)와 _report.csv 는 제외.
+Func findFresh($t)
+    Local $list = _FileListToArray($OUT_DIR, "*.csv", 1)
+    If @error Then Return ""
+    Local $elapsed = TimerDiff($t) / 1000 + 120      ; 이번 시도 중 생긴 파일만
+    For $k = 1 To $list[0]
+        Local $nm = $list[$k]
+        If StringLeft($nm, 4) = "CIRC" Then ContinueLoop
+        If StringInStr($nm, "_report") Then ContinueLoop
+        Local $full = $OUT_DIR & "\" & $nm
+        Local $age = _age_sec($full)
+        If $age >= 0 And $age <= $elapsed Then Return $full
+    Next
+    Return ""
+EndFunc
+
+; 파일이 마지막으로 수정된 뒤 지난 초 (실패 시 -1)
+Func _age_sec($path)
+    Local $m = FileGetTime($path, 0)                 ; [년,월,일,시,분,초]
+    If Not IsArray($m) Then Return -1
+    Local $ft = _toSec($m[0], $m[1], $m[2], $m[3], $m[4], $m[5])
+    Local $nw = _toSec(@YEAR, @MON, @MDAY, @HOUR, @MIN, @SEC)
+    Return $nw - $ft
+EndFunc
+
+Func _toSec($y, $mo, $d, $h, $mi, $s)
+    ; 대략적인 절대초 (같은 날 비교용이면 충분)
+    Return ((($y * 12 + $mo) * 31 + $d) * 24 + $h) * 3600 + $mi * 60 + $s
+EndFunc
+
 ; 현재 '선택된' 회로를 Enter 로 열어 export.
 ; 반환: "ok"/"none"(안 열림)/"crash"/"fail"/"timeout".  $battID 에 배터리 ID.
 Func exportSelected(ByRef $battID)
     $battID = ""
-    Local $tmp = $OUT_DIR & "\TEMP_EXPORT.csv"
+    ; ※ BTSEXP는 옛 DOS 규칙으로 파일명을 8글자로 자른다.
+    ;   "TEMP_EXPORT.csv" 로 지정해도 실제로는 "TEMP_EXP.csv" 로 저장됨
+    ;   → 처음부터 8글자 이름을 쓴다.
+    Local $tmp = $OUT_DIR & "\_TMPEXP.csv"
     FileDelete($tmp)
 
     WinActivate($BTS)
@@ -126,7 +161,17 @@ Func exportSelected(ByRef $battID)
         If WinExists($ERR_WIN) Then Return "crash"
         ; 변환창("Please wait!" 또는 "Data file conversion")이 닫히고
         ; 파일이 생겼을 때만 완료로 인정 (파일 반쯤 쓴 상태 방지)
-        If Not WinExists($CONV_WIN) And Not WinExists($CONV_WIN2) And FileExists($tmp) Then ExitLoop
+        ; 혹시 다른 이름으로 저장됐으면(8글자 절삭 등) 그 파일을 찾아 사용
+        If Not WinExists($CONV_WIN) And Not WinExists($CONV_WIN2) Then
+            If Not FileExists($tmp) Then
+                Local $alt = findFresh($t)
+                If $alt <> "" Then
+                    FileMove($alt, $tmp, 1)
+                    Sleep(300)
+                EndIf
+            EndIf
+            If FileExists($tmp) Then ExitLoop
+        EndIf
         If TimerDiff($t) > $WAIT_CONV * 1000 Then
             ; 30초 초과 → 변환창의 Cancel 눌러 취소하고 건너뜀
             If WinExists($CONV_WIN2) Then
@@ -241,7 +286,8 @@ While $i < $MAX_STEPS
     $i += 1
 WEnd
 
-FileDelete($OUT_DIR & "\TEMP_EXPORT.csv")
+FileDelete($OUT_DIR & "\_TMPEXP.csv")
+FileDelete($OUT_DIR & "\TEMP_EXP.csv")       ; 이전 버전 잔재 정리
 log_("=== 끝: 성공 " & $okCnt & " / 건너뜀 " & $skipCnt & " / 실패 " & $failCnt & " ===")
 note("✅ 전 회로 export 완료! 성공 " & $okCnt & " / 건너뜀(30초 초과) " & $skipCnt & " / 실패 " & $failCnt & @CRLF & "(로그: _all_log.txt)")
 Sleep(6000)
