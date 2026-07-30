@@ -23,6 +23,14 @@
 ; =====================================================================
 #include <File.au3>
 
+; ── 로그인 (매일 아침 재부팅 후 BTS가 뜨면 로그인 창이 먼저 나옴) ──
+Global $LOGIN_WIN = "System access"
+Global $LOGIN_ID = "Digatron"
+Global $LOGIN_PW = "bts600"
+Global $LOGIN_OPERATOR[2] = [1023, 361]   ; Operator 입력칸
+Global $LOGIN_PASSWORD[2] = [1023, 387]   ; Password 입력칸
+Global $LOGIN_OK[2] = [861, 428]          ; Ok 버튼
+
 Global $BTS = "BTS-600"
 Global $EXPORT_WIN = "Battery - Data export"
 Global $TESTSEC_WIN = "Battery - Test sections"
@@ -57,6 +65,52 @@ Func clickBtn($win, $t, $x, $y)
     If ControlClick($win, "", "[TEXT:" & $t & "]") = 0 Then MouseClick("left", $x, $y, 1, 15)
 EndFunc
 
+; 로그인 창(System access)이 떠 있으면 ID/PW 입력하고 Ok
+; 반환: 로그인을 수행했으면 True
+Func doLogin()
+    If Not WinExists($LOGIN_WIN) Then Return False
+    log_("로그인 창 감지 → 자동 로그인 시도")
+    WinActivate($LOGIN_WIN)
+    Sleep(600)
+
+    ; Operator 칸: 클릭 → 기존 내용 지우고 입력
+    MouseClick("left", $LOGIN_OPERATOR[0], $LOGIN_OPERATOR[1], 1, 15)
+    Sleep(250)
+    Send("{END}")
+    Send("+{HOME}")
+    Send("{DEL}")
+    Sleep(150)
+    Send($LOGIN_ID, 1)
+    Sleep(250)
+
+    ; Password 칸
+    MouseClick("left", $LOGIN_PASSWORD[0], $LOGIN_PASSWORD[1], 1, 15)
+    Sleep(250)
+    Send("{END}")
+    Send("+{HOME}")
+    Send("{DEL}")
+    Sleep(150)
+    Send($LOGIN_PW, 1)
+    Sleep(250)
+
+    ; Ok
+    If ControlClick($LOGIN_WIN, "", "[TEXT:Ok]") = 0 Then _
+        MouseClick("left", $LOGIN_OK[0], $LOGIN_OK[1], 1, 15)
+
+    ; 창이 닫힐 때까지 대기 (최대 20초)
+    Local $t = TimerInit()
+    While WinExists($LOGIN_WIN) And TimerDiff($t) < 20000
+        Sleep(500)
+    WEnd
+    If WinExists($LOGIN_WIN) Then
+        log_("로그인 실패 — 창이 안 닫힘 (ID/PW 또는 좌표 확인)")
+        Return False
+    EndIf
+    log_("로그인 성공")
+    Sleep(1500)
+    Return True
+EndFunc
+
 Func closeErr()
     If WinExists($ERR_WIN) Then
         WinActivate($ERR_WIN)
@@ -69,6 +123,7 @@ Func closeErr()
 EndFunc
 
 Func returnToMain()
+    doLogin()                  ; 중간에 세션이 풀려 로그인 창이 떴을 때 대비
     closeErr()
     If WinExists($EXPORT_WIN) Then
         WinClose($EXPORT_WIN)
@@ -223,6 +278,26 @@ If Not FileExists($OUT_DIR) Then DirCreate($OUT_DIR)
 log_("=== 전 회로 export 시작 ===")
 note("전 회로 자동 export — 4초 후 시작. 마우스/키보드 건드리지 마세요!")
 Sleep(4000)
+
+; 0) BTS 창이 아직 안 떴으면 기다림 (아침 재부팅 직후 대비, 최대 5분)
+Local $tw = TimerInit()
+While Not WinExists($BTS) And Not WinExists($LOGIN_WIN) And TimerDiff($tw) < 300000
+    note("BTS-600 시작 대기 중...")
+    Sleep(3000)
+WEnd
+
+; 0-1) 로그인 창이 떠 있으면 자동 로그인
+If WinExists($LOGIN_WIN) Then
+    note("로그인 창 감지 → 자동 로그인 중...")
+    doLogin()
+EndIf
+
+If Not WinExists($BTS) Then
+    log_("BTS-600 창을 찾을 수 없어 종료")
+    note("❌ BTS-600 창을 찾을 수 없습니다. 프로그램이 켜져 있는지 확인하세요.")
+    Sleep(6000)
+    Exit
+EndIf
 
 WinActivate($BTS)
 Sleep(800)
