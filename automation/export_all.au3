@@ -244,17 +244,38 @@ Func exportSelected(ByRef $battID)
     WEnd
     Sleep(1500)                                      ; 파일 쓰기 마무리 여유
 
-    ; 내용의 Battery ID 로 최종 파일명 결정
-    Local $first = FileReadLine($tmp, 1)
-    Local $m = StringRegExp($first, "Batt(\d+)", 1)
-    If IsArray($m) Then
-        $battID = "Batt" & $m[0]
-        Local $dst = $OUT_DIR & "\CIRC" & StringFormat("%04d", Number($m[0])) & ".csv"
-        FileDelete($dst)
-        FileMove($tmp, $dst, 1)
-    Else
-        $battID = "UNKNOWN"
+    ; ── 최종 파일명 결정 ──
+    ; 1순위: 메타의 "Circuit:,Circ0013" (회로번호 — 배터리 이름이 HWTEST 등
+    ;        사용자 지정이어도 항상 존재)
+    ; 2순위: 첫 줄의 Batt0013
+    ; 3순위: 그래도 못 찾으면 시각으로 이름 지어 '데이터는 절대 안 버림'
+    Local $num = ""
+    For $ln = 1 To 14
+        Local $L = FileReadLine($tmp, $ln)
+        If @error Then ExitLoop
+        Local $c = StringRegExp($L, "(?i)Circuit:\s*,\s*Circ0*(\d+)", 1)
+        If IsArray($c) Then
+            $num = $c[0]
+            ExitLoop
+        EndIf
+    Next
+    If $num = "" Then
+        Local $m = StringRegExp(FileReadLine($tmp, 1), "Batt0*(\d+)", 1)
+        If IsArray($m) Then $num = $m[0]
     EndIf
+
+    Local $dst
+    If $num <> "" Then
+        $battID = "Circ" & StringFormat("%04d", Number($num))
+        $dst = $OUT_DIR & "\CIRC" & StringFormat("%04d", Number($num)) & ".csv"
+    Else
+        ; 이름을 못 읽어도 파일은 남긴다 (덮어쓰기로 유실되는 것 방지)
+        $battID = "UNKNOWN"
+        $dst = $OUT_DIR & "\UNK" & @HOUR & @MIN & @SEC & ".csv"
+        log_("회로번호를 못 읽음 → " & $dst & " 로 저장(수동 확인 필요)")
+    EndIf
+    FileDelete($dst)
+    FileMove($tmp, $dst, 1)
     Return "ok"
 EndFunc
 
