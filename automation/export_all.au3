@@ -41,9 +41,10 @@ Global $SCROLL_UP[2] = [1252, 201], $SCROLL_DOWN[2] = [1252, 819]   ; 목록 스
 Global $MAX_SAME = 3        ; 같은 ID 연속 N회면 끝으로 판단
 Global $MAX_STEPS = 200     ; 안전 상한(스크롤 최대 횟수)
 
-; ── 대기시간 (초) — 시험 데이터가 크면 창 뜨는 것도 오래 걸림 ──
+; ── 대기시간 (초) ──
 Global $WAIT_OPEN = 60      ; Test sections / Export 창 뜰 때까지 (1분)
-Global $WAIT_CONV = 1800    ; 변환(CSV 생성) 완료까지 (30분, 수명시험 대비)
+Global $WAIT_CONV = 30      ; 변환(CSV 생성) 한도 — 넘으면 취소하고 건너뜀
+;                             (대용량 J2801 등은 몇 분씩 걸림 → 어차피 리포트 제외라 스킵)
 
 Func note($m)
     ToolTip($m, 10, 10)
@@ -126,8 +127,20 @@ Func exportSelected(ByRef $battID)
         ; 변환창("Please wait!" 또는 "Data file conversion")이 닫히고
         ; 파일이 생겼을 때만 완료로 인정 (파일 반쯤 쓴 상태 방지)
         If Not WinExists($CONV_WIN) And Not WinExists($CONV_WIN2) And FileExists($tmp) Then ExitLoop
-        If TimerDiff($t) > $WAIT_CONV * 1000 Then Return "timeout"
-        Sleep(2000)
+        If TimerDiff($t) > $WAIT_CONV * 1000 Then
+            ; 30초 초과 → 변환창의 Cancel 눌러 취소하고 건너뜀
+            If WinExists($CONV_WIN2) Then
+                WinActivate($CONV_WIN2)
+                If ControlClick($CONV_WIN2, "", "[TEXT:Cancel]") = 0 Then MouseClick("left", 965, 534, 1, 15)
+            ElseIf WinExists($CONV_WIN) Then
+                WinActivate($CONV_WIN)
+                If ControlClick($CONV_WIN, "", "[TEXT:Cancel]") = 0 Then MouseClick("left", 965, 534, 1, 15)
+            EndIf
+            Sleep(1000)
+            FileDelete($tmp)                         ; 반쯤 쓴 파일 정리
+            Return "skip"
+        EndIf
+        Sleep(1000)
     WEnd
     Sleep(1500)                                      ; 파일 쓰기 마무리 여유
 
@@ -179,8 +192,8 @@ Sleep(600)
 MouseClick("left", $COL_X, $BASE_Y, 1, 15)      ; 첫 줄(Batt0007) 선택 + 포커스
 Sleep(400)
 
-Local $okCnt = 0, $failCnt = 0
-Local $prevID = "", $sameCnt = 0
+Local $okCnt = 0, $failCnt = 0, $skipCnt = 0
+Local $prevID = "", $sameCnt = 0, $skipRun = 0
 Local $i = 0                                     ; 지금까지 ↓ 이동 횟수
 
 While $i < $MAX_STEPS
@@ -194,6 +207,7 @@ While $i < $MAX_STEPS
     Local $res = exportSelectedRetry($id, $selY)
 
     If $res = "ok" Then
+        $skipRun = 0
         If $id = $prevID Then
             $sameCnt += 1                         ; 같은 ID 반복 = 목록 끝
         Else
@@ -202,11 +216,17 @@ While $i < $MAX_STEPS
             log_($id & " 성공")
         EndIf
         $prevID = $id
+    ElseIf $res = "skip" Then
+        $skipCnt += 1
+        $skipRun += 1                             ; 30초 초과 → 건너뜀
+        log_("변환 " & $WAIT_CONV & "초 초과 → 건너뜀 (연속 " & $skipRun & ")")
+        If $skipRun >= 8 Then ExitLoop            ; 연속 8회 스킵 = 목록 끝 부근 안전정지
     ElseIf $res = "none" Then
         $sameCnt += 1                             ; 안 열림(빈 줄/포커스 잃음)
         log_("행 열기 실패(none)")
     Else
         $failCnt += 1
+        $skipRun = 0
         log_("실패(" & $res & ") — 계속 진행")
     EndIf
     If $sameCnt >= $MAX_SAME Then ExitLoop
@@ -222,6 +242,6 @@ While $i < $MAX_STEPS
 WEnd
 
 FileDelete($OUT_DIR & "\TEMP_EXPORT.csv")
-log_("=== 끝: 성공 " & $okCnt & " / 실패 " & $failCnt & " ===")
-note("✅ 전 회로 export 완료! 성공 " & $okCnt & " / 실패 " & $failCnt & @CRLF & "(로그: _all_log.txt)")
+log_("=== 끝: 성공 " & $okCnt & " / 건너뜀 " & $skipCnt & " / 실패 " & $failCnt & " ===")
+note("✅ 전 회로 export 완료! 성공 " & $okCnt & " / 건너뜀(30초 초과) " & $skipCnt & " / 실패 " & $failCnt & @CRLF & "(로그: _all_log.txt)")
 Sleep(6000)
