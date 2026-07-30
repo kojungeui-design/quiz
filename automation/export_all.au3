@@ -65,6 +65,53 @@ Func clickBtn($win, $t, $x, $y)
     If ControlClick($win, "", "[TEXT:" & $t & "]") = 0 Then MouseClick("left", $x, $y, 1, 15)
 EndFunc
 
+; ── 입력칸에 글자를 '확실하게' 넣기 ───────────────────────────────
+; 옛 델파이 프로그램은 Send()로 빠르게 치면 글자 순서가 섞인다
+; (예: E:\bts_csv\_TMPEXP.csv → c-svT\m_pTeM\PpE.xcsPv.csv → Invalid target file!).
+; → ① 포커스된 컨트롤에 값을 직접 설정  ② 확인  ③ 안 되면 클립보드 붙여넣기
+;   ④ 그래도 안 되면 아주 느리게 타이핑.  마지막에 값이 맞는지 검사.
+Func setField($win, $x, $y, $text)
+    WinActivate($win)
+    Sleep(300)
+    MouseClick("left", $x, $y, 1, 15)
+    Sleep(400)
+
+    Local $foc = ControlGetFocus($win)
+
+    ; ① 직접 설정 (가장 확실)
+    If $foc <> "" Then
+        ControlSetText($win, "", $foc, $text)
+        Sleep(350)
+        If ControlGetText($win, "", $foc) = $text Then Return True
+    EndIf
+
+    ; ② 클립보드 붙여넣기
+    Send("{END}")
+    Send("+{HOME}")
+    Send("{DEL}")
+    Sleep(200)
+    ClipPut($text)
+    Sleep(200)
+    Send("^v")
+    Sleep(500)
+    If $foc <> "" Then
+        If ControlGetText($win, "", $foc) = $text Then Return True
+    EndIf
+
+    ; ③ 느린 타이핑 (한 글자씩)
+    Send("{END}")
+    Send("+{HOME}")
+    Send("{DEL}")
+    Sleep(200)
+    Local $prev = Opt("SendKeyDelay", 40)
+    Send($text, 1)
+    Opt("SendKeyDelay", $prev)
+    Sleep(500)
+
+    If $foc = "" Then Return True            ; 검사할 방법이 없으면 통과로 간주
+    Return (ControlGetText($win, "", $foc) = $text)
+EndFunc
+
 ; 로그인 창(System access)이 떠 있으면 ID/PW 입력하고 Ok
 ; 반환: 로그인을 수행했으면 True
 Func doLogin()
@@ -73,24 +120,9 @@ Func doLogin()
     WinActivate($LOGIN_WIN)
     Sleep(600)
 
-    ; Operator 칸: 클릭 → 기존 내용 지우고 입력
-    MouseClick("left", $LOGIN_OPERATOR[0], $LOGIN_OPERATOR[1], 1, 15)
-    Sleep(250)
-    Send("{END}")
-    Send("+{HOME}")
-    Send("{DEL}")
-    Sleep(150)
-    Send($LOGIN_ID, 1)
-    Sleep(250)
-
-    ; Password 칸
-    MouseClick("left", $LOGIN_PASSWORD[0], $LOGIN_PASSWORD[1], 1, 15)
-    Sleep(250)
-    Send("{END}")
-    Send("+{HOME}")
-    Send("{DEL}")
-    Sleep(150)
-    Send($LOGIN_PW, 1)
+    ; Operator / Password — 글자 섞임 방지를 위해 setField 사용
+    setField($LOGIN_WIN, $LOGIN_OPERATOR[0], $LOGIN_OPERATOR[1], $LOGIN_ID)
+    setField($LOGIN_WIN, $LOGIN_PASSWORD[0], $LOGIN_PASSWORD[1], $LOGIN_PW)
     Sleep(250)
 
     ; Ok
@@ -142,7 +174,7 @@ EndFunc
 Func findFresh($t)
     Local $list = _FileListToArray($OUT_DIR, "*.csv", 1)
     If @error Then Return ""
-    Local $elapsed = TimerDiff($t) / 1000 + 120      ; 이번 시도 중 생긴 파일만
+    Local $elapsed = TimerDiff($t) / 1000 + 20       ; 이번 시도 중 생긴 파일만(엄격)
     For $k = 1 To $list[0]
         Local $nm = $list[$k]
         If StringLeft($nm, 4) = "CIRC" Then ContinueLoop
@@ -192,14 +224,18 @@ Func exportSelected(ByRef $battID)
     WinActivate($EXPORT_WIN)
     Sleep(700)
 
-    MouseClick("left", $DEST[0], $DEST[1], 1, 15)   ; 파일명 칸
-    Sleep(400)
-    Send("{END}")
-    Send("+{HOME}")
-    Send("{DEL}")
-    Sleep(150)
-    Send($tmp, 1)
-    Sleep(400)
+    ; 파일명 칸 — 글자가 섞이지 않게 확실히 입력(최대 2회 시도)
+    Local $okSet = setField($EXPORT_WIN, $DEST[0], $DEST[1], $tmp)
+    If Not $okSet Then
+        log_("파일명 입력 실패 → 재시도")
+        Sleep(500)
+        $okSet = setField($EXPORT_WIN, $DEST[0], $DEST[1], $tmp)
+    EndIf
+    If Not $okSet Then
+        log_("파일명 입력 2회 실패 — 이 회로 건너뜀")
+        returnToMain()
+        Return "fail"
+    EndIf
 
     clickBtn($EXPORT_WIN, "Copy", $COPY[0], $COPY[1])
     Sleep(1200)
@@ -207,6 +243,14 @@ Func exportSelected(ByRef $battID)
     If $ov <> 0 Then
         ControlClick($ov, "", "[TEXT:Yes]")
         Sleep(400)
+    EndIf
+
+    ; 파일명이 잘못 들어갔으면 창에 "Invalid target file!" 이 뜨고 Ok가 죽는다
+    ; → 120초 기다리지 말고 바로 실패 처리
+    If WinExists($EXPORT_WIN, "Invalid target file") Then
+        log_("Invalid target file — 이 회로 건너뜀")
+        returnToMain()
+        Return "fail"
     EndIf
 
     clickBtn($EXPORT_WIN, "Ok", $OK[0], $OK[1])     ; 변환 시작
