@@ -17,7 +17,10 @@ Global $CONV_WIN = "Data file conversion"
 Global $ERR_WIN = "Application Error"
 Global $OUT_DIR = "E:\bts_csv"
 Global $LOG = $OUT_DIR & "\_batch_log.txt"
-Global $BASE_Y = 202, $ROW_H = 16.2, $COL_X = 55
+; 좌표 영점 (1920x1080 기준, 2026-07-30 전체화면 재보정)
+;   Batt0007(첫 줄)=y203, 줄간격 16.9px. COL_X=Battery열 더블클릭 위치.
+;   ※ 목록이 '맨 위로 스크롤된 상태' 기준. 해상도 다르면 capture_coords.au3로 재측정.
+Global $BASE_Y = 203, $ROW_H = 16.9, $COL_X = 55
 Global $EXPORT[2] = [810, 278], $DEST[2] = [180, 565]
 Global $COPY[2] = [640, 487], $OK[2] = [640, 567], $CANCEL[2] = [810, 644]
 
