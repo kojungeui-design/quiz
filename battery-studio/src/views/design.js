@@ -199,7 +199,7 @@ function planDetail(ctx, plan) {
 
 export function bomRows(plan) {
   return [
-    ['제품', '제품군', '설계안', '기준품', '매수', '양극수', '음극수', '셀수', '양극코드', '음극코드', '활물질(g/매)', 'C20(Ah)', 'RC(분)', 'EN CCA(A)', 'SAE CCA(A)', 'C20여유(%)', 'RC여유(%)', 'EN여유(%)', 'SAE여유(%)', '대당원가(원)', '근거등급', '신뢰지수', '선택사유', '경고'],
+    ['제품', '제품군', '설계안', '기준품', '매수', '양극수', '음극수', '셀수', '양극코드', '음극코드', '활물질(g/매)', 'C20(Ah)', 'RC(분)', 'EN CCA(A)', 'SAE CCA(A)', 'C20여유(%)', 'RC여유(%)', 'EN여유(%)', 'SAE여유(%)', '납중량(kg)', '납중량출처', '대당원가(원)', '근거등급', '신뢰지수', '선택사유', '경고'],
     ...plan.designs.map((d) => [
       d.spec.name,
       d.spec.group,
@@ -220,6 +220,8 @@ export function bomRows(plan) {
       d.rcMargin ?? '목표 미입력',
       d.ccaMargin ?? '목표 미입력',
       d.saeMargin ?? '목표 미입력',
+      d.predictedLead,
+      d.leadSource,
       d.unitCost,
       d.evidenceGrade,
       d.confidence,

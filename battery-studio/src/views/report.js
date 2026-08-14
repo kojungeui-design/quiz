@@ -119,6 +119,14 @@ export function renderReport(ctx) {
           { label: 'RC', align: 'right', format: (d) => `${num(d.predictedRc)} (${margin(d.rcMargin)})` },
           { label: 'EN CCA', align: 'right', format: (d) => `${num(d.predictedEnCca)} (${margin(d.ccaMargin)})` },
           { label: 'SAE CCA', align: 'right', format: (d) => `${num(d.predictedSaeCca)} (${margin(d.saeMargin)})` },
+          {
+            label: '납중량',
+            align: 'right',
+            format: (d) =>
+              d.predictedLead > 0
+                ? h('span', { title: d.leadSource === '실측' ? '등록 실측값' : `모델 추정 — 기판 ${d.leadBreakdown?.grid} + 활물질 ${d.leadBreakdown?.active} + COS ${d.leadBreakdown?.cos} kg` }, `${num(d.predictedLead, 2)} kg${d.leadSource === '실측' ? '' : '*'}`)
+                : '—',
+          },
           { label: '원가', align: 'right', format: (d) => won(d.unitCost) },
           { label: '근거', format: (d) => gradeChip(d.evidenceGrade) },
         ],
@@ -143,6 +151,7 @@ export function renderReport(ctx) {
         h('li', null, '매수는 DB 실적 매수범위 안에서만 탐색합니다. 실적 범위를 벗어난 설계는 이 도구가 판단하지 않습니다.'),
         h('li', null, '케이스 도면·단자 위치·패킹 호환성은 검증하지 않습니다. 도면으로 별도 확인이 필요합니다.'),
         h('li', null, '원가는 극판 재료비와 조립비 중심의 비교값이며 견적가가 아닙니다.'),
+        h('li', null, '납중량의 * 표시는 모델 추정값입니다(실측 735건 적합, 평균오차 3.9%·P90 8.3%). 기준품 고정 설계는 등록 실측값을 그대로 씁니다.'),
         h('li', null, '이 보고서는 설계 검토 지원 자료이며 시제품 시험과 Gate 승인을 대체하지 않습니다.'),
       ),
     ),

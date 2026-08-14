@@ -121,3 +121,23 @@ test('마진 계산은 목표가 없으면 null, 있으면 백분율', () => {
 test('기본 원가 가정은 구엔진 값을 그대로 유지한다', () => {
   assert.deepEqual(DEFAULT_ASSUMPTIONS, legacy.so);
 });
+
+test('수정5 · 신형 양극 단가 분할은 55/45 고정이 아니라 극판별 실측 비중을 쓴다', () => {
+  // 극판 마스터 120종 회귀(단가 ≈ 4.73×기판g + 2.39×활물질g, R² 0.973) 기준
+  // 기판 비중은 평균 40.7%(31~50%)로, 구엔진의 55% 고정 가정은 신형안 원가를 싸게 만들었다.
+  const spec = { ...baseSpec, maxPlates: 12 };
+  const ref = engine.candidatesFor(spec)[0];
+
+  const mine = engine.calculateDesign(spec, 'new', ref, assumptions);
+  const old = legacy.Cm(spec, 'new', ref, assumptions);
+  // 구엔진(55% 고정)이 신엔진(실측 비중 ~41%)보다 기판 절감을 크게 쳐서 원가가 낮았다.
+  assert.ok(mine.unitCost > old.unitCost, `신형안 원가가 올라야 한다 (구 ${old.unitCost} → 신 ${mine.unitCost})`);
+  // 성능·매수·공용화는 원가와 무관하므로 그대로여야 한다.
+  assert.equal(mine.plateCount, old.plateCount);
+  assert.equal(mine.predictedEnCca, old.predictedEnCca);
+
+  // 기존 극판 경로(3안)는 분할이 개입하지 않으므로 구엔진과 완전히 같다.
+  const mineExisting = engine.calculateDesign(spec, 'existing', ref, assumptions);
+  const oldExisting = legacy.Cm(spec, 'existing', ref, assumptions);
+  assert.equal(mineExisting.unitCost, oldExisting.unitCost);
+});

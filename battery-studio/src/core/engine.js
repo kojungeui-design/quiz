@@ -53,6 +53,25 @@ export function marginPct(actual, target) {
 const METRIC_KEYS = ['c20', 'rc', 'encca', 'saecca'];
 const DEFAULT_CELL_COUNT = 6; // 12V 납축 기준. 스펙에서 덮어쓸 수 있다.
 
+/**
+ * 극판단가 회귀계수 (원/g). 극판 마스터 120종 회귀: 단가 ≈ 4.73×기판중량 + 2.39×활물질중량, R² 0.973.
+ * 신형 극판 단가를 "기판비 몇 %"라는 고정 가정 대신, 극판마다 실제 비중으로 나누는 데 쓴다.
+ * (이식 시 수정 5 — 구엔진의 55/45 고정 분할은 실데이터 평균 40.7%와 어긋나 신형안 원가가 싸게 나왔다)
+ */
+const PLATE_COST_PER_GRID_G = 4.73;
+const PLATE_COST_PER_ACTIVE_G = 2.39;
+
+/**
+ * 납중량 모델 계수. 실측 납중량이 있는 제품 735건으로 적합 (MAPE 3.9% · P90 8.3%).
+ *   납중량(kg) = 기판납 + 활물질납 + COS납(스트랩·포스트)
+ *   활물질납 = 활물질중량 / 1.04 / (양극 1.195 | 음극 1.175)   ← 페이스트→납 환산, 사내 관례 상수
+ *   COS납   = max(0, −0.3863×(셀수/6) + 0.6081×기판납)        ← 잔차 회귀. 6셀 실측으로 적합했으므로 셀수 비례 보정.
+ */
+const LEAD_ACTIVE_DIVISOR_POS = 1.04 * 1.195;
+const LEAD_ACTIVE_DIVISOR_NEG = 1.04 * 1.175;
+const LEAD_COS_INTERCEPT = -0.3863;
+const LEAD_COS_PER_GRID_KG = 0.6081;
+
 /* ============================== 엔진 생성 ============================== */
 
 /**
@@ -585,6 +604,9 @@ export function createEngine(db, options = {}) {
       resistanceIndex: 0,
       ccaEvidenceProducts: 0,
       unitCost: 0,
+      predictedLead: 0,
+      leadSource: '차단',
+      leadBreakdown: null,
       confidence: 0,
       evidenceGrade: 'D',
       dbPlateRange: [0, 0],
@@ -632,7 +654,8 @@ export function createEngine(db, options = {}) {
 
     const posGridRatio = posGridWeight / Math.max(1, posPlate.baseWeight);
     const negGridRatio = negGridWeight / Math.max(1, negPlate.baseWeight);
-    // 기판이 얇아지면 매수 대비 도전 경로가 늘어 CCA가 오른다. 실적 회귀가 아닌 보수적 근사이므로 ±4~14%로 잘라 쓴다.
+    // 같은 매수에서 기판이 얇으면 도전 금속이 줄어 내부저항이 커지고 CCA가 내려간다(비율<1).
+    // 실적 회귀가 아닌 보수적 근사이므로 −14%~+4% 범위로 잘라 쓴다.
     const ccaThicknessFactor = clamp(Math.sqrt((posGridRatio + negGridRatio) / 2), 0.86, 1.04);
 
     const c20PerActive = perActiveWeight(evidence.capacitySource, 'c20', ref);
@@ -700,10 +723,27 @@ export function createEngine(db, options = {}) {
     // 낮은 매수부터 훑으므로 첫 통과안이 곧 "목표를 만족하는 최소 매수"다.
     const chosen = evaluated.find((x) => x.pass) || evaluated[evaluated.length - 1];
 
-    // 신형 양극 단가: 기판비 55% + 활물질비 45% 로 나눠 각각의 변화율을 반영한다.
-    const posCost = posPlate.cost * (newPositive ? 0.55 * posGridRatio + 0.45 * chosen.activeRatio : 1);
+    // 신형 양극 단가: 기판비·활물질비 비중을 그 극판의 실제 구성으로 계산해 각각의 변화율을 반영한다.
+    // (구엔진은 55/45 고정 분할 — 극판 마스터 회귀 기준 실제 기판 비중은 평균 40.7%, 31~50% 분포)
+    const posGridCostShare =
+      (PLATE_COST_PER_GRID_G * posPlate.baseWeight) /
+      Math.max(1e-6, PLATE_COST_PER_GRID_G * posPlate.baseWeight + PLATE_COST_PER_ACTIVE_G * posPlate.activeWeight);
+    const posCost =
+      posPlate.cost * (newPositive ? posGridCostShare * posGridRatio + (1 - posGridCostShare) * chosen.activeRatio : 1);
     const negCost = negPlate.cost;
     const materialCost = (posCost * chosen.posCount + negCost * chosen.negCount) * cellCount;
+
+    /* ---- 납중량 ---- */
+    // 신형 극판은 얇아진 기판중량(posGridWeight)이, 활물질 재배분은 chosen.posActiveWeight 가 그대로 반영된다.
+    const gridLeadKg = (posGridWeight * chosen.posCount + negGridWeight * chosen.negCount) * cellCount / 1000;
+    const activeLeadKg =
+      ((chosen.posActiveWeight * chosen.posCount) / LEAD_ACTIVE_DIVISOR_POS +
+        (negPlate.activeWeight * chosen.negCount) / LEAD_ACTIVE_DIVISOR_NEG) *
+      cellCount / 1000;
+    const cosLeadKg = Math.max(0, LEAD_COS_INTERCEPT * (cellCount / DEFAULT_CELL_COUNT) + LEAD_COS_PER_GRID_KG * gridLeadKg);
+    // 기준품 고정 경로는 등록 실측 납중량이 있으면 그것을 쓴다. 실측은 항상 모델보다 낫다.
+    const leadIsActual = lockToReference && ref.lead > 0;
+    const predictedLead = leadIsActual ? ref.lead : gridLeadKg + activeLeadKg + cosLeadKg;
 
     const warning = chosen.pass
       ? chosen.requestedActive > activeRange[1]
@@ -772,6 +812,11 @@ export function createEngine(db, options = {}) {
       resistanceIndex: round(chosen.resistanceIndex, 3),
       ccaEvidenceProducts: evidence.ccaEvidenceProducts,
       unitCost: round((materialCost + assumptions.conversionCost) * (1 + assumptions.contingencyRate / 100)),
+      predictedLead: round(predictedLead, 2),
+      leadSource: leadIsActual ? '실측' : '모델',
+      leadBreakdown: leadIsActual
+        ? null
+        : { grid: round(gridLeadKg, 2), active: round(activeLeadKg, 2), cos: round(cosLeadKg, 2) },
       confidence: round(confidence),
       evidenceGrade: grade,
       dbPlateRange: [dbMin, dbMax],

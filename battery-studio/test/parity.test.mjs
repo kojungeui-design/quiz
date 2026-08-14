@@ -61,8 +61,18 @@ const PLAN_FIELDS = [
   'toolingFamilies', 'score', 'risk',
 ];
 
-function assertDesignEqual(actual, expected, where) {
+/**
+ * 이식 시 수정 5 (bugfix.test.mjs 참조): 신형 양극 단가 분할이 55/45 고정에서
+ * 극판별 실측 비중(단가 회귀)으로 바뀌었다. 신형 양극을 쓰는 설계(kind=new/hybrid)의
+ * 원가 계열 필드는 의도적으로 구엔진과 다르므로 대조에서 뺀다. 새 수식 자체는
+ * bugfix.test.mjs 가 고정한다. 성능·매수·공용화 등 나머지는 전부 그대로 대조한다.
+ */
+const COST_FIELDS_CHANGED_FOR_NEW_POS = new Set(['unitCost']);
+const PLAN_COST_FIELDS = new Set(['averageCost', 'score']);
+
+function assertDesignEqual(actual, expected, where, { newPositive = false } = {}) {
   for (const field of DESIGN_FIELDS) {
+    if (newPositive && COST_FIELDS_CHANGED_FOR_NEW_POS.has(field)) continue;
     assert.deepEqual(actual[field], expected[field], `${where} · ${field}`);
   }
   assert.equal(actual.reference.code, expected.reference.code, `${where} · reference.code`);
@@ -134,9 +144,12 @@ test('제품군 단품 설계안 3종이 83개 제품군 전부 일치한다', (
     const theirs = legacy.An([spec], 'balanced', assumptions);
     mine.forEach((plan, i) => {
       for (const field of PLAN_FIELDS) {
+        if (plan.kind !== 'existing' && PLAN_COST_FIELDS.has(field)) continue;
         assert.deepEqual(plan[field], theirs[i][field], `${spec.group} ${plan.kind} · ${field}`);
       }
-      assertDesignEqual(plan.designs[0], theirs[i].designs[0], `${spec.group} ${plan.kind}`);
+      assertDesignEqual(plan.designs[0], theirs[i].designs[0], `${spec.group} ${plan.kind}`, {
+        newPositive: plan.kind !== 'existing',
+      });
     });
   }
 });
@@ -147,14 +160,25 @@ test('83개 제품 대형 라인업의 공용화 배정이 일치한다', () => 
     const theirs = legacy.An(allSpecs, objective, assumptions);
     mine.forEach((plan, i) => {
       for (const field of PLAN_FIELDS) {
+        if (plan.kind !== 'existing' && PLAN_COST_FIELDS.has(field)) continue;
         assert.deepEqual(plan[field], theirs[i][field], `${objective} ${plan.kind} · ${field}`);
       }
       assert.equal(plan.designs.length, theirs[i].designs.length);
       plan.designs.forEach((design, j) => {
-        assertDesignEqual(design, theirs[i].designs[j], `${objective} ${plan.kind} #${allSpecs[j].group}`);
+        assertDesignEqual(design, theirs[i].designs[j], `${objective} ${plan.kind} #${allSpecs[j].group}`, {
+          newPositive: plan.kind !== 'existing',
+        });
       });
     });
-    assert.deepEqual(engine.rankPlans(mine, objective), legacy.Ai(theirs, objective), `${objective} 순위`);
+    // 순위는 원가 점수를 포함하므로(수정 5) 전체 deepEqual 대신, 원가와 무관한 판정만 대조한다.
+    const myRank = engine.rankPlans(mine, objective);
+    const legacyRank = legacy.Ai(theirs, objective);
+    for (const kind of ['new', 'hybrid', 'existing']) {
+      const a = myRank.find((r) => r.kind === kind);
+      const b = legacyRank.find((r) => r.kind === kind);
+      assert.equal(a.passCount, b.passCount, `${objective} ${kind} passCount`);
+      assert.equal(a.totalProducts, b.totalProducts, `${objective} ${kind} totalProducts`);
+    }
   }
 });
 
@@ -171,7 +195,9 @@ test('기준품을 직접 지정한 3안(등록 BOM 고정)도 일치한다', ()
   const theirs = legacy.An(picked, 'cost', assumptions);
   mine.forEach((plan, i) => {
     plan.designs.forEach((design, j) => {
-      assertDesignEqual(design, theirs[i].designs[j], `preferred ${plan.kind} #${picked[j].group}`);
+      assertDesignEqual(design, theirs[i].designs[j], `preferred ${plan.kind} #${picked[j].group}`, {
+        newPositive: plan.kind !== 'existing',
+      });
     });
   });
 });
