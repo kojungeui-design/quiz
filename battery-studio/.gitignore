@@ -1,0 +1,13 @@
+# 이 저장소는 공개(public)다. 대외비 데이터는 올리지 않는다 — zip 으로 별도 전달한다.
+#
+# README 의 "대외비 주의"가 명시하는 극판 단가·제품별 판매수량이 아래 경로에 들어 있다:
+#   data/source/      원본 JSON (plates.json 단가, sales-qty.json 판매수량)
+#   data/generated/   빌드 중간 산출물 (위 데이터가 그대로 합쳐짐)
+#   dist/             배포 HTML (마스킹본이 아닌 쪽에 실데이터 포함)
+#   test/fixtures/legacy-engine.generated.mjs  구엔진 추출본 (DB가 통째로 딸려 있음)
+#
+# 이 파일들이 없으면 빌드·테스트가 로컬에서만 가능하다. 의도된 동작이다.
+data/source/
+data/generated/
+dist/
+test/fixtures/legacy-engine.generated.mjs
