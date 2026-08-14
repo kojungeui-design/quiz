@@ -293,3 +293,54 @@ test('보정 데이터는 저장되고, 해제하면 원래 예측으로 돌아�
   ctx.goto('report');
   assert.ok(viewText().includes('예측 보정 없음'), '보고서가 무보정 상태를 명시해야 한다');
 });
+
+test('조건부 자식이 화면에 undefined·null·false 로 새지 않는다', () => {
+  // clear(x).append(...) 는 네이티브 DOM append 라 falsy 자식을 문자열로 찍는다.
+  // 사이드바에 "undefinednullfalse" 가 노출된 적이 있어(임포트 DB·보정 배지 추가 시)
+  // 필터링하는 append 헬퍼로 바꿨다. 전 화면에서 재발을 막는다.
+  for (const view of ['workbench', 'requirements', 'matching', 'design', 'costing', 'report', 'database', 'calibration']) {
+    ctx.goto(view);
+    const text = dom.root.textContent;
+    for (const bad of ['undefined', 'null', 'false', '[object Object]']) {
+      assert.ok(!text.includes(bad), `${view} 화면에 "${bad}" 가 그대로 찍혔다`);
+    }
+  }
+});
+
+test('요구사양 화면에서 제품을 추가하면 화면에도 즉시 나타난다', () => {
+  // renderRequirements 가 ctx 에서 project 를 구조분해로 붙잡아 두는 바람에,
+  // setLineup 이 만든 새 객체가 아니라 옛 스냅샷을 다시 그려 카드가 늘지 않았다.
+  ctx.openProject(ctx.state.projects[0]);
+  ctx.goto('requirements');
+  const before = ctx.project.lineup.length;
+  const countCards = () => {
+    const grid = findByClass(dom.root, 'lineup-grid');
+    return grid ? grid.children.length : -1;
+  };
+  assert.equal(countCards(), before, '처음에는 라인업 수와 카드 수가 같아야 한다');
+
+  // 화면의 "제품 추가" 버튼을 실제로 누른다.
+  const addButton = findButton(dom.root, '제품 추가');
+  assert.ok(addButton, '제품 추가 버튼이 있어야 한다');
+  addButton.dispatch('click');
+
+  assert.equal(ctx.project.lineup.length, before + 1, '상태에 제품이 늘어야 한다');
+  assert.equal(countCards(), before + 1, '화면 카드도 함께 늘어야 한다');
+});
+
+function findByClass(node, className) {
+  if (node.classList && node.classList.contains(className)) return node;
+  for (const child of node.children || []) {
+    const hit = findByClass(child, className);
+    if (hit) return hit;
+  }
+  return null;
+}
+function findButton(node, label) {
+  if (node.tagName === 'BUTTON' && (node.textContent || '').includes(label)) return node;
+  for (const child of node.children || []) {
+    const hit = findButton(child, label);
+    if (hit) return hit;
+  }
+  return null;
+}

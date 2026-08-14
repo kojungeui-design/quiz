@@ -4,7 +4,7 @@
  * 화면 전체를 다시 그리지 않는다. 값이 바뀌면 그 줄의 상태 배지만 갱신한다.
  * 그래서 입력 도중 포커스가 튀지 않는다.
  */
-import { h, icon } from '../lib/dom.js';
+import { h, icon, append } from '../lib/dom.js';
 import { validateItem, createLineupItem, nextProductName, duplicateName, cloneItem } from '../core/project.js';
 import { num } from '../core/format.js';
 import { sectionHead, stepNav, numberField, selectField, textField, notice } from './parts.js';
@@ -17,20 +17,27 @@ const TARGETS = [
 ];
 
 export function renderRequirements(ctx) {
-  const { engine, project } = ctx;
+  const { engine } = ctx;
+  // project 를 구조분해로 붙잡아 두면 안 된다. setLineup 은 새 객체를 만들기 때문에,
+  // 붙잡아 둔 스냅샷으로 다시 그리면 방금 추가한 제품이 화면에 나타나지 않는다.
+  const lineup = () => ctx.project.lineup;
   const view = h('div.view');
 
   const summary = h('div.lineup-summary');
   const updateSummary = () => {
-    const results = project.lineup.map((item) => validateItem(engine, item, project.lineup));
+    const items = lineup();
+    const results = items.map((item) => validateItem(engine, item, items));
     const errors = results.reduce((sum, r) => sum + r.errors.length, 0);
     const warnings = results.reduce((sum, r) => sum + r.warnings.length, 0);
+    // replaceChildren 은 네이티브라 null·false 를 "null" 문자열로 찍는다. 걸러서 넣는다.
     summary.replaceChildren(
-      h('strong', null, `${project.lineup.length}개 제품`),
-      errors
-        ? h('span.summary-error', null, `입력 오류 ${errors}건 — 계산할 수 없습니다`)
-        : h('span.summary-ok', null, '입력 완료'),
-      warnings ? h('span.summary-warn', null, `확인 권장 ${warnings}건`) : null,
+      ...[
+        h('strong', null, `${items.length}개 제품`),
+        errors
+          ? h('span.summary-error', null, `입력 오류 ${errors}건 — 계산할 수 없습니다`)
+          : h('span.summary-ok', null, '입력 완료'),
+        warnings ? h('span.summary-warn', null, `확인 권장 ${warnings}건`) : null,
+      ].filter(Boolean),
     );
     const blocked = errors > 0;
     proceedButton.disabled = blocked;
@@ -51,11 +58,11 @@ export function renderRequirements(ctx) {
 
   const cards = h('div.lineup-grid');
   const rebuild = () => {
-    cards.replaceChildren(...project.lineup.map((item) => productCard(ctx, item, updateSummary, rebuild)));
+    cards.replaceChildren(...lineup().map((item) => productCard(ctx, item, updateSummary, rebuild)));
     updateSummary();
   };
 
-  view.append(
+  append(view, [
     sectionHead({
       eyebrow: 'REQUIREMENTS',
       title: '고객 요구사양',
@@ -67,7 +74,7 @@ export function renderRequirements(ctx) {
             type: 'button',
             onclick: () => {
               const group = engine.groups.find((g) => g.currentProducts > 0)?.group || engine.groups[0].group;
-              ctx.setLineup([...project.lineup, createLineupItem(engine, group, nextProductName(project.lineup))]);
+              ctx.setLineup([...ctx.project.lineup, createLineupItem(engine, group, nextProductName(ctx.project.lineup))]);
               rebuild();
             },
           },
@@ -83,7 +90,7 @@ export function renderRequirements(ctx) {
     cards,
     assumptionsCard(ctx),
     h('div.step-nav', null, h('span'), proceedButton),
-  );
+  ]);
 
   rebuild();
   return view;
@@ -126,10 +133,12 @@ function productCard(ctx, item, updateSummary, rebuild) {
   const statusRow = h('div.card-status');
   const messages = h('div.card-messages');
   const refresh = () => {
-    const { errors, warnings, ok } = validateItem(engine, item, project.lineup);
+    const { errors, warnings, ok } = validateItem(engine, item, ctx.project.lineup);
     statusRow.replaceChildren(
-      h(`span.row-status.${ok ? 'pass' : 'error'}`, null, icon(ok ? 'check' : 'alert', 13), ok ? '입력 완료' : '입력 확인'),
-      learning && h('small', null, `DB 근거 ${learning.evidenceGrade}등급 · 실적매수 ${learning.assembly.min}–${learning.assembly.max}매`),
+      ...[
+        h(`span.row-status.${ok ? 'pass' : 'error'}`, null, icon(ok ? 'check' : 'alert', 13), ok ? '입력 완료' : '입력 확인'),
+        learning && h('small', null, `DB 근거 ${learning.evidenceGrade}등급 · 실적매수 ${learning.assembly.min}–${learning.assembly.max}매`),
+      ].filter(Boolean),
     );
     messages.replaceChildren(
       ...errors.map((message) => h('p.message-error', null, message)),
@@ -166,9 +175,9 @@ function productCard(ctx, item, updateSummary, rebuild) {
             title: '제품 복제',
             'aria-label': `${item.name} 복제`,
             onclick: () => {
-              const index = project.lineup.findIndex((x) => x.uid === item.uid);
-              const copy = cloneItem(item, duplicateName(project.lineup, item.name));
-              ctx.setLineup([...project.lineup.slice(0, index + 1), copy, ...project.lineup.slice(index + 1)]);
+              const index = ctx.project.lineup.findIndex((x) => x.uid === item.uid);
+              const copy = cloneItem(item, duplicateName(ctx.project.lineup, item.name));
+              ctx.setLineup([...ctx.project.lineup.slice(0, index + 1), copy, ...ctx.project.lineup.slice(index + 1)]);
               rebuild();
             },
           },
@@ -180,9 +189,9 @@ function productCard(ctx, item, updateSummary, rebuild) {
             type: 'button',
             title: '제품 삭제',
             'aria-label': `${item.name} 삭제`,
-            disabled: project.lineup.length === 1,
+            disabled: ctx.project.lineup.length === 1,
             onclick: () => {
-              ctx.setLineup(project.lineup.filter((x) => x.uid !== item.uid));
+              ctx.setLineup(ctx.project.lineup.filter((x) => x.uid !== item.uid));
               rebuild();
             },
           },

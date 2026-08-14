@@ -2,7 +2,7 @@
  * src/app.js — 앱 셸. 사이드바·상단바·화면 전환·자동저장을 담당한다.
  * 각 화면은 views/ 아래에서 DOM 노드를 만들어 돌려주고, 여기서는 붙이고 떼는 일만 한다.
  */
-import { h, icon, clear, openModal } from './lib/dom.js';
+import { h, icon, clear, append, openModal } from './lib/dom.js';
 import { createStore, toast, confirmAction } from './lib/store.js';
 import { createEngine } from './core/engine.js';
 import { createProject, normalizeProject, specsOf, validateLineup, ENGINE_VERSION } from './core/project.js';
@@ -317,7 +317,7 @@ export function startApp(root, baseDb) {
     }
 
     const usage = storageUsage();
-    clear(sidebar).append(
+    append(clear(sidebar), [
       h(
         'div.brand',
         null,
@@ -360,7 +360,7 @@ export function startApp(root, baseDb) {
           `예측 보정 ${Object.keys(engine.calibration).length}개 지표 적용 중`,
         ),
       db.masked && h('p.sidebar-masked', null, '시연용 마스킹 데이터'),
-    );
+    ]);
   }
 
   function renderTopbar() {
@@ -373,7 +373,7 @@ export function startApp(root, baseDb) {
       saveState.state === 'dirty' ? '● 변경사항 있음' : saveState.label,
     );
 
-    clear(topbar).append(
+    append(clear(topbar), [
       h('button.mobile-menu', { type: 'button', 'aria-label': '메뉴 열기', onclick: () => { store.set({ sidebarOpen: true }); renderSidebar(); } }, icon('layers', 20)),
       h(
         'div.breadcrumb',
@@ -391,7 +391,7 @@ export function startApp(root, baseDb) {
         project && h('button.icon-button', { type: 'button', title: '지금 저장', onclick: () => ctx.saveNow() }, icon('save', 17)),
         h('button.icon-button', { type: 'button', title: '도움말 (F1)', 'aria-label': '도움말 열기', onclick: openHelp }, icon('help', 17)),
       ),
-    );
+    ]);
   }
 
   function renderView() {
