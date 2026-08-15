@@ -6,7 +6,6 @@ import { num, won, eok, pct, margin, meetsAllTargets, GRADE_NOTE } from '../core
 import { downloadCsv, downloadXlsx } from '../core/export.js';
 import { sectionHead, stepNav, marginChip, gradeChip, notice } from './parts.js';
 import { whatIfCard } from './whatif.js';
-import { consolidationCard } from './consolidation.js';
 
 export function renderDesign(ctx) {
   const { project, plans } = ctx;
@@ -49,8 +48,6 @@ export function renderDesign(ctx) {
     planDetail(ctx, selected),
 
     whatIfCard(ctx, selected),
-
-    consolidationCard(ctx, selected),
 
     stepNav(ctx, {
       back: { view: 'matching', label: '매칭으로' },

@@ -112,8 +112,6 @@ if (await whatif.count()) {
   problems.push('실시간 조절 카드가 설계 화면에 없다');
 }
 
-await shot('07e-consolidation.jpg', '.consol-card');
-
 /* 08 — 원가·수익성 */
 await nav('원가·수익성');
 await shot('08-costing.jpg');

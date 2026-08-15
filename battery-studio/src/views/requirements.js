@@ -330,14 +330,6 @@ function assumptionsCard(ctx) {
         onInput: (v) => patch({ hybridToolingCost: v }),
       }),
       numberField({
-        label: '극판 1종당 부동재고 부담',
-        unit: '원/년',
-        value: project.assumptions.inventoryBurdenPerFamily,
-        min: 0,
-        step: 1000000,
-        onInput: (v) => patch({ inventoryBurdenPerFamily: v }),
-      }),
-      numberField({
         label: '재료비 우발률',
         unit: '%',
         value: project.assumptions.contingencyRate,
