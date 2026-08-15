@@ -824,12 +824,26 @@ export function createEngine(db, options = {}) {
 
     // 신형 양극 단가: 기판비·활물질비 비중을 그 극판의 실제 구성으로 계산해 각각의 변화율을 반영한다.
     // (구엔진은 55/45 고정 분할 — 극판 마스터 회귀 기준 실제 기판 비중은 평균 40.7%, 31~50% 분포)
-    const posGridCostShare =
-      (PLATE_COST_PER_GRID_G * posPlate.baseWeight) /
-      Math.max(1e-6, PLATE_COST_PER_GRID_G * posPlate.baseWeight + PLATE_COST_PER_ACTIVE_G * posPlate.activeWeight);
+    const costShare = (plate) =>
+      (PLATE_COST_PER_GRID_G * plate.baseWeight) /
+      Math.max(1e-6, PLATE_COST_PER_GRID_G * plate.baseWeight + PLATE_COST_PER_ACTIVE_G * plate.activeWeight);
+    const posGridCostShare = costShare(posPlate);
+    /**
+     * 기존 극판을 그대로 쓸 때는 등록 단가가 곧 단가다 — 그 극판을 사 오는 것이므로.
+     * 그러나 실시간 조절로 두께나 활물질을 바꾸면 <b>더 이상 그 극판이 아니다.</b>
+     * 그때도 등록 단가를 그대로 쓰면 "활물질을 1.5배 넣었는데 원가가 그대로"인 거짓말이 된다.
+     * 신형 극판과 같은 방식(기판비·활물질비 비중별 변화율)으로 환산한다.
+     * (조절이 없으면 두 비율이 정확히 1이므로 종전 값과 같다 — parity 가 이를 지킨다)
+     */
+    const posTuned = tuned(overrides.posThickness) || tuned(overrides.posActiveWeight);
     const posCost =
-      posPlate.cost * (newPositive ? posGridCostShare * posGridRatio + (1 - posGridCostShare) * chosen.activeRatio : 1);
-    const negCost = negPlate.cost;
+      posPlate.cost *
+      (newPositive || posTuned ? posGridCostShare * posGridRatio + (1 - posGridCostShare) * chosen.activeRatio : 1);
+
+    // 음극은 활물질을 조절하지 않으므로 기판두께 변화만 단가에 싣는다.
+    const negGridCostShare = costShare(negPlate);
+    const negCost =
+      negPlate.cost * (tuned(overrides.negThickness) ? negGridCostShare * negGridRatio + (1 - negGridCostShare) : 1);
     const materialCost = (posCost * chosen.posCount + negCost * chosen.negCount) * cellCount;
 
     /* ---- 납중량 ---- */
@@ -969,7 +983,16 @@ export function createEngine(db, options = {}) {
   function buildPlan(specs, kind, objective, assumptions) {
     const references = assignReferences(specs, kind);
     const raw = specs.map((spec, i) => calculateDesign(spec, kind, references[i], assumptions));
+    return aggregatePlan(raw, kind, objective, assumptions);
+  }
 
+  /**
+   * 제품별 설계들을 라인업 하나로 묶는다 — 금형비 분담, 가중 평균원가, 공용화율, 점수.
+   *
+   * buildPlan 과 retunePlan(실시간 조절)이 <b>같은</b> 집계를 쓰게 하려고 따로 뺐다.
+   * 라인업 숫자를 두 곳에서 따로 계산하면 언젠가 서로 어긋난다.
+   */
+  function aggregatePlan(raw, kind, objective, assumptions) {
     // 금형 투자는 극판군 단위로 1회 발생하므로, 그 극판군을 쓰는 물량 전체에 나눠 싣는다.
     const volumeByFamily = new Map();
     const countByFamily = new Map();
@@ -1032,6 +1055,30 @@ export function createEngine(db, options = {}) {
   }
 
   const METRIC_MARGINS = ['c20Margin', 'rcMargin', 'ccaMargin', 'saeMargin'];
+
+  /**
+   * 실시간 조절: 제품별 조절값을 반영해 <b>라인업 전체를</b> 다시 집계한다.
+   *
+   * 제품 하나만 만져도 라인업 숫자는 같이 움직인다 — 금형비를 나눠 지는 물량이 달라지고,
+   * 가중 평균원가·목표충족 수가 바뀌기 때문이다. 제품 카드만 다시 계산하고 라인업 KPI는
+   * 그대로 두면, 조절해도 "평균원가 26,920원" 이 꿈쩍 않는 거짓말이 된다.
+   *
+   * 기준품은 확정 설계가 쓰던 것을 그대로 쓴다. 여기서 기준품까지 다시 고르면
+   * 숫자가 움직인 원인이 조절 때문인지 기준품이 바뀌어서인지 구분할 수 없다.
+   *
+   * @param {object} plan 확정된 설계안
+   * @param {object[]} specs 현재 라인업 (요구사양이 바뀌었을 수 있으므로 uid 로 다시 찾는다)
+   * @param {string} objective 비교 관점
+   * @param {object} assumptions 원가 가정
+   * @param {Record<string, object>} overridesByUid 제품 uid → 조절값
+   */
+  function retunePlan(plan, specs, objective, assumptions, overridesByUid = {}) {
+    const raw = plan.designs.map((design) => {
+      const spec = specs.find((item) => item.uid === design.spec.uid) || design.spec;
+      return calculateDesign(spec, plan.kind, design.reference, assumptions, overridesByUid[design.spec.uid] || {});
+    });
+    return aggregatePlan(raw, plan.kind, objective, assumptions);
+  }
 
   /** 1·2·3안 한꺼번에. 구엔진의 An(). */
   function buildPlans(specs, objective = 'balanced', assumptions) {
@@ -1187,6 +1234,7 @@ export function createEngine(db, options = {}) {
     separatorFor,
     activeWeightRange,
     buildPlan,
+    retunePlan,
     buildPlans,
     planSummary,
     rankPlans,

@@ -341,6 +341,10 @@ i.grade-A { background: #35a173; } i.grade-B { background: #22a595; } i.grade-C 
 .whatif-delta.down { color: var(--teal); }
 .whatif-table tr.whatif-sep th, .whatif-table tr.whatif-sep td { border-top: 2px solid var(--line); }
 
+.whatif-lineup { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line); }
+.whatif-lineup h4 { margin: 0; font-size: 13px; color: var(--teal-dark); }
+.whatif-lineup .table-scroll { margin-top: 9px; }
+
 /* ---------------------------- DB 임포트 ---------------------------- */
 
 .import-drop { margin-top: 14px; padding: 16px; border: 1px dashed var(--line); border-radius: 10px; background: var(--paper); text-align: center; }

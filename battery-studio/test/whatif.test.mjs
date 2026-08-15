@@ -117,3 +117,96 @@ test('조절한 두께는 표시 문자열에 (조정)으로 남는다', () => {
   assert.match(design.posThickness, /1\.05T \(조정\)/);
   assert.equal(design.negThickness, base.negThickness, '음극은 조절하지 않았으므로 그대로여야 합니다');
 });
+
+/* ------------------------ 라인업 전체 재집계 ------------------------ */
+
+const lineupSpecs = [
+  { ...spec, uid: 'A', id: 'A', name: '제품A', annualVolume: 60000 },
+  { ...spec, uid: 'B', id: 'B', name: '제품B', annualVolume: 20000 },
+];
+const plan = engine.buildPlan(lineupSpecs, 'existing', 'balanced', DEFAULT_ASSUMPTIONS);
+const baseByUid = Object.fromEntries(
+  plan.designs.map((d) => [
+    d.spec.uid,
+    {
+      posThickness: Number.parseFloat(String(d.posThickness)),
+      negThickness: Number.parseFloat(String(d.negThickness)),
+      posActiveWeight: d.posActiveWeight,
+      plateCount: d.plateCount,
+    },
+  ]),
+);
+
+test('조절이 없으면 라인업 재집계도 원래 안과 같다', () => {
+  const same = engine.retunePlan(plan, lineupSpecs, 'balanced', DEFAULT_ASSUMPTIONS, {});
+  assert.equal(same.averageCost, plan.averageCost);
+  assert.equal(same.commonFamilies, plan.commonFamilies);
+  assert.equal(same.developmentCost, plan.developmentCost);
+  assert.equal(same.score, plan.score);
+});
+
+test('제품 하나만 조절해도 라인업 가중 평균원가가 움직인다', () => {
+  const before = engine.retunePlan(plan, lineupSpecs, 'balanced', DEFAULT_ASSUMPTIONS, baseByUid);
+  const after = engine.retunePlan(plan, lineupSpecs, 'balanced', DEFAULT_ASSUMPTIONS, {
+    ...baseByUid,
+    A: { ...baseByUid.A, posActiveWeight: baseByUid.A.posActiveWeight * 1.5 },
+  });
+  assert.ok(after.averageCost > before.averageCost, '활물질을 늘렸는데 라인업 평균원가가 그대로다');
+
+  // 물량이 큰 제품(A, 60000대)을 만졌으므로 물량이 작은 B를 같은 폭으로 만진 것보다 더 크게 움직여야 한다.
+  const tunedB = engine.retunePlan(plan, lineupSpecs, 'balanced', DEFAULT_ASSUMPTIONS, {
+    ...baseByUid,
+    B: { ...baseByUid.B, posActiveWeight: baseByUid.B.posActiveWeight * 1.5 },
+  });
+  assert.ok(
+    after.averageCost - before.averageCost > tunedB.averageCost - before.averageCost,
+    '가중 평균인데 물량이 큰 제품과 작은 제품의 영향이 같다',
+  );
+});
+
+test('조절해도 원래 안 객체는 그대로다', () => {
+  const snapshot = JSON.stringify(plan);
+  engine.retunePlan(plan, lineupSpecs, 'balanced', DEFAULT_ASSUMPTIONS, {
+    A: { ...baseByUid.A, plateCount: baseByUid.A.plateCount + 4 },
+  });
+  assert.equal(JSON.stringify(plan), snapshot);
+});
+
+test('라인업 재집계는 buildPlan 과 같은 집계를 쓴다', () => {
+  // 같은 조절값을 요구사양에 직접 반영한 것과, 조절로 넣은 것이 같은 결론에 닿아야 한다.
+  const retuned = engine.retunePlan(plan, lineupSpecs, 'balanced', DEFAULT_ASSUMPTIONS, baseByUid);
+  assert.equal(retuned.designs.length, plan.designs.length);
+  assert.equal(retuned.kind, plan.kind);
+  assert.equal(retuned.label, plan.label);
+  // 물량 가중이 실제로 걸려 있는지: 물량이 큰 제품 쪽으로 평균이 끌려가야 한다.
+  const tuned = engine.retunePlan(plan, lineupSpecs, 'balanced', DEFAULT_ASSUMPTIONS, {
+    ...baseByUid,
+    A: { ...baseByUid.A, posActiveWeight: baseByUid.A.posActiveWeight * 2 },
+  });
+  const aCost = tuned.designs.find((d) => d.spec.uid === 'A').unitCost;
+  const bCost = tuned.designs.find((d) => d.spec.uid === 'B').unitCost;
+  // A 60000대 · B 20000대 → 가중평균은 산술평균보다 A 쪽에 가깝다.
+  assert.ok(tuned.averageCost > (aCost + bCost) / 2, '물량 가중이 걸려 있지 않다');
+});
+
+test('기존 극판을 조절하면 단가도 따라 움직인다', () => {
+  // 3안(기존 극판)은 등록 단가를 그대로 쓴다. 하지만 조절로 두께·활물질을 바꾸면
+  // 더 이상 그 극판이 아니므로 단가도 움직여야 한다 — 안 그러면 라인업 원가가 거짓이 된다.
+  const heavier = engine.calculateDesign(spec, 'existing', reference, DEFAULT_ASSUMPTIONS, {
+    posActiveWeight: base.posActiveWeight * 1.5,
+    plateCount: base.plateCount,
+  });
+  assert.ok(heavier.unitCost > base.unitCost, '활물질을 1.5배 넣었는데 단가가 그대로다');
+
+  const thicker = engine.calculateDesign(spec, 'existing', reference, DEFAULT_ASSUMPTIONS, {
+    negThickness: Number.parseFloat(String(base.negThickness)) * 1.5,
+    plateCount: base.plateCount,
+  });
+  assert.ok(thicker.unitCost > base.unitCost, '음극 기판을 1.5배 두껍게 했는데 단가가 그대로다');
+
+  const thinner = engine.calculateDesign(spec, 'existing', reference, DEFAULT_ASSUMPTIONS, {
+    posThickness: Number.parseFloat(String(base.posThickness)) * 0.6,
+    plateCount: base.plateCount,
+  });
+  assert.ok(thinner.unitCost < base.unitCost, '기판을 얇게 했는데 단가가 안 내려간다');
+});

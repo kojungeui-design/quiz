@@ -105,6 +105,7 @@ if (await whatif.count()) {
   await bump(2, await sliders.nth(2).getAttribute('max'));
   await bump(3, Number(await sliders.nth(3).inputValue()) + 2);
   await shot('07c-whatif-tuned.jpg', '.whatif-card');
+  await shot('07d-whatif-lineup.jpg', '.whatif-lineup');
   await page.locator('.whatif-card button:has-text("기준값으로 되돌리기")').click();
   await settle();
 } else {
