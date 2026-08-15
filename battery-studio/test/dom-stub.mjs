@@ -40,8 +40,11 @@ class StubNode {
   get firstChild() { return this.childNodes[0] || null; }
 
   append(...nodes) {
+    // 네이티브 append/replaceChildren 는 null·undefined·false 를 걸러주지 않고
+    // "null"·"undefined"·"false" 라는 글자로 찍는다. 스텁이 이를 걸러주면
+    // 화면에 글자가 새는 버그를 테스트가 놓치므로, 브라우저와 똑같이 동작시킨다.
+    // (조건부 자식은 dom.js 의 append 헬퍼나 .filter(Boolean) 로 걸러야 한다)
     for (const node of nodes.flat()) {
-      if (node === null || node === undefined) continue;
       const child = node instanceof StubNode || node instanceof StubText ? node : new StubText(String(node));
       child.parentNode = this;
       if (child instanceof StubFragment) {

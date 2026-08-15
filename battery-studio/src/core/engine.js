@@ -683,7 +683,13 @@ export function createEngine(db, options = {}) {
    * 흐름: 근거 제품 수집 → DB가 허용하는 매수 범위 산정 → 매수를 낮은 쪽부터 훑으며
    *       필요한 활물질량을 역산 → 4개 성능을 모두 만족하는 최소 매수를 채택.
    */
-  function calculateDesign(spec, kind, ref, assumptions) {
+  /**
+   * @param {object} [overrides] 실시간 what-if 조절값. 넘기지 않으면 기존 동작과 완전히 같다.
+   *   posThickness / negThickness (mm) · posActiveWeight (g/매) · plateCount (매)
+   */
+  function calculateDesign(spec, kind, ref, assumptions, overrides = {}) {
+    /** 조절값이 실제로 들어왔는지. 0·NaN·undefined 는 "조절 안 함"으로 본다. */
+    const tuned = (value) => Number.isFinite(value) && value > 0;
     if (!ref) return blockedDesign(spec, kind);
     const profile = groupProfile(spec.group, spec.type);
     const posPlate = plateByCode.get(ref.posCode);
@@ -695,22 +701,47 @@ export function createEngine(db, options = {}) {
     const [dbMin, dbMax] = plateCountRange(spec);
 
     // 3안에서 사용자가 이 기준품을 직접 지정했으면 등록 BOM을 그대로 쓴다(재설계 없음).
-    const lockToReference = kind === 'existing' && spec.preferredReferenceCode === ref.code;
+    const referenceLocked = kind === 'existing' && spec.preferredReferenceCode === ref.code;
+    /**
+     * 기준품 고정 경로는 "이 제품이 곧 그 기준품"이라는 전제 위에 서 있어서
+     * 성능·납중량을 실측값으로 그대로 돌려준다. 조절값이 들어오면 더 이상 그 제품이 아니므로
+     * 실측값을 쓸 수 없다 — 모델로 다시 계산해야 조절이 결과에 반영된다.
+     * (조절이 없으면 hasOverride 가 false 이므로 종전 동작과 완전히 같다)
+     */
+    const hasOverride =
+      tuned(overrides.posThickness) ||
+      tuned(overrides.negThickness) ||
+      tuned(overrides.posActiveWeight) ||
+      tuned(overrides.plateCount);
+    const lockToReference = referenceLocked && !hasOverride;
 
     const upperBound = Math.floor(Math.min(clamp(spec.maxPlates, 7, 40), dbMax));
     const lowerBound = Math.min(dbMin, upperBound);
-    const plateCounts = lockToReference
-      ? [ref.assembly]
-      : Array.from({ length: Math.max(1, upperBound - lowerBound + 1) }, (_, i) => lowerBound + i);
+    const plateCounts = tuned(overrides.plateCount)
+      ? [Math.round(overrides.plateCount)]
+      : referenceLocked
+        ? [ref.assembly] // 매수는 조절하지 않았다 — 기준품 매수를 유지한다
+        : Array.from({ length: Math.max(1, upperBound - lowerBound + 1) }, (_, i) => lowerBound + i);
 
     const newPositive = kind !== 'existing';
     const newNegative = kind === 'new';
 
-    const posThickness = newPositive ? '0.70T (Punch)' : posPlate.thickness;
-    const negThickness = negPlate.thickness;
-    // 신형 양극은 0.7T Punch 기판으로 환산. 기판이 얇아진 만큼 기판중량이 줄어든다.
-    const posGridWeight = newPositive ? posPlate.baseWeight * (0.7 / parseThickness(posPlate.thickness)) : posPlate.baseWeight;
-    const negGridWeight = negPlate.baseWeight;
+    // 실시간 조절: 기판두께를 지정하면 그 두께로 계산한다.
+    // 지정이 없으면 종전 규칙(신형 양극 = 0.7T Punch, 그 외 = 등록 두께)을 그대로 쓴다.
+    const posBaseT = parseThickness(posPlate.thickness);
+    const negBaseT = parseThickness(negPlate.thickness);
+    const posT = tuned(overrides.posThickness) ? overrides.posThickness : newPositive ? 0.7 : posBaseT;
+    const negT = tuned(overrides.negThickness) ? overrides.negThickness : negBaseT;
+
+    const posThickness = tuned(overrides.posThickness)
+      ? `${posT.toFixed(2)}T (조정)`
+      : newPositive
+        ? '0.70T (Punch)'
+        : posPlate.thickness;
+    const negThickness = tuned(overrides.negThickness) ? `${negT.toFixed(2)}T (조정)` : negPlate.thickness;
+    // 기판이 얇아진 만큼 기판중량이 줄어든다. (조절이 없으면 종전 값과 비트 단위로 같다: t/t = 1)
+    const posGridWeight = posPlate.baseWeight * (posT / posBaseT);
+    const negGridWeight = negPlate.baseWeight * (negT / negBaseT);
     const activeRange = activeWeightRange(posPlate);
 
     const posGridRatio = posGridWeight / Math.max(1, posPlate.baseWeight);
@@ -727,14 +758,21 @@ export function createEngine(db, options = {}) {
     const referenceArea = posArea * Math.max(1, ref.posQty) + negArea * Math.max(1, ref.negQty);
 
     const evaluate = (plateCount) => {
-      const posCount = lockToReference ? ref.posQty : Math.ceil(plateCount / 2);
-      const negCount = lockToReference ? ref.negQty : Math.floor(plateCount / 2);
+      // 매수를 그대로 둔 채 두께·활물질만 조절할 때 양·음극 배분이 튀지 않도록,
+      // 기준품 매수를 유지하는 동안은 기준품의 배분(4+/5− 같은 비대칭 포함)을 따른다.
+      const keepReferenceSplit = referenceLocked && plateCount === ref.assembly;
+      const posCount = keepReferenceSplit ? ref.posQty : Math.ceil(plateCount / 2);
+      const negCount = keepReferenceSplit ? ref.negQty : Math.floor(plateCount / 2);
 
       // 목표 용량을 내려면 매당 활물질이 얼마나 필요한가(역산)
       const neededForC20 = uncalibrate('c20', spec.targetC20) / Math.max(1e-4, c20PerActive * posCount);
       const neededForRc = uncalibrate('rc', spec.targetRc) / Math.max(1e-4, rcPerActive * posCount);
       const requestedActive = Math.max(neededForC20, neededForRc);
-      const posActiveWeight = lockToReference ? posPlate.activeWeight : clamp(requestedActive, activeRange[0], activeRange[1]);
+      const posActiveWeight = tuned(overrides.posActiveWeight)
+        ? overrides.posActiveWeight
+        : referenceLocked
+          ? posPlate.activeWeight // 활물질을 조절하지 않았으면 기준품 등록값 유지
+          : clamp(requestedActive, activeRange[0], activeRange[1]);
       const activeRatio = posActiveWeight / Math.max(1, posPlate.activeWeight);
 
       // 보정은 "예측한 값"에만 건다. 기준품을 그대로 쓰는 경로(lockToReference)의 값은

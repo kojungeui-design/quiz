@@ -344,3 +344,52 @@ function findButton(node, label) {
   }
   return null;
 }
+
+test('실시간 설계 조절 카드가 뜨고, 슬라이더를 움직이면 값이 다시 계산된다', () => {
+  ctx.openProject(ctx.state.projects[0]);
+  ctx.recalculate({ silent: true });
+  ctx.goto('design');
+
+  const card = findByClass(dom.root, 'whatif-card');
+  assert.ok(card, '설계 화면에 실시간 조절 카드가 있어야 한다');
+
+  const sliders = findAllByClass(dom.root, 'whatif-range');
+  assert.equal(sliders.length, 4, '양극두께·음극두께·활물질·매수 4개여야 한다');
+
+  const leadOf = () => {
+    const match = findByClass(dom.root, 'whatif-table').textContent.match(/([\d.]+) kg/);
+    return match ? Number(match[1]) : null;
+  };
+  const before = leadOf();
+  assert.ok(before > 0, '납중량이 표시되어야 한다');
+
+  // 활물질 슬라이더(3번째)를 최대로 올린다 — 납중량이 늘어야 한다.
+  const active = sliders[2];
+  active.value = active.getAttribute('max');
+  active.dispatch('input', { target: active });
+  assert.ok(leadOf() > before, `활물질을 올렸는데 납중량이 그대로다 (${before} → ${leadOf()})`);
+
+  // 되돌리기를 누르면 원래 값으로 돌아온다.
+  findButton(card, '기준값으로 되돌리기').dispatch('click');
+  assert.equal(leadOf(), before, '되돌리기 후에는 기준 납중량이어야 한다');
+});
+
+test('조절은 화면에서만 살고 과제 데이터에는 반영되지 않는다', () => {
+  ctx.openProject(ctx.state.projects[0]);
+  ctx.recalculate({ silent: true });
+  ctx.goto('design');
+  const snapshot = JSON.stringify(ctx.state.plans);
+
+  const sliders = findAllByClass(dom.root, 'whatif-range');
+  const plates = sliders[3];
+  plates.value = String(Number(plates.value) + 2);
+  plates.dispatch('input', { target: plates });
+
+  assert.equal(JSON.stringify(ctx.state.plans), snapshot, '조절이 계산 결과를 덮어썼다');
+});
+
+function findAllByClass(node, className, out = []) {
+  if (node.classList && node.classList.contains(className)) out.push(node);
+  for (const child of node.children || []) findAllByClass(child, className, out);
+  return out;
+}

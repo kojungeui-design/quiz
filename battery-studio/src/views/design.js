@@ -5,6 +5,7 @@ import { h, icon, table } from '../lib/dom.js';
 import { num, won, eok, pct, margin, meetsAllTargets, GRADE_NOTE } from '../core/format.js';
 import { downloadCsv, downloadXlsx } from '../core/export.js';
 import { sectionHead, stepNav, marginChip, gradeChip, notice } from './parts.js';
+import { whatIfCard } from './whatif.js';
 
 export function renderDesign(ctx) {
   const { project, plans } = ctx;
@@ -45,6 +46,8 @@ export function renderDesign(ctx) {
     ),
 
     planDetail(ctx, selected),
+
+    whatIfCard(ctx, selected),
 
     stepNav(ctx, {
       back: { view: 'matching', label: '매칭으로' },
