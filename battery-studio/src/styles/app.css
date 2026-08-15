@@ -345,6 +345,13 @@ i.grade-A { background: #35a173; } i.grade-B { background: #22a595; } i.grade-C 
 .whatif-lineup h4 { margin: 0; font-size: 13px; color: var(--teal-dark); }
 .whatif-lineup .table-scroll { margin-top: 9px; }
 
+/* 단종 극판 표시 — 실적은 남기되 "새 설계에 쓰지 마라"를 눈에 띄게 */
+.obsolete-chip {
+  display: inline-block; margin-top: 3px; font-size: 11px; font-weight: 700; white-space: nowrap;
+  padding: 2px 8px; border-radius: 999px; background: var(--red-soft); color: var(--red);
+}
+.muted-cell { color: var(--muted); }
+
 /* ---------------------------- DB 임포트 ---------------------------- */
 
 .import-drop { margin-top: 14px; padding: 16px; border: 1px dashed var(--line); border-radius: 10px; background: var(--paper); text-align: center; }

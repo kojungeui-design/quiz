@@ -200,6 +200,28 @@ const advanced = [
         <li>검증 결과를 확인하고 <b>적용</b>을 누릅니다.</li>
       </ol>
       <div class="tip"><b>제품이 새 극판을 쓰면 극판 파일과 제품 파일을 함께 올리세요.</b> 따로 올리면 “극판 미등록”으로 반려됩니다.</div>
+
+      <h4>극판이 단종되면 — 지우지 말고 “상태”에 적으세요</h4>
+      <div class="warn-box"><b>극판 마스터에서 줄을 지우면 안 됩니다.</b> 그 극판을 쓰던 실적 제품이 참조를 잃고 통째로 사라집니다.
+        실제로 극판 하나를 지우면 <b>제품 11종과 제품군 2개가 증발</b>합니다. 이 프로그램의 예측(용량·CCA·납중량·봉합)은
+        전부 그 실적에서 배우므로, 지우는 순간 근거가 같이 무너집니다.</div>
+      <p>단종은 “그런 극판은 없었다”가 아니라 <b>“새 설계에 쓰지 마라”</b>는 뜻입니다. 그래서 지우지 않고 <b>상태</b> 열에 적습니다.
+         <b>병합</b> 모드로 두 칸짜리 CSV 한 줄이면 끝납니다.</p>
+      <pre class="code">극판코드,상태
+SLI01497,단종</pre>
+      ${figure('16-obsolete-db.jpg', '단종 표시된 극판 마스터', '단종 극판이 표 위로 올라오고 빨간 배지가 붙습니다')}
+      <ul>
+        <li><b>신규 설계 후보에서 빠집니다.</b> 단, 그 극을 실제로 사다 쓰는 안에서만 —
+            3안(양·음극 모두 기존)은 한쪽만 단종이어도 제외, 2안은 <u>음극</u>이 단종일 때만 제외,
+            1안은 양·음극을 새로 만드니 <b>영향 없음</b>입니다.</li>
+        <li><b>실적은 그대로 남습니다.</b> 제품 수·제품군 수가 하나도 줄지 않고, 예측 근거도 그대로입니다.</li>
+        <li>되살릴 때도 한 줄입니다 — 상태 칸에 <code>사용중</code> 이라고 적어 올리세요.</li>
+        <li>상태 칸을 <b>비워서</b> 올리면 종전 상태를 지킵니다. 단가만 갱신하는 파일이 단종 표시를 지우지 않습니다.</li>
+        <li>그 제품군 극판이 <b>전부</b> 단종이면 계산을 막지 않고, BOM에 <span class="bad">단종</span> 배지와 경고를 붙입니다.
+            신형 극판(1·2안)으로 가라는 신호입니다.</li>
+      </ul>
+      <div class="tip"><b>신규 극판 추가</b>도 병합 모드 한 줄입니다. 다만 새 극판은 <b>폭·높이</b>가 반드시 있어야 합니다
+        (기존 극판을 고칠 때는 빠진 칸을 종전 값으로 잇습니다).</div>
       <div class="warn-box">DB를 바꾸면 저장된 과제의 계산 결과가 모두 <b>재계산 필요</b>가 됩니다. 근거가 달라졌기 때문입니다 — 결재 전에 다시 계산하세요.
         올린 DB는 <b>이 PC의 브라우저에만</b> 저장됩니다. 팀 전체에 반영하려면 담당자에게 CSV를 전달해 배포본을 다시 만들어야 합니다.</div>`,
   },
@@ -324,6 +346,7 @@ figcaption strong{color:var(--ink)}
 ol,ul{padding-left:22px}
 li{margin-bottom:6px}
 code{background:var(--teal-soft);color:var(--teal-dark);padding:1px 6px;border-radius:5px;font-size:13px;font-family:ui-monospace,Consolas,monospace}
+pre.code{background:#12211f;color:#d8ece7;padding:14px 16px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.6;font-family:ui-monospace,Consolas,monospace;margin:14px 0}
 table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
 th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
 th{background:#eef3f1;font-size:12.5px;white-space:nowrap}

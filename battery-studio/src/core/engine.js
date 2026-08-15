@@ -88,6 +88,32 @@ export function createEngine(db, options = {}) {
   const salesQty = db.salesQty || {};
   const plateByCode = new Map(plates.map((p) => [p.code, p]));
 
+  /**
+   * 극판 사용 가능 여부.
+   *
+   * 단종은 "그런 극판은 없었다"가 아니라 "새 설계에 쓰지 마라"는 뜻이다. 그래서 단종 극판을
+   * DB 에서 지우지 않고 상태로만 표시한다 — 지우면 그 극판으로 만들던 제품의 실적까지 사라져
+   * 예측 근거(용량·CCA·납중량·봉합)가 통째로 무너진다. 20년 판 제품의 실적은 그 극판이
+   * 단종돼도 여전히 유효한 물리 데이터다.
+   *
+   * status 가 비어 있으면 사용 중으로 본다(기존 DB 전부가 여기 해당). 알 수 없는 값은
+   * 사용 중지로 본다 — 담당자가 무언가 표시해 둔 것을 "표시 안 함"으로 읽으면
+   * 쓰지 말라는 극판을 계속 쓰게 되기 때문이다. 안전한 쪽으로 틀린다.
+   */
+  const ACTIVE_STATUS = new Set(['', 'active', '사용', '사용중', '정상', 'y', 'o']);
+  const statusOf = (plate) => String(plate?.status ?? '').trim();
+  const isPlateActive = (code) => {
+    const plate = plateByCode.get(code);
+    if (!plate) return false;
+    return ACTIVE_STATUS.has(statusOf(plate).toLowerCase());
+  };
+  /** 화면에 그대로 보여줄 상태 라벨. '단종'이든 '단종예정'이든 쓴 그대로 남긴다. */
+  const plateStatusLabel = (code) => {
+    const plate = plateByCode.get(code);
+    if (!plate) return '';
+    return isPlateActive(code) ? '' : statusOf(plate) || '사용중지';
+  };
+
   const calibration = options.calibration || null;
 
   /** 예측값 → 보정값. 보정식이 없으면 그대로 돌려준다. */
@@ -308,6 +334,36 @@ export function createEngine(db, options = {}) {
   /** 스펙이 유효한 제품군을 가리킬 때만 후보를 연다. 구엔진의 Bi(). */
   const candidatesFor = (spec) => (groupProfile(spec.group, spec.type).valid ? referencesOf(spec.group) : []);
 
+  /**
+   * <b>신규 설계에 쓸 수 있는</b> 기준품. candidatesFor 와 달리 단종 극판을 걸러낸다.
+   *
+   * 어느 극을 실제로 사다 쓰는지가 안마다 다르므로 거르는 대상도 다르다.
+   *   1안(new)     양·음극을 새로 만든다 → 기준품은 크기·실적만 참조하므로 단종과 무관
+   *   2안(hybrid)  음극은 기존 것을 그대로 쓴다 → 음극이 단종이면 못 쓴다
+   *   3안(existing) 양·음극 모두 기존 것을 산다 → 한쪽이라도 단종이면 못 쓴다
+   *
+   * candidatesFor 는 건드리지 않는다. 그쪽은 예측 학습(용량·CCA·매수범위)의 근거이고,
+   * 단종 여부와 상관없이 과거 실적은 전부 근거로 남아야 한다.
+   *
+   * 모두 단종이라 후보가 비면 거르지 않은 목록을 돌려준다. 계산을 막는 대신 계산은 하되,
+   * 그 설계에 warning 으로 단종 사실을 붙인다(막아버리면 왜 안 되는지 알 길이 없다).
+   */
+  function designCandidatesFor(spec, kind) {
+    const all = candidatesFor(spec);
+    if (kind === 'new') return all;
+    const usable = all.filter((ref) =>
+      kind === 'hybrid' ? isPlateActive(ref.negCode) : isPlateActive(ref.posCode) && isPlateActive(ref.negCode),
+    );
+    return usable.length ? usable : all;
+  }
+
+  /** 그 기준품이 이 안에서 실제로 사다 쓰는 극판 중 단종된 것. */
+  function obsoletePlatesOf(ref, kind) {
+    if (!ref || kind === 'new') return [];
+    const codes = kind === 'hybrid' ? [ref.negCode] : [ref.posCode, ref.negCode];
+    return codes.filter((code) => !isPlateActive(code));
+  }
+
   /** 목표와의 거리. 동점 후보를 가를 때만 쓴다. 구엔진의 k2(). */
   function targetDistance(spec, ref) {
     return (
@@ -394,7 +450,7 @@ export function createEngine(db, options = {}) {
    * 동점이면 판매수량 → 관측건수 순.
    */
   function assignReferences(specs, kind) {
-    const candidates = specs.map((spec) => candidatesFor(spec));
+    const candidates = specs.map((spec) => designCandidatesFor(spec, kind));
     const coverage = new Map(); // familyKey → Set<specIndex>
     const familyVolume = new Map();
     const familyObservations = new Map();
@@ -660,6 +716,7 @@ export function createEngine(db, options = {}) {
       negGridWeight: 0,
       posActiveWeight: 0,
       posActiveRange: [0, 0],
+      obsoletePlates: [],
       parallelPlateArea: 0,
       resistanceIndex: 0,
       ccaEvidenceProducts: 0,
@@ -858,11 +915,22 @@ export function createEngine(db, options = {}) {
     const leadIsActual = lockToReference && ref.lead > 0;
     const predictedLead = leadIsActual ? ref.lead : gridLeadKg + activeLeadKg + cosLeadKg;
 
-    const warning = chosen.pass
+    /**
+     * 이 안에서 실제로 사다 쓰는 극판 중 단종된 것.
+     * 후보 단계에서 걸러지므로 보통은 비어 있고, 그 제품군 극판이 <b>모두</b> 단종일 때만 남는다.
+     * 그때는 계산을 막지 않고 대신 반드시 알린다 — 신형 극판(1·2안)으로 가야 한다는 신호다.
+     */
+    const obsoletePlates = obsoletePlatesOf(ref, kind);
+    const obsoleteWarning = obsoletePlates.length
+      ? `${obsoletePlates.map((code) => `${code}(${plateStatusLabel(code)})`).join(', ')} — 이 제품군에 쓸 수 있는 기존 극판이 없어 단종 극판으로 계산했습니다. 신형 극판 설계(1·2안)를 검토하세요.`
+      : null;
+
+    const baseWarning = chosen.pass
       ? chosen.requestedActive > activeRange[1]
         ? `동일 크기 활물질 상한 ${round(activeRange[1], 1)} g/매에 도달했습니다.`
         : null
       : `DB 실적 매수범위 ${dbMin}–${dbMax}매와 입력 상한 ${spec.maxPlates}매 안에서 목표를 모두 충족하지 못했습니다.`;
+    const warning = [obsoleteWarning, baseWarning].filter(Boolean).join(' ') || null;
 
     const posSize = sizeKey(posPlate);
     const negSize = sizeKey(negPlate);
@@ -928,6 +996,7 @@ export function createEngine(db, options = {}) {
       // 봉합은 신형/기존과 무관하게 "원본 극판 조합"의 실적을 따른다.
       // 신형 극판은 같은 크기 극판을 다시 만드는 것이므로 봉합 방식이 바뀔 이유가 없다.
       separator: separatorFor(posPlate.code, negPlate.code, spec.group),
+      obsoletePlates,
       predictedLead: round(predictedLead, 2),
       leadSource: leadIsActual ? '실측' : '모델',
       leadBreakdown: leadIsActual
@@ -1226,6 +1295,9 @@ export function createEngine(db, options = {}) {
     learningByGroup,
     referencesOf,
     candidatesFor,
+    designCandidatesFor,
+    plateStatusLabel,
+    isPlateActive,
     matchExisting,
     familyKeyOf,
     assignReferences,

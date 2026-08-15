@@ -133,7 +133,17 @@ function planDetail(ctx, plan) {
         },
         {
           label: '극판 조합',
-          format: (d) => h('div.cell-stack', null, h('strong', null, d.posCode), h('small', null, d.negCode)),
+          format: (d) =>
+            h(
+              'div.cell-stack',
+              null,
+              h('strong', null, d.posCode),
+              h('small', null, d.negCode),
+              // 단종 극판으로 계산된 설계는 그대로 발주할 수 없다. 표에서 바로 보이게 한다.
+              d.obsoletePlates?.length
+                ? h('span.obsolete-chip', null, `단종 ${d.obsoletePlates.join(', ')}`)
+                : null,
+            ),
         },
         { label: '활물질', align: 'right', format: (d) => (d.posActiveWeight ? `${num(d.posActiveWeight, 1)} g/매` : '—') },
         {

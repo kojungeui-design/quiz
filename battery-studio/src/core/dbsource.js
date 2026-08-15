@@ -128,7 +128,25 @@ export const PLATE_COLUMNS = [
   { key: 'activeWeight', label: '활물질', kind: 'number', aliases: ['activeweight', '활물질', '활물질중량'] },
   { key: 'cost', label: '단가', kind: 'number', aliases: ['cost', '단가', '가격'] },
   { key: 'role', label: '역할', kind: 'text', aliases: ['role', '역할', '극성'] },
+  {
+    key: 'status',
+    label: '상태',
+    kind: 'text',
+    aliases: ['status', '상태', '사용여부', '단종', '사용상태'],
+    // 비우면 사용 중. '단종' 등을 적으면 신규 설계 후보에서 빠지되 실적은 근거로 남는다.
+  },
 ];
+
+/**
+ * 단종 처리를 삭제가 아니라 상태로 다루는 이유.
+ *
+ * 극판 마스터에서 한 줄을 빼면 그 극판을 쓰던 실적 제품이 참조를 잃고 통째로 사라진다.
+ * (SLI00070 하나를 빼면 제품 11종과 제품군 2개가 증발한다) 예측은 전부 그 실적에서
+ * 학습하므로 근거가 같이 무너진다. 그래서 '대체' 모드로 지우지 말고 이 열에 '단종'이라고
+ * 적는다 — 병합 모드로 한 줄만 올리면 끝나고, 되돌리는 것도 한 줄이다.
+ */
+const ACTIVE_STATUS_WORDS = new Set(['', 'active', '사용', '사용중', '정상', 'y', 'o']);
+export const isActiveStatus = (value) => ACTIVE_STATUS_WORDS.has(String(value ?? '').trim().toLowerCase());
 
 const ROLE_ALIASES = {
   양극: 'positive',
@@ -166,7 +184,9 @@ export function detectKind(header) {
   const keys = new Set(header.map(normalizeHeader));
   const has = (...names) => names.some((n) => keys.has(normalizeHeader(n)));
   const productish = has('poscode', '양극코드', '양극', 'assembly', '조립매수', '총매수');
-  const plateish = has('thickness', '두께', 'baseweight', '기판중량', 'activeweight', '활물질');
+  // '극판코드' 는 극판 파일에만 있는 이름이다. 단종 표시처럼 두세 열만 올리는 부분 갱신에서는
+  // 두께·기판중량이 없을 수 있으므로, 이 이름만으로도 극판 파일로 알아본다.
+  const plateish = has('thickness', '두께', 'baseweight', '기판중량', 'activeweight', '활물질', '극판코드');
   if (productish && !plateish) return 'products';
   if (plateish && !productish) return 'plates';
   return null;
@@ -236,7 +256,20 @@ export function readImportFile(text, filename = '') {
 
   const columns = kind === 'products' ? PRODUCT_COLUMNS : PLATE_COLUMNS;
   const mapping = mapHeaders(header, columns);
-  const missingColumns = columns.filter((c) => c.required && !mapping.has(c.key)).map((c) => c.label);
+  /**
+   * 극판 파일은 코드만 있으면 받는다.
+   *
+   * 병합 모드의 요점이 "바뀐 줄만 올린다"인데 치수 열까지 늘 요구하면, 단종 표시 하나·단가
+   * 하나를 고치려고 전체 마스터를 다시 만들어야 한다. 그러면 결국 '대체' 모드를 쓰게 되고,
+   * 대체는 파일에 없는 항목을 지워 실적을 무너뜨린다(극판 하나 빠지면 그 극판을 쓰던 제품이
+   * 통째로 사라진다). 필요 없는 요구가 위험한 길로 떠미는 셈이라 여기서 풀어준다.
+   * 값이 정말 모자란지는 기존 DB 와 합쳐본 뒤 행 단위로 판단한다(validateOverlay).
+   *
+   * 제품 파일은 종전대로 필수 열을 모두 요구한다. 제품은 부분 갱신할 일이 드물고,
+   * 열이 통째로 빠진 파일을 행마다 반려하면 같은 오류 수백 건이 쏟아지기 때문이다.
+   */
+  const requiredHere = kind === 'plates' ? columns.filter((c) => c.key === 'code') : columns.filter((c) => c.required);
+  const missingColumns = requiredHere.filter((c) => !mapping.has(c.key)).map((c) => c.label);
   if (missingColumns.length) {
     throw new Error(`필수 열이 없습니다: ${missingColumns.join(', ')}`);
   }
@@ -271,10 +304,17 @@ export function validateOverlay(base, staged, mode = 'merge') {
   /* ---- 극판 ---- */
   const plateMap = new Map(mode === 'replace' && stagedPlates ? [] : base.plates.map((p) => [p.code, p]));
   const acceptedPlates = [];
-  (stagedPlates || []).forEach((row, index) => {
+  (stagedPlates || []).forEach((rawRow, index) => {
     const errors = [];
+    // 이미 있는 극판이면 빠진 칸은 종전 값을 잇는다. 상태 한 칸만 올려도 통과해야 한다.
+    const known = plateMap.get(rawRow.code);
+    const row = known
+      ? { ...rawRow, width: rawRow.width ?? known.width, height: rawRow.height ?? known.height }
+      : rawRow;
     if (!row.code) errors.push('극판 코드 누락');
-    if (!(row.width > 0) || !(row.height > 0)) errors.push('치수 이상');
+    if (!(row.width > 0) || !(row.height > 0)) {
+      errors.push(known ? '치수 이상' : '치수 이상 — 새 극판은 폭·높이가 필요합니다');
+    }
     if (row.cost !== null && !(row.cost >= 0)) errors.push('단가 이상');
     if (errors.length) {
       issues.push({ kind: 'plates', row: index + 2, code: row.code || '—', message: errors.join(', ') });
@@ -291,6 +331,12 @@ export function validateOverlay(base, staged, mode = 'merge') {
       activeWeight: row.activeWeight ?? previous?.activeWeight ?? 0,
       cost: row.cost ?? previous?.cost ?? 0,
       role: ROLE_ALIASES[String(row.role || '').toLowerCase()] || previous?.role || 'unknown',
+      /**
+       * 상태 열을 비운 채 올리면 종전 상태를 지킨다.
+       * 단가만 갱신하려고 올린 파일이 단종 표시를 조용히 지워버리면 안 되기 때문이다.
+       * 되살릴 때는 '사용중' 이라고 적어서 올린다.
+       */
+      status: String(row.status ?? '').trim() || previous?.status || '',
       usage: 0, // 아래에서 제품 참조 수로 다시 센다
     };
     plateMap.set(row.code, merged);
@@ -361,6 +407,8 @@ export function validateOverlay(base, staged, mode = 'merge') {
       platesAccepted: acceptedPlates.length,
       productsAccepted: acceptedProducts.length,
       rejected: issues.length,
+      // 단종 표시된 극판이 몇 종인지 알려준다. 실수로 상태를 적었는지 바로 눈치챌 수 있다.
+      obsoletePlates: [...plateMap.values()].filter((p) => !isActiveStatus(p.status)).length,
       resultPlates: plateMap.size,
       resultProducts: productMap.size,
     },

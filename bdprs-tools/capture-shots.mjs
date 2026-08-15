@@ -51,6 +51,33 @@ async function shot(name, selector) {
   console.log('  · ' + name);
 }
 
+/**
+ * 위쪽 일부만 남기고 자른다. 극판 마스터처럼 수백 행짜리 표를 통째로 찍으면
+ * 가이드에 9,000px 짜리 그림이 실려 파일만 부풀고 정작 볼 것은 안 보인다.
+ */
+async function shotTop(name, selector, maxHeight = 460) {
+  await settle();
+  const target = page.locator(selector).first();
+  if (!(await target.count())) {
+    problems.push(`${name}: ${selector} 를 찾지 못해 건너뜀`);
+    return;
+  }
+  const box = await target.boundingBox();
+  if (!box) {
+    problems.push(`${name}: 화면에 보이지 않아 건너뜀`);
+    return;
+  }
+  await page.screenshot({
+    path: resolve(OUT, name),
+    quality: 82,
+    type: 'jpeg',
+    // boundingBox 는 문서 기준 좌표다. fullPage 로 찍어야 clip 이 같은 기준으로 맞는다.
+    fullPage: true,
+    clip: { x: box.x, y: box.y, width: box.width, height: Math.min(box.height, maxHeight) },
+  });
+  console.log('  · ' + name + ' (위 ' + Math.min(box.height, maxHeight) + 'px)');
+}
+
 const nav = async (label) => { await page.locator(`.nav-item:has-text("${label}")`).first().click(); await settle(); };
 const press = async (label) => { await page.locator(`button:has-text("${label}")`).first().click(); await settle(); };
 
@@ -129,6 +156,30 @@ await shot('11-database.jpg');
 const importTab = page.locator('button:has-text("DB 갱신"), button:has-text("가져오기"), button:has-text("임포트")').first();
 if (await importTab.count()) { await importTab.click(); await settle(); }
 await shot('12-db-import.jpg');
+
+/* 16 — 극판 단종 표시. 상태 열 두 칸짜리 CSV 한 줄로 처리된다는 것을 보여준다. */
+const fileInput = page.locator('input[type=file]').first();
+if (await fileInput.count()) {
+  const target = await page.evaluate(() => (window.BDS_DB?.plates || []).find((p) => p.usage > 0)?.code || '');
+  if (target) {
+    await fileInput.setInputFiles({
+      name: '단종.csv',
+      mimeType: 'text/csv',
+      buffer: Buffer.from(`\ufeff극판코드,상태\n${target},단종\n`, 'utf8'),
+    });
+    await settle();
+    const apply = page.locator('button:has-text("적용")').first();
+    if (await apply.count() && await apply.isEnabled()) {
+      await apply.click();
+      await settle();
+      const confirm = page.locator('.modal-overlay button:has-text("적용")').first();
+      if (await confirm.count()) await confirm.click();
+      await settle();
+    }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await shotTop('16-obsolete-db.jpg', '.card:has-text("극판 마스터")', 420);
+  }
+}
 
 /* 13 — 예측 보정 */
 await nav('예측 보정');

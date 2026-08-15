@@ -169,6 +169,7 @@ export function renderDatabase(ctx) {
         dbKpi('반영될 극판', num(s.resultPlates), `현재 ${num(stats.plates)}건`),
         dbKpi('정상 행', num(accepted), '건'),
         dbKpi('반려 행', num(s.rejected), '건'),
+        s.obsoletePlates ? dbKpi('단종 표시', num(s.obsoletePlates), '종 (실적은 근거로 남습니다)') : null,
       ),
 
       result.issues.length
@@ -405,8 +406,19 @@ export function renderDatabase(ctx) {
           { label: '활물질', align: 'right', format: (p) => `${num(p.activeWeight)} g` },
           { label: '단가', align: 'right', format: (p) => won(p.cost) },
           { label: '사용 제품', align: 'right', format: (p) => `${p.usage}종` },
+          {
+            label: '상태',
+            format: (p) =>
+              engine.isPlateActive(p.code)
+                ? h('small.muted-cell', null, '사용중')
+                : h('span.obsolete-chip', null, engine.plateStatusLabel(p.code)),
+          },
         ],
-        [...engine.plates].sort((a, b) => b.usage - a.usage),
+        // 단종된 극판을 위로 올린다. "무엇이 더는 못 쓰는가"가 이 표에서 제일 먼저 볼 것이다.
+        [...engine.plates].sort(
+          (a, b) =>
+            Number(engine.isPlateActive(a.code)) - Number(engine.isPlateActive(b.code)) || b.usage - a.usage,
+        ),
       ),
     ),
   );
