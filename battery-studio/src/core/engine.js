@@ -1080,6 +1080,130 @@ export function createEngine(db, options = {}) {
     return aggregatePlan(raw, plan.kind, objective, assumptions);
   }
 
+  /**
+   * 극판군 통합 곡선 — "극판을 1종 더 만들면 연간 얼마를 버는가".
+   *
+   * 금형비가 0이면 극판군을 합쳐서 아낄 돈이 없다. 오히려 합칠수록 일부 제품이 자기 최적보다
+   * 큰 극판을 쓰게 되어 재료비가 는다. 그래서 "몇 개가 최적인가"는 원가만으로는 답이 나오지
+   * 않는다 — 원가만 보면 극판이 많을수록 항상 유리하기 때문이다.
+   *
+   * 대신 답할 수 있는 질문이 이것이다. 극판 1종이 늘 때 생기는 부동재고 부담은 도구가 모르지만,
+   * 그 부담과 견줄 <b>연간 절감액</b>은 계산할 수 있다. 꺾이는 지점이 곧 판단 지점이다.
+   *
+   * 방법: 현재 안의 극판군에서 출발해, 라인업 연간 총원가를 가장 크게 낮추는 극판군을
+   * 하나씩 더해 간다. 시설입지 문제와 같은 꼴이라 탐욕법이 최적해를 보장하지는 않지만,
+   * 꺾이는 지점을 찾는 데는 충분하다. 더해도 원가가 내려가지 않으면 거기서 멈춘다.
+   *
+   * @returns {Array<{familyCount, plan, annualCost, marginalSaving, passCount, totalProducts, families}>}
+   *          극판군 수 오름차순. 첫 점이 현재 안이다.
+   */
+  function consolidationCurve(specs, kind, objective, assumptions) {
+    const usable = specs.filter((spec) => candidatesFor(spec).length);
+    if (usable.length < 2) return [];
+
+    /** 같은 극판군 안에서 어느 기준품이 나은가. assignReferences 와 같은 기준을 쓴다. */
+    const preferBetween = (spec, a, b) => {
+      const gap = targetDistance(spec, a) - targetDistance(spec, b);
+      if (Math.abs(gap) > 0.08) return gap < 0 ? a : b;
+      const bySales = soldQty(b.code) - soldQty(a.code) || b.observations - a.observations || gap;
+      return bySales < 0 ? a : b;
+    };
+
+    // 제품별로 "이 극판군을 쓴다면 기준품은 무엇인가"
+    const refByFamily = specs.map((spec) => {
+      const map = new Map();
+      candidatesFor(spec).forEach((ref) => {
+        const key = familyKeyOf(ref, kind);
+        if (!key) return;
+        const prev = map.get(key);
+        map.set(key, prev ? preferBetween(spec, ref, prev) : ref);
+      });
+      return map;
+    });
+
+    const designCache = new Map();
+    const designOf = (index, key) => {
+      const cacheKey = `${index} ${key}`;
+      if (!designCache.has(cacheKey)) {
+        designCache.set(cacheKey, calculateDesign(specs[index], kind, refByFamily[index].get(key), assumptions));
+      }
+      return designCache.get(cacheKey);
+    };
+    const meetsTargets = (design) =>
+      design.compatibility.valid && METRIC_MARGINS.every((k) => (design[k] ?? -1) >= 0);
+    const worstMarginOf = (design) => Math.min(...METRIC_MARGINS.map((k) => design[k] ?? -100));
+
+    /**
+     * 고른 극판군들 안에서 제품별 최선을 고른다.
+     * 목표를 만족하는 것이 먼저다 — 통합해서 싸졌는데 성능이 미달이면 그건 대안이 아니다.
+     */
+    const assign = (chosen) =>
+      specs.map((spec, index) => {
+        const options = [...chosen].filter((key) => refByFamily[index].has(key));
+        if (!options.length) return null;
+        const designs = options.map((key) => ({ key, design: designOf(index, key) }));
+        const passing = designs.filter((x) => meetsTargets(x.design));
+        const pool = passing.length ? passing : designs;
+        return pool.reduce((best, x) =>
+          !best ? x
+            : passing.length
+              ? x.design.unitCost < best.design.unitCost ? x : best
+              : worstMarginOf(x.design) > worstMarginOf(best.design) ? x : best,
+        null);
+      });
+
+    const annualCostOf = (picks) =>
+      picks.reduce((sum, pick, index) => sum + (pick ? pick.design.unitCost * (specs[index].annualVolume || 0) : 0), 0);
+
+    const pointFor = (chosen) => {
+      const picks = assign(chosen);
+      const designs = picks.map((pick, index) =>
+        pick ? pick.design : calculateDesign(specs[index], kind, null, assumptions),
+      );
+      const plan = aggregatePlan(designs, kind, objective, assumptions);
+      const families = [...new Set(picks.filter(Boolean).map((pick) => pick.key))];
+      return {
+        familyCount: families.length,
+        families,
+        plan,
+        annualCost: Math.round(
+          plan.designs.reduce((sum, d) => sum + d.unitCost * (d.spec.annualVolume || 0), 0),
+        ),
+        passCount: plan.designs.filter(meetsTargets).length,
+        totalProducts: plan.designs.length,
+        marginalSaving: 0,
+      };
+    };
+
+    const startFamilies = new Set(
+      assignReferences(specs, kind).filter(Boolean).map((ref) => familyKeyOf(ref, kind)).filter(Boolean),
+    );
+    const allFamilies = new Set(refByFamily.flatMap((map) => [...map.keys()]));
+    if (!startFamilies.size) return [];
+
+    const chosen = new Set(startFamilies);
+    const points = [pointFor(chosen)];
+
+    while (chosen.size < allFamilies.size) {
+      let best = null;
+      for (const key of allFamilies) {
+        if (chosen.has(key)) continue;
+        const cost = annualCostOf(assign(new Set([...chosen, key])));
+        if (!best || cost < best.cost) best = { key, cost };
+      }
+      // 더 만들어도 원가가 안 내려가면 거기가 끝이다. 부담만 늘고 얻는 게 없다.
+      if (!best || best.cost >= points[points.length - 1].annualCost) break;
+      chosen.add(best.key);
+      const point = pointFor(chosen);
+      point.marginalSaving = points[points.length - 1].annualCost - point.annualCost;
+      // 극판군을 더했는데 실제로 쓰이지 않았다면 곡선에 새 점이 생기지 않는다.
+      if (point.familyCount <= points[points.length - 1].familyCount) break;
+      points.push(point);
+    }
+
+    return points;
+  }
+
   /** 1·2·3안 한꺼번에. 구엔진의 An(). */
   function buildPlans(specs, objective = 'balanced', assumptions) {
     return [
@@ -1235,6 +1359,7 @@ export function createEngine(db, options = {}) {
     activeWeightRange,
     buildPlan,
     retunePlan,
+    consolidationCurve,
     buildPlans,
     planSummary,
     rankPlans,
@@ -1259,6 +1384,12 @@ export const DEFAULT_ASSUMPTIONS = {
   newToolingCost: 0, // 신형 양·음극 투자 (극판군당) — 금형 확보분 사용
   hybridToolingCost: 0, // 신형 양극만 개발할 때의 투자 (극판군당)
   contingencyRate: 3, // 재료비 우발률 %
+  /**
+   * 극판을 1종 더 운용할 때 해마다 생기는 부동재고 부담 (원/종/년).
+   * 금형비와 달리 이 부담은 극판 종류가 늘면 실제로 발생한다. 0으로 두면 도구가 판단하지 않고
+   * 연간 절감액만 보여준다 — 그때는 이 금액을 아는 사람이 직접 견주면 된다.
+   */
+  inventoryBurdenPerFamily: 0,
 };
 
 export { DEFAULT_CELL_COUNT };

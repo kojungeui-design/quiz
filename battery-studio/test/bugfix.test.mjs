@@ -127,7 +127,8 @@ test('기본 원가 가정은 금형비만 0으로 바로잡고 나머지는 구
   assert.equal(DEFAULT_ASSUMPTIONS.hybridToolingCost, 0);
   assert.equal(DEFAULT_ASSUMPTIONS.conversionCost, legacy.so.conversionCost);
   assert.equal(DEFAULT_ASSUMPTIONS.contingencyRate, legacy.so.contingencyRate);
-  assert.deepEqual(Object.keys(DEFAULT_ASSUMPTIONS).sort(), Object.keys(legacy.so).sort());
+  // 구엔진 항목은 하나도 빠지지 않아야 한다. 새 항목(부동재고 부담)은 더해질 수 있다.
+  for (const key of Object.keys(legacy.so)) assert.ok(key in DEFAULT_ASSUMPTIONS, `${key} 가 사라졌다`);
 });
 
 test('수정5 · 신형 양극 단가 분할은 55/45 고정이 아니라 극판별 실측 비중을 쓴다', () => {

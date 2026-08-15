@@ -281,7 +281,7 @@ function productCard(ctx, item, updateSummary, rebuild) {
         step: 5000,
         softRange: [1, 5000000],
         ariaLabel: `${item.name} 연간 기준수량`,
-        hint: '금형 투자비 배부 기준',
+        hint: '라인업 가중 평균원가의 가중치',
         onInput: (value) => patch({ annualVolume: value }),
       }),
     ),
@@ -328,6 +328,14 @@ function assumptionsCard(ctx) {
         min: 0,
         step: 1000000,
         onInput: (v) => patch({ hybridToolingCost: v }),
+      }),
+      numberField({
+        label: '극판 1종당 부동재고 부담',
+        unit: '원/년',
+        value: project.assumptions.inventoryBurdenPerFamily,
+        min: 0,
+        step: 1000000,
+        onInput: (v) => patch({ inventoryBurdenPerFamily: v }),
       }),
       numberField({
         label: '재료비 우발률',

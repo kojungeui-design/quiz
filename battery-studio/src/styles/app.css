@@ -345,6 +345,19 @@ i.grade-A { background: #35a173; } i.grade-B { background: #22a595; } i.grade-C 
 .whatif-lineup h4 { margin: 0; font-size: 13px; color: var(--teal-dark); }
 .whatif-lineup .table-scroll { margin-top: 9px; }
 
+/* ------------------------ 극판군 통합 검토 ------------------------ */
+
+.consol-card { margin-top: 18px; }
+.consol-table { font-variant-numeric: tabular-nums; }
+.consol-table tbody th { text-align: left; font-weight: 600; white-space: nowrap; }
+.consol-table tr.consol-pick { background: var(--teal-soft); }
+.consol-table tr.consol-pick th strong { color: var(--teal-dark); }
+.consol-saving { color: var(--teal-dark); font-weight: 700; }
+.muted-cell { color: var(--muted); }
+.consol-verdict { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.consol-verdict.yes { background: #eaf5ef; color: var(--green); }
+.consol-verdict.no { background: #eef2f1; color: var(--muted); }
+
 /* ---------------------------- DB 임포트 ---------------------------- */
 
 .import-drop { margin-top: 14px; padding: 16px; border: 1px dashed var(--line); border-radius: 10px; background: var(--paper); text-align: center; }
