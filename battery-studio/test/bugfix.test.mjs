@@ -118,8 +118,16 @@ test('마진 계산은 목표가 없으면 null, 있으면 백분율', () => {
   assert.equal(marginPct(100, -5), null);
 });
 
-test('기본 원가 가정은 구엔진 값을 그대로 유지한다', () => {
-  assert.deepEqual(DEFAULT_ASSUMPTIONS, legacy.so);
+test('기본 원가 가정은 금형비만 0으로 바로잡고 나머지는 구엔진 값을 유지한다', () => {
+  // 사내에는 극판 금형이 확보되어 있어 신규 극판에 금형투자가 발생하지 않는다.
+  // 구엔진의 2,600만/1,200만원은 실제로 나가지 않는 돈인데도 신형안(1·2안) 대당 원가에
+  // 분담금으로 실려 원가 비교와 안 순위를 왜곡했다. 투자가 실제로 생기는 과제라면
+  // 요구사양 화면에서 넣을 수 있으므로, 기본값만 0으로 둔다.
+  assert.equal(DEFAULT_ASSUMPTIONS.newToolingCost, 0);
+  assert.equal(DEFAULT_ASSUMPTIONS.hybridToolingCost, 0);
+  assert.equal(DEFAULT_ASSUMPTIONS.conversionCost, legacy.so.conversionCost);
+  assert.equal(DEFAULT_ASSUMPTIONS.contingencyRate, legacy.so.contingencyRate);
+  assert.deepEqual(Object.keys(DEFAULT_ASSUMPTIONS).sort(), Object.keys(legacy.so).sort());
 });
 
 test('수정5 · 신형 양극 단가 분할은 55/45 고정이 아니라 극판별 실측 비중을 쓴다', () => {
@@ -140,4 +148,20 @@ test('수정5 · 신형 양극 단가 분할은 55/45 고정이 아니라 극판
   const mineExisting = engine.calculateDesign(spec, 'existing', ref, assumptions);
   const oldExisting = legacy.Cm(spec, 'existing', ref, assumptions);
   assert.equal(mineExisting.unitCost, oldExisting.unitCost);
+});
+
+test('저장된 과제의 구버전 기본 금형비는 0으로 내리고, 직접 넣은 금액은 그대로 둔다', async () => {
+  const { normalizeProject } = await import('../src/core/project.js');
+  const untouched = normalizeProject(engine, {
+    assumptions: { conversionCost: 14300, newToolingCost: 26000000, hybridToolingCost: 12000000, contingencyRate: 3 },
+  });
+  assert.equal(untouched.assumptions.newToolingCost, 0, '손대지 않은 구버전 기본값은 0이어야 한다');
+  assert.equal(untouched.assumptions.hybridToolingCost, 0);
+  assert.equal(untouched.assumptions.conversionCost, 14300, '가공비는 건드리면 안 된다');
+
+  const deliberate = normalizeProject(engine, {
+    assumptions: { newToolingCost: 5000000, hybridToolingCost: 3000000 },
+  });
+  assert.equal(deliberate.assumptions.newToolingCost, 5000000, '직접 넣은 투자액은 보존해야 한다');
+  assert.equal(deliberate.assumptions.hybridToolingCost, 3000000);
 });

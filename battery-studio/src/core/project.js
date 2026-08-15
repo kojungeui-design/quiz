@@ -80,9 +80,29 @@ export function normalizeProject(engine, raw) {
     status: raw.status || 'draft',
     objective: raw.objective || 'balanced',
     selectedKind: raw.selectedKind || 'hybrid',
-    assumptions: { ...DEFAULT_ASSUMPTIONS, ...(raw.assumptions || {}) },
+    assumptions: migrateAssumptions(raw.assumptions),
     lineup: lineup.length ? lineup : [createLineupItem(engine, engine.groups[0].group, '제품 1')],
   };
+}
+
+/**
+ * 구버전 기본 금형비 (극판군당). 사내에는 극판 금형이 확보되어 있어 실제로는 0인데,
+ * 이 값이 신형안 대당 원가에 분담금으로 실려 원가 비교를 왜곡하고 있었다.
+ */
+const LEGACY_TOOLING = { newToolingCost: 26000000, hybridToolingCost: 12000000 };
+
+/**
+ * 저장된 과제의 원가 가정을 읽는다.
+ *
+ * 금형비가 <b>구버전 기본값 그대로</b>인 과제만 0으로 내린다. 손대지 않은 기본값이라는
+ * 신호가 분명하기 때문이다. 사용자가 직접 넣은 다른 금액은 실제 투자일 수 있으므로 건드리지 않는다.
+ */
+function migrateAssumptions(saved) {
+  const merged = { ...DEFAULT_ASSUMPTIONS, ...(saved || {}) };
+  for (const [key, legacyValue] of Object.entries(LEGACY_TOOLING)) {
+    if (merged[key] === legacyValue) merged[key] = DEFAULT_ASSUMPTIONS[key];
+  }
+  return merged;
 }
 
 /** 엔진에 넘길 스펙. 엔진은 uid를 그대로 들고 다니므로 결과와 입력이 항상 짝을 이룬다. */
