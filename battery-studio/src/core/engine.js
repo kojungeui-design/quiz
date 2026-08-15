@@ -472,6 +472,66 @@ export function createEngine(db, options = {}) {
     return sameSize.length ? [Math.min(...sameSize), Math.max(...sameSize)] : [plate.activeWeight, plate.activeWeight];
   }
 
+  /* ---------- 격리판 봉합 극성 ---------- */
+
+  /**
+   * 봉합 극성은 설계자가 고르는 값이 아니라 극판 조합이 정하는 파생값이다.
+   * 사내 실적 9,319건 분석 결과: 극판 조합만으로 99.7%, 제품군으로 95.0%가 결정된다
+   * ("EFB면 (+)" 같은 단순 규칙은 74%로 무조건 (−)라고 하는 것(88%)보다도 나쁘다).
+   * 그래서 규칙을 쓰지 않고 실적에서 끌어온다.
+   */
+  const separatorIndex = (() => {
+    const byCombo = new Map();
+    const byGroup = new Map();
+    const bump = (map, key, value) => {
+      if (!value) return;
+      const entry = map.get(key) || { negative: 0, positive: 0 };
+      entry[value] = (entry[value] || 0) + 1;
+      map.set(key, entry);
+    };
+    for (const product of products) {
+      bump(byCombo, `${product.posCode}|${product.negCode}`, product.separator);
+      bump(byGroup, product.group, product.separator);
+    }
+    return { byCombo, byGroup };
+  })();
+
+  const SEPARATOR_LABEL = { negative: '(−)봉합', positive: '(+)봉합' };
+
+  /**
+   * @returns {{value:string|null, label:string, basis:string, agree:number, total:number, conflict:boolean}}
+   *   value 가 null 이면 실적이 없어 판단하지 않는다(추측하지 않는다).
+   */
+  function separatorFor(posCode, negCode, group) {
+    const pick = (entry, basis) => {
+      if (!entry) return null;
+      const total = entry.negative + entry.positive;
+      if (!total) return null;
+      const value = entry.negative >= entry.positive ? 'negative' : 'positive';
+      const agree = entry[value];
+      return {
+        value,
+        label: SEPARATOR_LABEL[value],
+        basis,
+        agree,
+        total,
+        // 소수 예외가 섞여 있으면 화면에서 "확인 필요"로 알린다.
+        conflict: agree < total,
+      };
+    };
+    return (
+      pick(separatorIndex.byCombo.get(`${posCode}|${negCode}`), '극판 조합 실적') ||
+      pick(separatorIndex.byGroup.get(group), '제품군 실적') || {
+        value: null,
+        label: '판단 불가',
+        basis: '실적 없음',
+        agree: 0,
+        total: 0,
+        conflict: false,
+      }
+    );
+  }
+
   /** DB 실적에 존재하는 매수 범위. 구엔진의 gm(). */
   function plateCountRange(spec) {
     const observed = candidatesFor(spec)
@@ -604,6 +664,7 @@ export function createEngine(db, options = {}) {
       resistanceIndex: 0,
       ccaEvidenceProducts: 0,
       unitCost: 0,
+      separator: { value: null, label: '판단 불가', basis: '호환 조합 없음', agree: 0, total: 0, conflict: false },
       predictedLead: 0,
       leadSource: '차단',
       leadBreakdown: null,
@@ -812,6 +873,9 @@ export function createEngine(db, options = {}) {
       resistanceIndex: round(chosen.resistanceIndex, 3),
       ccaEvidenceProducts: evidence.ccaEvidenceProducts,
       unitCost: round((materialCost + assumptions.conversionCost) * (1 + assumptions.contingencyRate / 100)),
+      // 봉합은 신형/기존과 무관하게 "원본 극판 조합"의 실적을 따른다.
+      // 신형 극판은 같은 크기 극판을 다시 만드는 것이므로 봉합 방식이 바뀔 이유가 없다.
+      separator: separatorFor(posPlate.code, negPlate.code, spec.group),
       predictedLead: round(predictedLead, 2),
       leadSource: leadIsActual ? '실측' : '모델',
       leadBreakdown: leadIsActual
@@ -1082,6 +1146,7 @@ export function createEngine(db, options = {}) {
     assignReferences,
     calculateDesign,
     plateCountRange,
+    separatorFor,
     activeWeightRange,
     buildPlan,
     buildPlans,

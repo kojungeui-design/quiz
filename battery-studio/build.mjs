@@ -12,7 +12,7 @@
  *   import/export 구문만 제거하면 되므로 파서가 필요 없다. 대신 모듈 간 최상위 이름이
  *   겹치면 조용히 덮어써지므로, 아래 checkCollisions()가 빌드를 멈춘다.
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync, readdirSync } from 'node:fs';
 import { dirname, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -121,9 +121,18 @@ const bundle = escapeForInlineScript(
 const css = readFileSync(resolve(SRC, 'styles', 'app.css'), 'utf8');
 const dataFile = masked ? 'bds-db.masked.js' : 'bds-db.js';
 const dataPath = resolve(here, 'data', 'generated', dataFile);
-// 데이터가 아직 없으면 알아서 만든다. 빌드 순서를 외우지 않아도 되게.
-if (!existsSync(dataPath)) {
-  console.log('설계 DB를 먼저 준비합니다…');
+/**
+ * 산출물이 없거나, source 의 어느 파일이라도 산출물보다 새로우면 다시 만든다.
+ * (존재 여부만 보던 때는 data/source 를 고쳐도 옛 DB가 그대로 빌드에 실려,
+ *  고친 데이터가 화면에 안 나오는데 원인을 찾기 어려웠다.)
+ */
+const sourceDir = resolve(here, 'data', 'source');
+const generatedAt = existsSync(dataPath) ? statSync(dataPath).mtimeMs : 0;
+const sourceChanged =
+  !generatedAt ||
+  readdirSync(sourceDir).some((name) => statSync(resolve(sourceDir, name)).mtimeMs > generatedAt);
+if (sourceChanged) {
+  console.log(generatedAt ? '설계 DB 원본이 바뀌었습니다. 다시 만듭니다…' : '설계 DB를 먼저 준비합니다…');
   execFileSync(process.execPath, ['data/build-db.mjs', ...(masked ? ['--masked'] : [])], { cwd: here, stdio: 'inherit' });
 }
 

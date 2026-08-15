@@ -120,6 +120,17 @@ export function renderReport(ctx) {
           { label: 'EN CCA', align: 'right', format: (d) => `${num(d.predictedEnCca)} (${margin(d.ccaMargin)})` },
           { label: 'SAE CCA', align: 'right', format: (d) => `${num(d.predictedSaeCca)} (${margin(d.saeMargin)})` },
           {
+            label: '봉합',
+            format: (d) =>
+              d.separator?.value
+                ? h(
+                    'span',
+                    { title: `${d.separator.basis} ${d.separator.agree}/${d.separator.total}건` },
+                    d.separator.label + (d.separator.conflict ? ' ⚠' : ''),
+                  )
+                : '—',
+          },
+          {
             label: '납중량',
             align: 'right',
             format: (d) =>
@@ -151,6 +162,7 @@ export function renderReport(ctx) {
         h('li', null, '매수는 DB 실적 매수범위 안에서만 탐색합니다. 실적 범위를 벗어난 설계는 이 도구가 판단하지 않습니다.'),
         h('li', null, '케이스 도면·단자 위치·패킹 호환성은 검증하지 않습니다. 도면으로 별도 확인이 필요합니다.'),
         h('li', null, '원가는 극판 재료비와 조립비 중심의 비교값이며 견적가가 아닙니다.'),
+        h('li', null, '격리판 봉합 극성은 극판 조합의 사내 실적에서 가져온 값입니다(설계자가 고르는 값이 아닙니다). ⚠ 표시는 실적에 소수 예외가 섞여 있다는 뜻이니 확인이 필요합니다.'),
         h('li', null, '납중량의 * 표시는 모델 추정값입니다(실측 735건 적합, 평균오차 3.9%·P90 8.3%). 기준품 고정 설계는 등록 실측값을 그대로 씁니다.'),
         h('li', null, '이 보고서는 설계 검토 지원 자료이며 시제품 시험과 Gate 승인을 대체하지 않습니다.'),
       ),
