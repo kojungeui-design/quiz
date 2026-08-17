@@ -70,7 +70,50 @@ const PLAN_FIELDS = [
 const COST_FIELDS_CHANGED_FOR_NEW_POS = new Set(['unitCost']);
 const PLAN_COST_FIELDS = new Set(['averageCost', 'score']);
 
+/**
+ * 이식 시 수정 6: 활물질 실적 범위를 기술군(PA·EFB·AGM)별로 가른다.
+ *
+ * 구엔진은 같은 크기면 기술을 가리지 않고 섞었다. 실측하면 갈린다.
+ *     138×94   PA 74~82  vs EFB 90~90   (겹치지 않는다)
+ *     138×107  PA 68~94  vs EFB 94~117
+ * 그래서 82개 제품군 중 71개의 범위가 달라진다.
+ *
+ * 예외를 그냥 열어두면 이 자리에서 무엇이든 바뀌어도 통과한다. 대신 <b>예외의 규칙</b>을 못 박는다.
+ *   · 범위는 좁아지기만 한다(부분집합). 넓어지면 실패다.
+ *   · 값이 달라지는 것은 옛 활물질값이 새 범위 밖일 때뿐이다. 범위 안이면 그대로여야 한다.
+ */
+/**
+ * 좁힘이 이 설계를 실제로 건드렸는가.
+ *
+ * 옛 활물질값이 새 범위 안이면 좁힘과 무관한 설계이므로 전 항목을 그대로 대조한다.
+ * 밖이면 활물질이 바뀌고, 그 여파로 용량·매수·CCA·납·원가·경고가 줄줄이 달라진다.
+ * 그런 설계는 필드를 하나씩 빼는 대신 <b>통째로 제외</b>하고, 대신 제외한 건수를 세어 못 박는다.
+ * (필드를 하나씩 빼다 보면 남는 게 없어져 대조가 통과해도 아무 뜻이 없어진다)
+ */
+function assertActiveRangeNarrowed(actual, expected, where) {
+  const [lo, hi] = actual.posActiveRange;
+  const [oldLo, oldHi] = expected.posActiveRange;
+  assert.ok(
+    lo >= oldLo - 1e-9 && hi <= oldHi + 1e-9,
+    `${where} · 활물질 범위가 넓어졌다 [${oldLo}, ${oldHi}] → [${lo}, ${hi}]`,
+  );
+}
+
+function narrowingBinds(actual, expected) {
+  const [lo, hi] = actual.posActiveRange;
+  return !(expected.posActiveWeight >= lo - 1e-9 && expected.posActiveWeight <= hi + 1e-9);
+}
+
+/** 좁힘 때문에 대조에서 뺀 설계 수. 테스트가 끝날 때 상한을 확인한다. */
+const skipped = { count: 0, total: 0 };
+
 function assertDesignEqual(actual, expected, where, { newPositive = false } = {}) {
+  assertActiveRangeNarrowed(actual, expected, where);
+  skipped.total += 1;
+  if (narrowingBinds(actual, expected)) {
+    skipped.count += 1;
+    return;
+  }
   for (const field of DESIGN_FIELDS) {
     if (newPositive && COST_FIELDS_CHANGED_FOR_NEW_POS.has(field)) continue;
     assert.deepEqual(actual[field], expected[field], `${where} · ${field}`);
@@ -82,7 +125,7 @@ function assertDesignEqual(actual, expected, where, { newPositive = false } = {}
   assert.equal(actual.compatibility.rule, expected.compatibility.rule, `${where} · rule`);
   assert.deepEqual(actual.dbPlateRange, expected.dbPlateRange, `${where} · dbPlateRange`);
   assert.deepEqual(actual.evaluatedPlateCounts, expected.evaluatedPlateCounts, `${where} · evaluatedPlateCounts`);
-  assert.deepEqual(actual.posActiveRange, expected.posActiveRange, `${where} · posActiveRange`);
+  // posActiveRange 는 위 assertActiveRangeNarrowed 가 "좁아지기만 했는가"로 검사한다.
 }
 
 test('제품군 호환성 프로필이 82개 제품군 전부 일치한다', () => {
@@ -231,4 +274,13 @@ test('DB 통계가 일치한다', () => {
   assert.equal(engine.dbStats.groups, legacy.Za.groups);
   assert.equal(engine.dbStats.readyCurrentGroups, legacy.Za.readyCurrentGroups);
   assert.deepEqual(engine.dbStats.missing, legacy.Za.missing);
+});
+
+
+test('활물질 범위 좁힘이 건드린 설계는 소수에 그친다', () => {
+  // 이 수치가 크게 늘면 "기술군을 가른다"가 아니라 다른 무언가가 바뀐 것이다.
+  // 대조에서 빠지는 설계가 늘어나는 것을 조용히 넘기지 않기 위해 상한을 못 박는다.
+  assert.ok(skipped.total > 200, `대조한 설계가 ${skipped.total}건뿐이다`);
+  const ratio = skipped.count / skipped.total;
+  assert.ok(ratio < 0.15, `좁힘으로 제외된 설계가 ${skipped.count}/${skipped.total} (${(ratio * 100).toFixed(1)}%)로 너무 많다`);
 });

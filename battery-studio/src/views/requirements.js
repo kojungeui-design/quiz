@@ -330,6 +330,15 @@ function assumptionsCard(ctx) {
         onInput: (v) => patch({ hybridToolingCost: v }),
       }),
       numberField({
+        label: '신형 양극 기판두께',
+        unit: 'T',
+        value: project.assumptions.newPositiveThickness,
+        min: 0.4,
+        step: 0.01,
+        hint: '1·2안에만 적용',
+        onInput: (v) => patch({ newPositiveThickness: v }),
+      }),
+      numberField({
         label: '재료비 우발률',
         unit: '%',
         value: project.assumptions.contingencyRate,

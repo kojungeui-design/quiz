@@ -112,7 +112,7 @@ function planDetail(ctx, plan) {
       'header.card-head',
       null,
       h('div', null, h('h3', null, `${plan.label} · 극판 BOM`), h('p.card-note', null, plan.description)),
-      h('span.plan-score', null, `종합점수 ${plan.score}`),
+      h('span.plan-score', { title: '후보끼리 견주려고 만든 화면용 점수입니다. 성능 합격률이나 통계적 확률이 아닙니다.' }, `비교점수 ${plan.score}`),
     ),
 
     (() => {
@@ -151,7 +151,7 @@ function planDetail(ctx, plan) {
                 ? h(
                     'small',
                     { class: d.stack.overBudget ? 'stack-over' : 'stack-ok', title: `${d.spec.group} 실적 최대 ${d.stack.budget}mm (${d.stack.referenceCode} ${d.stack.referenceAssembly}매, 실적 ${d.stack.samples}종)` },
-                    `적층 ${d.stack.sum} / ${d.stack.budget}mm`,
+                    `기판두께합 ${d.stack.sum} / ${d.stack.budget}mm`,
                   )
                 : null,
             ),
@@ -196,7 +196,9 @@ function planDetail(ctx, plan) {
         { label: '대당 원가', align: 'right', format: (d) => won(d.unitCost) },
         {
           label: '근거',
-          format: (d) => h('div.cell-stack', null, gradeChip(d.evidenceGrade), h('small', null, `신뢰 ${d.confidence}`)),
+          format: (d) =>
+            h('div.cell-stack', null, gradeChip(d.evidenceGrade),
+              h('small', { title: '통계적 신뢰확률이 아니라 DB 근거등급과 경고를 점수로 옮긴 참고값입니다.' }, `근거점수 ${d.confidence}`)),
         },
       ],
       plan.designs,
@@ -220,6 +222,7 @@ function planDetail(ctx, plan) {
           ),
           d.warning && h('p.message-warn', null, d.warning),
           d.stackWarning && h('p.message-warn', null, d.stackWarning),
+          d.assumptionWarning && h('p.message-warn', null, d.assumptionWarning),
           h('p.grade-note', null, `${d.evidenceGrade}등급 — ${GRADE_NOTE[d.evidenceGrade]}`),
         ),
       ),
@@ -238,7 +241,7 @@ function planDetail(ctx, plan) {
 
 export function bomRows(plan) {
   return [
-    ['제품', '제품군', '설계안', '기준품', '매수', '양극수', '음극수', '셀수', '양극코드', '음극코드', '활물질(g/매)', 'C20(Ah)', 'RC(분)', 'EN CCA(A)', 'SAE CCA(A)', 'C20여유(%)', 'RC여유(%)', 'EN여유(%)', 'SAE여유(%)', '적층(mm)', '적층실적상한(mm)', '적층초과', '격리판봉합', '봉합근거', '납중량(kg)', '납중량출처', '대당원가(원)', '근거등급', '신뢰지수', '선택사유', '경고'],
+    ['제품', '제품군', '설계안', '기준품', '매수', '양극수', '음극수', '셀수', '양극코드', '음극코드', '활물질(g/매)', 'C20(Ah)', 'RC(분)', 'EN CCA(A)', 'SAE CCA(A)', 'C20여유(%)', 'RC여유(%)', 'EN여유(%)', 'SAE여유(%)', '기판두께합(mm)', '기판두께합 실적상한(mm)', '상한초과', '격리판봉합', '봉합근거', '납중량(kg)', '납중량출처', '대당원가(원)', '근거등급', '근거점수(참고)', '선택사유', '경고'],
     ...plan.designs.map((d) => [
       d.spec.name,
       d.spec.group,
@@ -281,7 +284,7 @@ function exportBom(ctx, plan) {
 
 function exportPlanComparison(ctx, plans, ranking) {
   const rows = [
-    ['설계안', '구분', '순위', '가중평균원가(원)', '개발투자(원)', '개발기간(개월)', '공용극판군', '공용화율(%)', '공용물량비중(%)', '목표충족', '최저성능여유(%)', '종합점수', '위험'],
+    ['설계안', '구분', '순위', '가중평균원가(원)', '개발투자(원)', '개발기간(개월)', '공용극판군', '공용화율(%)', '공용물량비중(%)', '목표충족', '최저성능여유(%)', '비교점수(참고)', '위험'],
     ...plans.map((plan) => {
       const rank = ranking.find((r) => r.kind === plan.kind);
       return [

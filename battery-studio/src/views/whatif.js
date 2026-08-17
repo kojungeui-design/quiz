@@ -341,7 +341,7 @@ function designCard(ctx, plan, tunable, index, states, on) {
               h('td.right', null, h('span', { class: `whatif-delta ${costDelta ? costDelta.tone : ''}` }, costDelta ? costDelta.text : '—')),
               h('td.right.whatif-baseline', null, won(modelBase.unitCost))),
             h('tr', null,
-              h('th', null, '적층 (셀당 기판두께합)'),
+              h('th', null, '셀당 기판두께합'),
               h('td.right', null, h('span', { class: tuned.stack?.overBudget ? 'stack-over' : 'stack-ok' }, `${num(tuned.stack?.sum, 2)} mm`)),
               h('td.right', null, tuned.stack?.budget ? h('small', null, `실적 ${num(tuned.stack.budget, 2)}mm`) : ''),
               h('td.right', null, (() => {

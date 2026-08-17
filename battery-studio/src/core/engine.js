@@ -10,6 +10,12 @@
  *   2. 공용 극판군이 0개일 때 공용화율을 0%로 반환한다. (구버전은 100%를 넘겼다)
  *   3. 셀 수를 스펙 입력값으로 뺐다. (구버전은 12V 6셀을 상수로 박아두어 6V·24V 원가가 틀렸다)
  *   4. 제품 식별을 표시명이 아닌 uid로 한다. (구버전은 표시명이 중복되면 근거가 뒤섞였다)
+ *   5. 신형 양극 단가를 55/45 고정 분할이 아니라 극판별 실측 비중으로 나눈다.
+ *   6. 활물질 실적 범위를 기술군(PA·EFB·AGM)별로 가른다. 같은 크기라도 페이스트가 달라
+ *      138×94 는 PA 74~82, EFB 90~90 으로 겹치지 않는다. 섞으면 그 기술로 만들어진 적 없는
+ *      값을 설계에 허용하게 된다. 범위는 좁아지기만 하며 parity 가 그 불변식을 지킨다.
+ *   7. 신형 양극 기판두께를 상수(0.70T)에서 가정값으로 뺐다. 기본값은 그대로라 결과는 같지만,
+ *      그 두께가 극판 마스터에 없다는 사실(최소 0.74T)을 설계마다 알린다.
  *
  * DOM에 의존하지 않습니다. 브라우저와 node 양쪽에서 동일하게 돌아갑니다.
  */
@@ -524,18 +530,62 @@ export function createEngine(db, options = {}) {
     return assigned;
   }
 
-  /** 같은 크기(±3mm) 양극들이 실제로 담은 활물질 범위. 설계 시 이 범위를 넘지 않는다. 구엔진의 fm(). */
-  function activeWeightRange(plate) {
-    const sameSize = plates
-      .filter(
-        (p) =>
-          (p.role === 'positive' || p.role === 'both') &&
-          Math.abs(p.width - plate.width) <= 3 &&
-          Math.abs(p.height - plate.height) <= 3 &&
-          p.activeWeight > 0,
-      )
-      .map((p) => p.activeWeight);
-    return sameSize.length ? [Math.min(...sameSize), Math.max(...sameSize)] : [plate.activeWeight, plate.activeWeight];
+  /**
+   * 기술군(PA·EFB·AGM)별로 그 기술에서 실제로 쓰인 양극 코드. 활물질 범위를 가를 때 쓴다.
+   * 엔진을 만들 때 한 번만 센다 — activeWeightRange 는 설계 계산마다 불리고,
+   * 실시간 조절에서는 슬라이더를 끄는 동안 계속 불리기 때문이다.
+   */
+  /** 극판 마스터에 실제로 있는 양극 두께. 신형 두께 가정이 실적 밖인지 판단하는 데 쓴다. */
+  const positiveThicknesses = new Set(
+    plates
+      .filter((p) => p.role === 'positive' || p.role === 'both')
+      .map((p) => round(parseThickness(p.thickness) ?? 0, 2))
+      .filter((t) => t > 0),
+  );
+  const positiveThicknessLabel = positiveThicknesses.size
+    ? `${Math.min(...positiveThicknesses).toFixed(2)}~${Math.max(...positiveThicknesses).toFixed(2)}T`
+    : '없음';
+
+  const positiveCodesByTechnology = (() => {
+    const index = new Map();
+    for (const product of products) {
+      const key = technologyOf(product.group);
+      if (!index.has(key)) index.set(key, new Set());
+      index.get(key).add(product.posCode);
+    }
+    return index;
+  })();
+
+  /**
+   * 같은 크기(±3mm) 양극들이 실제로 담은 활물질 범위. 설계 시 이 범위를 넘지 않는다. 구엔진의 fm().
+   *
+   * (수정 6) PA·EFB·AGM 의 범위를 섞지 않는다.
+   * 페이스트 조성과 수명 설계가 달라 같은 크기라도 담는 활물질이 다르다. 실측하면 이렇다.
+   *     138×94   PA 74~82   vs  EFB 90~90     (겹치지 않는다)
+   *     138×107  PA 68~94   vs  EFB 94~117
+   * 섞어 쓰면 EFB 설계에 PA 하한(68 g/매)을 허용하고 PA 설계에 EFB 상한(117 g/매)을 허용한다.
+   * 어느 쪽도 그 기술로 만들어진 적이 없는 값이다.
+   *
+   * 같은 기술군에 근거가 없을 때만 전체 동일 크기로 물러선다 — 좁혀서 아무것도 못 고르는 것보다,
+   * 넓더라도 근거를 밝히고 고르는 편이 낫기 때문이다.
+   */
+  function activeWeightRange(plate, group) {
+    const sameSize = (restrictToTechnology) => {
+      const allowed = restrictToTechnology ? positiveCodesByTechnology.get(technologyOf(group)) : null;
+      return plates
+        .filter(
+          (p) =>
+            (p.role === 'positive' || p.role === 'both') &&
+            Math.abs(p.width - plate.width) <= 3 &&
+            Math.abs(p.height - plate.height) <= 3 &&
+            p.activeWeight > 0 &&
+            (!allowed || allowed.has(p.code)),
+        )
+        .map((p) => p.activeWeight);
+    };
+    const inTechnology = group === undefined ? [] : sameSize(true);
+    const pool = inTechnology.length ? inTechnology : sameSize(false);
+    return pool.length ? [Math.min(...pool), Math.max(...pool)] : [plate.activeWeight, plate.activeWeight];
   }
 
   /* ---------- 극판 적층 여유 ---------- */
@@ -790,6 +840,7 @@ export function createEngine(db, options = {}) {
       obsoletePlates: [],
       stack: { sum: 0, budget: null, ratio: null, referenceCode: null, referenceAssembly: null, samples: 0, overBudget: false },
       stackWarning: null,
+      assumptionWarning: null,
       parallelPlateArea: 0,
       resistanceIndex: 0,
       ccaEvidenceProducts: 0,
@@ -872,19 +923,23 @@ export function createEngine(db, options = {}) {
           + `음극 ${ref.negCode}: ${negPlate.thickness || '미입력'}. 극판 DB를 고친 뒤 다시 계산하세요.`,
       );
     }
-    const posT = tuned(overrides.posThickness) ? overrides.posThickness : newPositive ? 0.7 : posBaseT;
+    const newPosT = assumptions?.newPositiveThickness > 0 ? assumptions.newPositiveThickness : 0.7;
+    const posT = tuned(overrides.posThickness) ? overrides.posThickness : newPositive ? newPosT : posBaseT;
     const negT = tuned(overrides.negThickness) ? overrides.negThickness : negBaseT;
 
     const posThickness = tuned(overrides.posThickness)
       ? `${posT.toFixed(2)}T (조정)`
       : newPositive
-        ? '0.70T (Punch)'
+        // 구엔진 표기('0.70T (Punch)')를 그대로 지킨다. 가정을 바꿨을 때만 그 사실을 덧붙인다.
+        ? newPosT === 0.7
+          ? '0.70T (Punch)'
+          : `${newPosT.toFixed(2)}T (Punch · 가정 변경)`
         : posPlate.thickness;
     const negThickness = tuned(overrides.negThickness) ? `${negT.toFixed(2)}T (조정)` : negPlate.thickness;
     // 기판이 얇아진 만큼 기판중량이 줄어든다. (조절이 없으면 종전 값과 비트 단위로 같다: t/t = 1)
     const posGridWeight = posPlate.baseWeight * (posT / posBaseT);
     const negGridWeight = negPlate.baseWeight * (negT / negBaseT);
-    const activeRange = activeWeightRange(posPlate);
+    const activeRange = activeWeightRange(posPlate, spec.group);
 
     const posGridRatio = posGridWeight / Math.max(1, posPlate.baseWeight);
     const negGridRatio = negGridWeight / Math.max(1, negPlate.baseWeight);
@@ -1012,6 +1067,17 @@ export function createEngine(db, options = {}) {
         + '이 케이스에 들어간 전례가 없으니 조립 가능 여부를 확인하세요.'
       : null;
 
+    /**
+     * 신형 양극 두께에 실적이 있는가.
+     * 0.70T 는 구엔진부터 박혀 있던 값인데 극판 마스터에 그 두께가 없다(최소 0.74T).
+     * 실제보다 얇게 잡으면 기판중량·납중량·원가가 낮게 나와 신형안 쪽으로 비교가 기운다.
+     */
+    const newPositiveWarning =
+      newPositive && !positiveThicknesses.has(round(posT, 2))
+        ? `신형 양극 ${posT.toFixed(2)}T 는 극판 마스터에 없는 두께입니다(실적 ${positiveThicknessLabel}). `
+          + '기판중량·납중량·원가가 이 가정 위에 계산되니 Punch 가능 두께를 확인해 요구사양의 「신형 양극 기판두께」를 맞춰주세요.'
+        : null;
+
     const obsoletePlates = obsoletePlatesOf(ref, kind);
     const obsoleteWarning = obsoletePlates.length
       ? `${obsoletePlates.map((code) => `${code}(${plateStatusLabel(code)})`).join(', ')} — 이 제품군에 쓸 수 있는 기존 극판이 없어 단종 극판으로 계산했습니다. 신형 극판 설계(1·2안)를 검토하세요.`
@@ -1028,6 +1094,8 @@ export function createEngine(db, options = {}) {
      * "이식이 정확한가"를 보는 눈과 "설계가 괜찮은가"를 보는 눈이 뒤섞인다. 화면에서는 둘 다 보여준다.
      */
     const warning = [obsoleteWarning, baseWarning].filter(Boolean).join(' ') || null;
+    // 적층 경고와 같은 이유로 warning 에 섞지 않는다 — parity 가 지키는 필드다.
+    const assumptionWarning = newPositiveWarning;
 
     const posSize = sizeKey(posPlate);
     const negSize = sizeKey(negPlate);
@@ -1071,11 +1139,16 @@ export function createEngine(db, options = {}) {
       rcMargin: marginPct(chosen.predictedRc, spec.targetRc),
       ccaMargin: marginPct(chosen.predictedEnCca, spec.targetEnCca),
       saeMargin: marginPct(chosen.predictedSaeCca, spec.targetSaeCca),
-      posCode: newPositive ? `NEW-${posPlate.width}${posPlate.height}-P07` : posPlate.code,
+      posCode: newPositive
+        // 구엔진은 0.7T 를 P07 로 적었다. 그 표기를 그대로 지키고, 두께를 바꿨을 때만
+        // 음극(N070)과 같은 세 자리로 적는다. 이유 없이 코드 문자열이 바뀌면
+        // 예전 보고서·BOM 과 대조가 안 된다.
+        ? `NEW-${posPlate.width}${posPlate.height}-P${posT === 0.7 ? '07' : posT.toFixed(2).replace('.', '')}`
+        : posPlate.code,
       negCode: newNegative
         ? `NEW-${negPlate.width}${negPlate.height}-N${parseThickness(negPlate.thickness).toFixed(2).replace('.', '')}`
         : negPlate.code,
-      posName: newPositive ? `${posSize} PH 0.7T` : posPlate.name,
+      posName: newPositive ? `${posSize} PH ${posT === 0.7 ? '0.7' : posT.toFixed(2)}T` : posPlate.name,
       negName: newNegative ? `${negSize} NH ${negPlate.thickness}` : negPlate.name,
       posThickness,
       negThickness,
@@ -1096,6 +1169,7 @@ export function createEngine(db, options = {}) {
       obsoletePlates,
       stack,
       stackWarning,
+      assumptionWarning,
       predictedLead: round(predictedLead, 2),
       leadSource: leadIsActual ? '실측' : '모델',
       leadBreakdown: leadIsActual
@@ -1431,6 +1505,16 @@ export const DEFAULT_ASSUMPTIONS = {
   newToolingCost: 0, // 신형 양·음극 투자 (극판군당) — 금형 확보분 사용
   hybridToolingCost: 0, // 신형 양극만 개발할 때의 투자 (극판군당)
   contingencyRate: 3, // 재료비 우발률 %
+  /**
+   * 신형 양극 기판두께 (1·2안). 구엔진부터 0.70T Punch 로 박혀 있던 값이다.
+   *
+   * 이 값은 <b>사내 DB에 전례가 0건</b>이다. 극판 마스터 양극 46종의 최소가 0.74T 이고,
+   * 실제 제품이 쓰는 양극 두께 중앙값은 0.90T, 0.70T 이하는 한 종도 없다.
+   * 그런데도 상수로 박혀 있으면 1·2안의 기판중량·납중량·원가가 실제보다 가볍고 싸게 나와
+   * 신형안 쪽으로 비교가 기운다. 그래서 값 자체는 그대로 두되(종전 결과 보존) 밖으로 꺼내
+   * 설계자가 보고 고칠 수 있게 한다. Punch 로 실제 몇 T까지 되는지는 생산기술이 아는 값이다.
+   */
+  newPositiveThickness: 0.7,
 };
 
 export { DEFAULT_CELL_COUNT };

@@ -137,8 +137,17 @@ test('수정5 · 신형 양극 단가 분할은 55/45 고정이 아니라 극판
   const spec = { ...baseSpec, maxPlates: 12 };
   const ref = engine.candidatesFor(spec)[0];
 
-  const mine = engine.calculateDesign(spec, 'new', ref, assumptions);
   const old = legacy.Cm(spec, 'new', ref, assumptions);
+  /**
+   * 활물질과 매수를 구엔진 값으로 고정하고 비교한다.
+   * 수정 6(기술군별 활물질 범위 분리)이 들어오면서 두 엔진의 활물질량이 달라질 수 있는데,
+   * 그대로 비교하면 "원가 분할이 바뀌어서"인지 "활물질이 달라져서"인지 구분할 수 없다.
+   * 이 테스트가 지키려는 것은 원가 분할 하나이므로 나머지를 묶어둔다.
+   */
+  const mine = engine.calculateDesign(spec, 'new', ref, assumptions, {
+    posActiveWeight: old.posActiveWeight,
+    plateCount: old.plateCount,
+  });
   // 구엔진(55% 고정)이 신엔진(실측 비중 ~41%)보다 기판 절감을 크게 쳐서 원가가 낮았다.
   assert.ok(mine.unitCost > old.unitCost, `신형안 원가가 올라야 한다 (구 ${old.unitCost} → 신 ${mine.unitCost})`);
   // 성능·매수·공용화는 원가와 무관하므로 그대로여야 한다.
@@ -146,6 +155,7 @@ test('수정5 · 신형 양극 단가 분할은 55/45 고정이 아니라 극판
   assert.equal(mine.predictedEnCca, old.predictedEnCca);
 
   // 기존 극판 경로(3안)는 분할이 개입하지 않으므로 구엔진과 완전히 같다.
+  // 3안은 등록 단가를 그대로 쓰므로 활물질이 달라져도 단가가 흔들리지 않는다. 조절값 없이 그대로 본다.
   const mineExisting = engine.calculateDesign(spec, 'existing', ref, assumptions);
   const oldExisting = legacy.Cm(spec, 'existing', ref, assumptions);
   assert.equal(mineExisting.unitCost, oldExisting.unitCost);

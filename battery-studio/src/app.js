@@ -322,7 +322,7 @@ export function startApp(root, baseDb) {
         'div.brand',
         null,
         h('div.brand-mark', null, icon('layers', 20)),
-        h('div', null, h('strong', null, 'Battery Design Studio'), h('span', null, 'v8.1 · 설계 워크벤치')),
+        h('div', null, h('strong', null, 'Battery Design Studio'), h('span', null, 'v8.2 · 설계 워크벤치')),
         h('button.mobile-close', { type: 'button', 'aria-label': '메뉴 닫기', onclick: () => { store.set({ sidebarOpen: false }); renderSidebar(); } }, icon('x', 18)),
       ),
       nav,

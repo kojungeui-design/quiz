@@ -147,7 +147,7 @@ const html = `<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="배터리 제품군의 목표 성능·극판 호환성·공용화·원가를 비교하는 오프라인 설계 도구">
 <meta name="robots" content="noindex,nofollow">
-<title>Battery Design Studio v8.1 · 제품개발 워크벤치</title>
+<title>Battery Design Studio v8.2 · 제품개발 워크벤치</title>
 <style>${css}</style>
 </head>
 <body>

@@ -6,8 +6,18 @@
  */
 import { toast } from '../lib/store.js';
 
-/** RFC 4180: 모든 셀을 따옴표로 감싸고 내부 따옴표는 두 번 쓴다. 예외 없음. */
-const escapeCell = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+/**
+ * RFC 4180: 모든 셀을 따옴표로 감싸고 내부 따옴표는 두 번 쓴다. 예외 없음.
+ *
+ * 더해서 스프레드시트 수식 주입을 막는다. 과제명·비고처럼 사람이 적는 칸이 =·+·-·@ 로
+ * 시작하면 엑셀이 그것을 수식으로 실행한다. 내보낸 파일을 남이 열었을 때 무언가 실행되는
+ * 일이 없도록 앞에 작은따옴표를 붙인다. 숫자는 문자열이 아니므로 음수도 그대로 남는다.
+ */
+const escapeCell = (value) => {
+  const text = String(value ?? '');
+  const guarded = typeof value === 'string' && /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  return `"${guarded.replaceAll('"', '""')}"`;
+};
 
 function download(filename, blob) {
   const url = URL.createObjectURL(blob);
@@ -26,9 +36,12 @@ function download(filename, blob) {
  * @param {string} filename
  * @param {Array<Array<string|number>>} rows 첫 줄이 머리글
  */
+/** 행 배열 → CSV 본문. 내려받기와 테스트가 같은 변환을 쓰게 하려고 따로 뺐다. */
+export const toCsv = (rows) => rows.map((row) => row.map(escapeCell).join(',')).join('\r\n');
+
 export function downloadCsv(filename, rows) {
   // 앞의 BOM이 없으면 Excel이 한글을 깨뜨린다.
-  const body = '﻿' + rows.map((row) => row.map(escapeCell).join(',')).join('\r\n');
+  const body = '﻿' + toCsv(rows);
   download(filename, new Blob([body], { type: 'text/csv;charset=utf-8' }));
   toast(`${filename} 내려받았습니다.`, 'success');
 }
@@ -130,6 +143,10 @@ function columnName(index) {
   return name;
 }
 
+/**
+ * 문자열은 inlineStr 로 쓴다. xlsx 에서 수식은 <f> 요소라야 계산되므로 inlineStr 은
+ * "=1+1" 이어도 글자로 남는다. CSV 쪽 escapeCell 이 하는 수식 차단이 여기서는 필요 없다.
+ */
 function sheetXml(rows) {
   const body = rows
     .map((row, rowIndex) => {
