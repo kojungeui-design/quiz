@@ -85,7 +85,7 @@ function assertDesignEqual(actual, expected, where, { newPositive = false } = {}
   assert.deepEqual(actual.posActiveRange, expected.posActiveRange, `${where} · posActiveRange`);
 }
 
-test('제품군 호환성 프로필이 83개 제품군 전부 일치한다', () => {
+test('제품군 호환성 프로필이 82개 제품군 전부 일치한다', () => {
   for (const group of allGroups) {
     const mine = engine.groupProfile(group);
     const theirs = legacy.fl(group);
@@ -122,7 +122,7 @@ test('제품군 학습값(대표성능·매수·근거등급)이 전부 일치�
   }
 });
 
-test('기존 PCC 매칭 결과가 83개 제품군 전부 일치한다', () => {
+test('기존 PCC 매칭 결과가 82개 제품군 전부 일치한다', () => {
   for (const spec of allSpecs) {
     const mine = engine.matchExisting(spec, 5);
     const theirs = legacy.Bn(spec, 5);
@@ -138,7 +138,7 @@ test('기존 PCC 매칭 결과가 83개 제품군 전부 일치한다', () => {
   }
 });
 
-test('제품군 단품 설계안 3종이 83개 제품군 전부 일치한다', () => {
+test('제품군 단품 설계안 3종이 82개 제품군 전부 일치한다', () => {
   for (const spec of allSpecs) {
     const mine = engine.buildPlans([spec], 'balanced', assumptions);
     const theirs = legacy.An([spec], 'balanced', assumptions);

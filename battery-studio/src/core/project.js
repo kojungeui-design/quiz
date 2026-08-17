@@ -6,7 +6,7 @@
  */
 import { DEFAULT_ASSUMPTIONS, DEFAULT_CELL_COUNT } from './engine.js';
 
-export const ENGINE_VERSION = 'v8.0-ported-from-v5.3';
+export const ENGINE_VERSION = 'v8.1-safety';
 
 let fallbackCounter = 0;
 const newUid = () =>

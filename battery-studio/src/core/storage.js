@@ -117,11 +117,18 @@ export function createAutosave({ getProjects, onStateChange }) {
     timer = null;
     onStateChange({ state: 'saving', label: '저장 중…' });
     const result = saveProjects(getProjects());
-    pending = false;
+    /**
+     * 저장에 실패하면 미저장 상태를 <b>그대로 둔다.</b>
+     *
+     * 무조건 pending = false 로 내리던 때는, 저장이 실패해도 "저장할 것이 없다"가 되어
+     * 창을 닫을 때 뜨는 확인창이 사라졌다. 용량 초과로 저장이 안 된 사용자가
+     * 아무 경고 없이 작업을 잃는 길이었다. 실패했으면 아직 저장할 것이 남은 것이 맞다.
+     */
+    pending = !result.ok;
     onStateChange(
       result.ok
         ? { state: 'saved', label: '이 브라우저에 저장됨', bytes: result.bytes }
-        : { state: 'error', label: '저장 실패', message: result.message },
+        : { state: 'error', label: '저장 실패 · 미저장 변경 유지', message: result.message },
     );
     return result;
   };

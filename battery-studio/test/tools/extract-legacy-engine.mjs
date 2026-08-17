@@ -50,6 +50,19 @@ function literalAfter(marker) {
   return bundle.slice(open, matchBracket(bundle, open) + 1);
 }
 
+/**
+ * 데이터 오탈자 교정.
+ *
+ * parity 는 "같은 데이터를 넣으면 같은 숫자가 나오는가"를 본다. 그래서 data/source 의 데이터를
+ * 고치면 여기에도 <b>똑같이</b> 적용해야 비교가 성립한다. 안 그러면 코드가 멀쩡한데도
+ * 데이터 차이 때문에 parity 가 깨지고, 진짜 회귀와 구분할 수 없게 된다.
+ *
+ * D26(taxi) — 제품 1건뿐이며, 그 제품(PCC15200)은 D26(TAXI) 의 PCF08308 과 극판·매수·성능이
+ * 완전히 같다. 표기 오타라 제품군이 둘로 갈려 학습 근거가 7건/1건으로 쪼개져 있었다.
+ */
+const DATA_FIXES = [[/"D26\(taxi\)"/g, '"D26(TAXI)"']];
+const applyDataFixes = (literal) => DATA_FIXES.reduce((text, [re, to]) => text.replace(re, to), literal);
+
 // 데이터 리터럴 (번들 안 최소화된 형태 그대로)
 const dataDefs = [
   ['Ya', literalAfter('var Ya={products:')],
@@ -57,7 +70,7 @@ const dataDefs = [
   ['Ye', literalAfter('Ye=[{code:"PC')],
   ['Ce', literalAfter('Ce={PC')],
 ]
-  .map(([name, literal]) => `var ${name} = ${literal};`)
+  .map(([name, literal]) => `var ${name} = ${applyDataFixes(literal)};`)
   .join('\n');
 
 // 엔진 본문: `var Ns="v5.3-existing-match"` 부터 sample lineup 직전까지

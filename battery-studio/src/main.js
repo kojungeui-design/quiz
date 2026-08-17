@@ -1,7 +1,8 @@
 /**
  * src/main.js — 진입점.
  *
- * 데이터는 data/bds-db.js 를 script 태그로 먼저 불러와 window.BDS_DB 에 들어온다.
+ * 데이터는 window.BDS_DB 로 들어온다. 기본 빌드는 HTML 안에 인라인으로 심고,
+ * --split 배포일 때만 data/bds-db.js 를 script 태그로 불러온다.
  * file:// 로 열어도 동작하도록 fetch가 아니라 script 태그를 쓴다.
  */
 import { h } from './lib/dom.js';
@@ -24,10 +25,16 @@ function boot() {
 
   const db = globalThis.BDS_DB;
   if (!db || !Array.isArray(db.products) || !Array.isArray(db.plates)) {
-    showFatal(root, '데이터 파일을 불러오지 못했습니다', [
-      '이 프로그램은 같은 폴더의 data/bds-db.js 파일이 있어야 동작합니다.',
-      'HTML 파일만 따로 복사하면 열리지 않습니다. data 폴더째 함께 복사해 주세요.',
-      '파일을 옮긴 적이 없다면 압축을 다시 풀고 실행해 보세요.',
+    /**
+     * 안내문은 실제 배포 형태와 맞아야 한다. 기본 빌드는 DB를 HTML 안에 넣으므로
+     * "data 폴더를 함께 복사하라"는 옛 안내는 없는 폴더를 찾게 만든다.
+     * (--split 로 데이터를 분리한 배포일 때만 옆 파일이 필요하다)
+     */
+    showFatal(root, '내장 데이터를 불러오지 못했습니다', [
+      '이 HTML 파일 하나에 설계 DB가 들어 있습니다. 따로 챙길 파일은 없습니다.',
+      '메일·메신저로 받는 과정에서 파일이 잘렸을 수 있습니다. 원본을 다시 받아 열어보세요.',
+      '사내 보안 프로그램이 스크립트를 막고 있을 수도 있습니다. 다른 브라우저로 열어보세요.',
+      '데이터를 분리한 배포본(dist/data 폴더 동봉)이라면 그 폴더째 함께 복사해야 합니다.',
     ]);
     return;
   }

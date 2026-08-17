@@ -56,7 +56,7 @@ test('데이터가 없으면 사용자에게 이유를 알려준다', () => {
   new Function(bundle)();
 
   const text = dom.root.textContent;
-  assert.ok(text.includes('데이터 파일을 불러오지 못했습니다'), '원인을 밝혀야 한다');
+  assert.ok(text.includes('내장 데이터를 불러오지 못했습니다'), '원인을 밝혀야 한다');
 });
 
 test('인라인 스크립트를 끊어먹는 </script 문자열이 없다', () => {

@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { installDomStub } from './dom-stub.mjs';
+import { ENGINE_VERSION } from '../src/core/project.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const src = (name) => JSON.parse(readFileSync(resolve(here, '..', 'data', 'source', name), 'utf8'));
@@ -146,7 +147,7 @@ test('저장에 실패하면 오류 상태가 표시된다', () => {
 test('보고서 화면에 엔진·데이터 버전이 찍힌다', () => {
   ctx.goto('report');
   const text = viewText();
-  assert.ok(text.includes('v8.0-ported-from-v5.3'), '엔진 버전이 보여야 한다');
+  assert.ok(text.includes(ENGINE_VERSION), '엔진 버전이 보여야 한다');
   assert.ok(text.includes(db.meta.sourceBuild), '데이터 버전이 보여야 한다');
   assert.ok(text.includes('설계 검토 지원 자료'), '한계 고지가 있어야 한다');
 });

@@ -41,8 +41,18 @@ export function weightedMedian(items) {
   return valid[valid.length - 1].value;
 }
 
-/** "0.90T" → 0.90. 파싱 실패 시 0.7. 구엔진의 F2(). */
-export const parseThickness = (text) => Number.parseFloat(String(text).replace(/[^0-9.]/g, '')) || 0.7;
+/**
+ * "0.90T" → 0.90. 읽을 수 없으면 null. 구엔진의 F2().
+ *
+ * 구엔진은 파싱에 실패하면 0.7 로 갈음했다. 두께는 기판중량 → 납중량 → 원가 → CCA 두께계수로
+ * 연쇄되는 값이라, 빈칸이나 오타가 "0.70T 설계"로 조용히 둔갑하면 그 뒤 숫자가 전부 그럴듯한
+ * 거짓이 된다. 모르는 값은 모른다고 말하고, 쓰는 쪽에서 막는다.
+ */
+export const parseThickness = (text) => {
+  const match = String(text ?? '').match(/[0-9]+(?:\.[0-9]+)?/);
+  const value = match ? Number(match[0]) : NaN;
+  return Number.isFinite(value) && value > 0 ? value : null;
+};
 
 /** 목표가 0 이하이면 마진을 계산하지 않는다. (수정 1) */
 export function marginPct(actual, target) {
@@ -675,8 +685,10 @@ export function createEngine(db, options = {}) {
   }
 
   /** 호환 극판이 없어 설계를 만들 수 없는 경우. 구엔진의 W2(). */
-  function blockedDesign(spec, kind) {
+  function blockedDesign(spec, kind, reasonOverride = null) {
     const profile = groupProfile(spec.group, spec.type);
+    const blockedReason =
+      reasonOverride || profile.reason || `${spec.group} 제품군에 등록된 호환 극판 조합이 없습니다.`;
     return {
       spec,
       reference: products.find((p) => p.group === spec.group) || products[0],
@@ -689,7 +701,7 @@ export function createEngine(db, options = {}) {
         allowedNegativeCodes: profile.negativeCodes,
         familyKey: `BLOCKED:${spec.group}:${kind}`,
         familyLabel: '호환자료 없음',
-        rule: profile.reason || '등록된 호환 조합 없음',
+        rule: blockedReason,
       },
       plateCount: spec.maxPlates,
       posCount: Math.ceil(spec.maxPlates / 2),
@@ -730,7 +742,7 @@ export function createEngine(db, options = {}) {
       dbPlateRange: [0, 0],
       evaluatedPlateCounts: [],
       selectionReason: '호환 DB 없음',
-      warning: profile.reason || `${spec.group} 제품군에 등록된 호환 극판 조합이 없습니다.`,
+      warning: blockedReason,
     };
   }
 
@@ -787,6 +799,18 @@ export function createEngine(db, options = {}) {
     // 지정이 없으면 종전 규칙(신형 양극 = 0.7T Punch, 그 외 = 등록 두께)을 그대로 쓴다.
     const posBaseT = parseThickness(posPlate.thickness);
     const negBaseT = parseThickness(negPlate.thickness);
+    /**
+     * 두께를 읽지 못하면 계산하지 않는다. 여기서 임의값으로 넘기면 기판중량·납중량·원가·CCA가
+     * 전부 그 임의값 위에 세워져, 틀렸다는 사실조차 알 수 없는 결과가 나온다.
+     */
+    if (!(posBaseT > 0) || !(negBaseT > 0)) {
+      return blockedDesign(
+        spec,
+        kind,
+        `극판 두께를 읽을 수 없습니다 — 양극 ${ref.posCode}: ${posPlate.thickness || '미입력'}, `
+          + `음극 ${ref.negCode}: ${negPlate.thickness || '미입력'}. 극판 DB를 고친 뒤 다시 계산하세요.`,
+      );
+    }
     const posT = tuned(overrides.posThickness) ? overrides.posThickness : newPositive ? 0.7 : posBaseT;
     const negT = tuned(overrides.negThickness) ? overrides.negThickness : negBaseT;
 

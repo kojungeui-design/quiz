@@ -188,11 +188,26 @@ test('빠진 값은 기존 값 → 보수적 기본값 순으로 채운다', () 
 
 test('역할(양극/음극)은 한글 표기도 받는다', () => {
   const result = validateOverlay(baseDb, {
-    plates: [plateRow({ role: '음극' }), plateRow({ code: 'SLI90002', role: 'both' }), plateRow({ code: 'SLI90003', role: '' })],
+    plates: [plateRow({ role: '음극' }), plateRow({ code: 'SLI90002', role: 'both' })],
   });
   assert.equal(result.plates[0].role, 'negative');
   assert.equal(result.plates[1].role, 'both');
-  assert.equal(result.plates[2].role, 'unknown');
+});
+
+test('새 극판은 극성을 밝혀야 한다 — 활물질 허용범위가 극성으로 정해지기 때문', () => {
+  const result = validateOverlay(baseDb, { plates: [plateRow({ code: 'SLI90003', role: '' })] });
+  assert.equal(result.plates.length, 0, '극성 없는 새 극판이 통과했다');
+  assert.match(result.issues[0].message, /극성/);
+});
+
+test('내장 DB의 미분류 극판은 대체 모드에서도 반려되지 않는다', () => {
+  // "현재 극판 내보내기 → 고쳐서 다시 올리기"가 정상 작업이다. 내장 DB에는 미분류 극판이
+  // 48종 있는데, 이것들이 반려되면 그 극판과 그것을 쓰는 제품이 통째로 사라진다.
+  const unknownPlates = baseDb.plates.filter((p) => p.role === 'unknown');
+  assert.ok(unknownPlates.length, '내장 DB에 미분류 극판이 있어야 이 테스트가 의미 있다');
+  const result = validateOverlay(baseDb, { plates: baseDb.plates.map((p) => ({ ...p })) }, 'replace');
+  assert.equal(result.issues.length, 0, JSON.stringify(result.issues.slice(0, 3)));
+  assert.equal(result.plates.length, baseDb.plates.length);
 });
 
 /* ============================== 병합 · 대체 ============================== */

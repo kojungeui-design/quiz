@@ -145,6 +145,13 @@ export const PLATE_COLUMNS = [
  * 학습하므로 근거가 같이 무너진다. 그래서 '대체' 모드로 지우지 말고 이 열에 '단종'이라고
  * 적는다 — 병합 모드로 한 줄만 올리면 끝나고, 되돌리는 것도 한 줄이다.
  */
+/** 엔진의 parseThickness 와 같은 규칙. 번들이 한 스코프라 이름만 달리 둔다. */
+const parseThicknessValue = (text) => {
+  const match = String(text ?? '').match(/[0-9]+(?:\.[0-9]+)?/);
+  const value = match ? Number(match[0]) : NaN;
+  return Number.isFinite(value) && value > 0 ? value : null;
+};
+
 const ACTIVE_STATUS_WORDS = new Set(['', 'active', '사용', '사용중', '정상', 'y', 'o']);
 export const isActiveStatus = (value) => ACTIVE_STATUS_WORDS.has(String(value ?? '').trim().toLowerCase());
 
@@ -302,6 +309,8 @@ export function validateOverlay(base, staged, mode = 'merge') {
   const stagedProducts = staged.products?.length ? staged.products : null;
 
   /* ---- 극판 ---- */
+  // 내장 DB에 원래 있던 코드. 대체 모드에서도 "새 극판인지" 판단은 이 집합으로 한다.
+  const basePlateCodes = new Set(base.plates.map((p) => p.code));
   const plateMap = new Map(mode === 'replace' && stagedPlates ? [] : base.plates.map((p) => [p.code, p]));
   const acceptedPlates = [];
   (stagedPlates || []).forEach((rawRow, index) => {
@@ -309,13 +318,44 @@ export function validateOverlay(base, staged, mode = 'merge') {
     // 이미 있는 극판이면 빠진 칸은 종전 값을 잇는다. 상태 한 칸만 올려도 통과해야 한다.
     const known = plateMap.get(rawRow.code);
     const row = known
-      ? { ...rawRow, width: rawRow.width ?? known.width, height: rawRow.height ?? known.height }
+      ? {
+          ...rawRow,
+          width: rawRow.width ?? known.width,
+          height: rawRow.height ?? known.height,
+          thickness: rawRow.thickness || known.thickness,
+          baseWeight: rawRow.baseWeight ?? known.baseWeight,
+          activeWeight: rawRow.activeWeight ?? known.activeWeight,
+          cost: rawRow.cost ?? known.cost,
+          role: rawRow.role || known.role,
+        }
       : rawRow;
     if (!row.code) errors.push('극판 코드 누락');
     if (!(row.width > 0) || !(row.height > 0)) {
       errors.push(known ? '치수 이상' : '치수 이상 — 새 극판은 폭·높이가 필요합니다');
     }
-    if (row.cost !== null && !(row.cost >= 0)) errors.push('단가 이상');
+    /**
+     * 여기서 막지 않으면 설계 계산이 이 값들 위에 세워진다.
+     * 두께는 기판중량·납중량·원가·CCA로, 활물질은 용량으로 곧장 이어지므로
+     * "빈칸이라 0" 이 조용히 통과하면 그 뒤 숫자는 전부 그럴듯한 거짓이 된다.
+     */
+    if (!(parseThicknessValue(row.thickness) > 0)) errors.push('두께 이상 — 예: 0.90T');
+    if (!(row.baseWeight > 0)) errors.push('기판중량 이상 — 0보다 커야 합니다');
+    if (!(row.activeWeight > 0)) errors.push('활물질중량 이상 — 0보다 커야 합니다');
+    if (!(row.cost >= 0)) errors.push('단가 이상 — 0 이상이어야 합니다');
+    const normalizedRole = ROLE_ALIASES[String(row.role || '').trim().toLowerCase()];
+    /**
+     * 극성은 활물질 허용범위(activeWeightRange)를 정하는 데 쓰이므로 새 극판은 반드시 밝혀야 한다.
+     *
+     * 단, "새 극판인가"는 <b>내장 DB 기준</b>으로 판단한다. 작업 중인 plateMap 으로 보면
+     * 대체 모드에서는 지도가 비어 있어 모든 극판이 새것으로 보이고, 내장 DB에 이미 있는
+     * 미분류 극판 48종이 통째로 반려된다. 그러면 "현재 극판 내보내기 → 고쳐서 다시 올리기"라는
+     * 정상 작업이 그 48종과 그것을 쓰는 제품들을 지워버린다. 막으려던 사고를 막는 코드가
+     * 그 사고를 일으키는 셈이라, 판단 기준을 내장 DB 로 둔다.
+     */
+    const isNewPlate = !basePlateCodes.has(row.code);
+    if (isNewPlate && (!normalizedRole || normalizedRole === 'unknown')) {
+      errors.push('새 극판은 양극/음극/공용 극성을 지정하세요');
+    }
     if (errors.length) {
       issues.push({ kind: 'plates', row: index + 2, code: row.code || '—', message: errors.join(', ') });
       return;
@@ -326,11 +366,11 @@ export function validateOverlay(base, staged, mode = 'merge') {
       name: row.name || previous?.name || row.code,
       width: row.width,
       height: row.height,
-      thickness: row.thickness || previous?.thickness || '0.7T',
+      thickness: row.thickness || previous?.thickness,
       baseWeight: row.baseWeight ?? previous?.baseWeight ?? 0,
       activeWeight: row.activeWeight ?? previous?.activeWeight ?? 0,
       cost: row.cost ?? previous?.cost ?? 0,
-      role: ROLE_ALIASES[String(row.role || '').toLowerCase()] || previous?.role || 'unknown',
+      role: ROLE_ALIASES[String(row.role || '').trim().toLowerCase()] || previous?.role || 'unknown',
       /**
        * 상태 열을 비운 채 올리면 종전 상태를 지킨다.
        * 단가만 갱신하려고 올린 파일이 단종 표시를 조용히 지워버리면 안 되기 때문이다.
@@ -359,6 +399,11 @@ export function validateOverlay(base, staged, mode = 'merge') {
     else if (!plateMap.has(row.posCode)) errors.push(`양극 ${row.posCode} 미등록 — 극판 파일을 먼저 올리세요`);
     if (!row.negCode) errors.push('음극코드 누락');
     else if (!plateMap.has(row.negCode)) errors.push(`음극 ${row.negCode} 미등록 — 극판 파일을 먼저 올리세요`);
+    if (row.posQty !== null && row.posQty !== undefined && !(row.posQty > 0)) errors.push('양극매수 이상');
+    if (row.negQty !== null && row.negQty !== undefined && !(row.negQty > 0)) errors.push('음극매수 이상');
+    if (row.observations !== null && row.observations !== undefined && row.observations < 0) {
+      errors.push('실적건수 음수');
+    }
     for (const key of ['c20', 'rc', 'encca', 'saecca']) {
       if (row[key] !== null && row[key] < 0) errors.push(`${key} 음수`);
     }
