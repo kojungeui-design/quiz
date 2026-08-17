@@ -243,6 +243,13 @@ function designCard(ctx, plan, tunable, index, states, on) {
     if (state.plateCount > spec.maxPlates) {
       warnings.push(`${state.plateCount}매는 입력한 최대 허용매수 ${spec.maxPlates}매를 넘습니다.`);
     }
+    // 두께·매수를 올리면 케이스에 안 들어갈 수 있다. 조절 화면이 그 선을 넘는 것을 알려야 한다.
+    if (tuned.stack?.overBudget) {
+      warnings.push(
+        `적층 ${tuned.stack.sum}mm(셀당 기판두께합)는 ${spec.group} 실적 최대 ${tuned.stack.budget}mm를 넘습니다. `
+        + '이 케이스에 들어간 전례가 없습니다.',
+      );
+    }
     const outsidePos = Math.abs(state.posThickness - basePosT) > 1e-9;
     const outsideNeg = Math.abs(state.negThickness - baseNegT) > 1e-9;
     if (outsidePos || outsideNeg) {
@@ -333,6 +340,15 @@ function designCard(ctx, plan, tunable, index, states, on) {
               h('td.right', null, ''),
               h('td.right', null, h('span', { class: `whatif-delta ${costDelta ? costDelta.tone : ''}` }, costDelta ? costDelta.text : '—')),
               h('td.right.whatif-baseline', null, won(modelBase.unitCost))),
+            h('tr', null,
+              h('th', null, '적층 (셀당 기판두께합)'),
+              h('td.right', null, h('span', { class: tuned.stack?.overBudget ? 'stack-over' : 'stack-ok' }, `${num(tuned.stack?.sum, 2)} mm`)),
+              h('td.right', null, tuned.stack?.budget ? h('small', null, `실적 ${num(tuned.stack.budget, 2)}mm`) : ''),
+              h('td.right', null, (() => {
+                const d = deltaText(tuned.stack?.sum, modelBase.stack?.sum, 2, ' mm');
+                return h('span', { class: `whatif-delta ${d ? d.tone : ''}` }, d ? d.text : '—');
+              })()),
+              h('td.right.whatif-baseline', null, `${num(modelBase.stack?.sum, 2)} mm`)),
             h('tr', null,
               h('th', null, '극판'),
               h('td.right', null, `${tuned.posCount}+ / ${tuned.negCount}−`),

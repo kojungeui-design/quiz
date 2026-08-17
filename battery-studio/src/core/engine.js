@@ -538,6 +538,65 @@ export function createEngine(db, options = {}) {
     return sameSize.length ? [Math.min(...sameSize), Math.max(...sameSize)] : [plate.activeWeight, plate.activeWeight];
   }
 
+  /* ---------- 극판 적층 여유 ---------- */
+
+  /**
+   * 이 케이스에 실제로 들어간 적이 있는 극판 적층의 상한.
+   *
+   * <b>이것은 mm 단위 stack-up 계산이 아니다.</b> 그렇게 하려면 완성극판 두께(도포 후),
+   * 격리판 두께, 케이스 내부 치수가 있어야 하는데 사내 DB에는 셋 다 없다.
+   * 케이스 외형(L)으로 역산해 봤지만 R² 0.80, P90 오차 24% — 조립 가부를 가르기엔 못 쓴다.
+   * 규격 케이스에 여유가 있어 외형이 적층을 결정하지 않기 때문이다.
+   *
+   * 대신 있는 것으로 답할 수 있는 질문이 있다. <b>"이만한 극판이 이 케이스에 들어간 적이 있는가."</b>
+   * 제품군 하나는 케이스 하나다(실측: 제품군 56개 전부 L이 단일값). 그 제품군에서 실제 양산된
+   * 셀당 기판두께합의 최대치가 곧 검증된 상한이다. 넘으면 전례가 없다는 뜻이고, 그때는
+   * 막지 않고 알린다 — 전례가 없다는 것과 불가능하다는 것은 다르기 때문이다.
+   *
+   * 활물질·격리판 두께가 빠져 있으므로 절대값 비교가 아니라 <b>같은 제품군 안에서만</b> 뜻이 있다.
+   */
+  const stackBudgetByGroup = (() => {
+    const index = new Map();
+    for (const product of products) {
+      const pos = plateByCode.get(product.posCode);
+      const neg = plateByCode.get(product.negCode);
+      if (!pos || !neg || !(product.posQty > 0) || !(product.negQty > 0)) continue;
+      const posT = parseThickness(pos.thickness);
+      const negT = parseThickness(neg.thickness);
+      if (!(posT > 0) || !(negT > 0)) continue;
+      const sum = product.posQty * posT + product.negQty * negT;
+      const current = index.get(product.group);
+      if (!current) index.set(product.group, { max: sum, code: product.code, assembly: product.assembly, samples: 1 });
+      else {
+        current.samples += 1;
+        if (sum > current.max) Object.assign(current, { max: sum, code: product.code, assembly: product.assembly });
+      }
+    }
+    return index;
+  })();
+
+  /**
+   * 설계의 적층을 그 제품군 실적 상한과 견준다.
+   * @returns {{sum:number, budget:number|null, ratio:number|null, referenceCode:string|null,
+   *            referenceAssembly:number|null, samples:number, overBudget:boolean}}
+   */
+  function stackCheck(group, posCount, negCount, posT, negT) {
+    const sum = round(posCount * posT + negCount * negT, 2);
+    const known = stackBudgetByGroup.get(group);
+    if (!known) {
+      return { sum, budget: null, ratio: null, referenceCode: null, referenceAssembly: null, samples: 0, overBudget: false };
+    }
+    return {
+      sum,
+      budget: round(known.max, 2),
+      ratio: round(sum / Math.max(1e-6, known.max), 3),
+      referenceCode: known.code,
+      referenceAssembly: known.assembly,
+      samples: known.samples,
+      overBudget: sum > known.max + 1e-9,
+    };
+  }
+
   /* ---------- 격리판 봉합 극성 ---------- */
 
   /**
@@ -729,6 +788,8 @@ export function createEngine(db, options = {}) {
       posActiveWeight: 0,
       posActiveRange: [0, 0],
       obsoletePlates: [],
+      stack: { sum: 0, budget: null, ratio: null, referenceCode: null, referenceAssembly: null, samples: 0, overBudget: false },
+      stackWarning: null,
       parallelPlateArea: 0,
       resistanceIndex: 0,
       ccaEvidenceProducts: 0,
@@ -944,6 +1005,13 @@ export function createEngine(db, options = {}) {
      * 후보 단계에서 걸러지므로 보통은 비어 있고, 그 제품군 극판이 <b>모두</b> 단종일 때만 남는다.
      * 그때는 계산을 막지 않고 대신 반드시 알린다 — 신형 극판(1·2안)으로 가야 한다는 신호다.
      */
+    /** 이 적층이 이 케이스에 들어간 전례가 있는가. mm 계산이 아니라 실적 대조다. */
+    const stack = stackCheck(spec.group, chosen.posCount, chosen.negCount, posT, negT);
+    const stackWarning = stack.overBudget
+      ? `적층 ${stack.sum}mm(셀당 기판두께합)는 ${spec.group} 실적 최대 ${stack.budget}mm(${stack.referenceCode} ${stack.referenceAssembly}매)를 넘습니다. `
+        + '이 케이스에 들어간 전례가 없으니 조립 가능 여부를 확인하세요.'
+      : null;
+
     const obsoletePlates = obsoletePlatesOf(ref, kind);
     const obsoleteWarning = obsoletePlates.length
       ? `${obsoletePlates.map((code) => `${code}(${plateStatusLabel(code)})`).join(', ')} — 이 제품군에 쓸 수 있는 기존 극판이 없어 단종 극판으로 계산했습니다. 신형 극판 설계(1·2안)를 검토하세요.`
@@ -954,6 +1022,11 @@ export function createEngine(db, options = {}) {
         ? `동일 크기 활물질 상한 ${round(activeRange[1], 1)} g/매에 도달했습니다.`
         : null
       : `DB 실적 매수범위 ${dbMin}–${dbMax}매와 입력 상한 ${spec.maxPlates}매 안에서 목표를 모두 충족하지 못했습니다.`;
+    /**
+     * 적층 경고는 warning 에 섞지 않고 따로 둔다.
+     * warning 은 구엔진과 글자까지 맞춰 온 필드라(parity 가 지킨다), 새 조언을 끼워 넣으면
+     * "이식이 정확한가"를 보는 눈과 "설계가 괜찮은가"를 보는 눈이 뒤섞인다. 화면에서는 둘 다 보여준다.
+     */
     const warning = [obsoleteWarning, baseWarning].filter(Boolean).join(' ') || null;
 
     const posSize = sizeKey(posPlate);
@@ -1021,6 +1094,8 @@ export function createEngine(db, options = {}) {
       // 신형 극판은 같은 크기 극판을 다시 만드는 것이므로 봉합 방식이 바뀔 이유가 없다.
       separator: separatorFor(posPlate.code, negPlate.code, spec.group),
       obsoletePlates,
+      stack,
+      stackWarning,
       predictedLead: round(predictedLead, 2),
       leadSource: leadIsActual ? '실측' : '모델',
       leadBreakdown: leadIsActual
@@ -1328,6 +1403,7 @@ export function createEngine(db, options = {}) {
     calculateDesign,
     plateCountRange,
     separatorFor,
+    stackCheck,
     activeWeightRange,
     buildPlan,
     retunePlan,

@@ -115,6 +115,18 @@ function planDetail(ctx, plan) {
       h('span.plan-score', null, `종합점수 ${plan.score}`),
     ),
 
+    (() => {
+      const over = plan.designs.filter((d) => d.stack?.overBudget);
+      return over.length
+        ? notice(
+            'warn',
+            `${over.length}개 제품이 그 케이스에 들어간 전례가 없는 적층입니다: `
+              + over.map((d) => `${d.spec.name} (${d.stack.sum}mm > 실적 ${d.stack.budget}mm)`).join(', ')
+              + '. 조립 가능 여부를 확인하세요.',
+          )
+        : null;
+    })(),
+
     failing.length
       ? notice(
           'error',
@@ -127,9 +139,22 @@ function planDetail(ctx, plan) {
         { label: '제품', format: (d) => h('div.cell-stack', null, h('strong', null, d.spec.name), h('small', null, d.spec.group)) },
         { label: '기준품', format: (d) => (d.compatibility.valid ? d.reference.code : '—') },
         {
-          label: '매수',
+          label: '매수 · 적층',
           align: 'right',
-          format: (d) => h('div.cell-stack', null, h('strong', null, `${d.plateCount}매`), h('small', null, `+${d.posCount} / −${d.negCount}`)),
+          format: (d) =>
+            h(
+              'div.cell-stack',
+              null,
+              h('strong', null, `${d.plateCount}매`),
+              h('small', null, `+${d.posCount} / −${d.negCount}`),
+              d.stack?.budget
+                ? h(
+                    'small',
+                    { class: d.stack.overBudget ? 'stack-over' : 'stack-ok', title: `${d.spec.group} 실적 최대 ${d.stack.budget}mm (${d.stack.referenceCode} ${d.stack.referenceAssembly}매, 실적 ${d.stack.samples}종)` },
+                    `적층 ${d.stack.sum} / ${d.stack.budget}mm`,
+                  )
+                : null,
+            ),
         },
         {
           label: '극판 조합',
@@ -194,6 +219,7 @@ function planDetail(ctx, plan) {
             `DB 실적 매수 ${d.dbPlateRange[0]}–${d.dbPlateRange[1]}매 · 검토 ${d.evaluatedPlateCounts.length}개 · CCA 근거 제품 ${d.ccaEvidenceProducts}건 · 두께계수 ${d.ccaThicknessFactor}`,
           ),
           d.warning && h('p.message-warn', null, d.warning),
+          d.stackWarning && h('p.message-warn', null, d.stackWarning),
           h('p.grade-note', null, `${d.evidenceGrade}등급 — ${GRADE_NOTE[d.evidenceGrade]}`),
         ),
       ),
@@ -212,7 +238,7 @@ function planDetail(ctx, plan) {
 
 export function bomRows(plan) {
   return [
-    ['제품', '제품군', '설계안', '기준품', '매수', '양극수', '음극수', '셀수', '양극코드', '음극코드', '활물질(g/매)', 'C20(Ah)', 'RC(분)', 'EN CCA(A)', 'SAE CCA(A)', 'C20여유(%)', 'RC여유(%)', 'EN여유(%)', 'SAE여유(%)', '격리판봉합', '봉합근거', '납중량(kg)', '납중량출처', '대당원가(원)', '근거등급', '신뢰지수', '선택사유', '경고'],
+    ['제품', '제품군', '설계안', '기준품', '매수', '양극수', '음극수', '셀수', '양극코드', '음극코드', '활물질(g/매)', 'C20(Ah)', 'RC(분)', 'EN CCA(A)', 'SAE CCA(A)', 'C20여유(%)', 'RC여유(%)', 'EN여유(%)', 'SAE여유(%)', '적층(mm)', '적층실적상한(mm)', '적층초과', '격리판봉합', '봉합근거', '납중량(kg)', '납중량출처', '대당원가(원)', '근거등급', '신뢰지수', '선택사유', '경고'],
     ...plan.designs.map((d) => [
       d.spec.name,
       d.spec.group,
@@ -233,6 +259,9 @@ export function bomRows(plan) {
       d.rcMargin ?? '목표 미입력',
       d.ccaMargin ?? '목표 미입력',
       d.saeMargin ?? '목표 미입력',
+      d.stack?.sum ?? '',
+      d.stack?.budget ?? '',
+      d.stack?.overBudget ? '초과' : '',
       d.separator?.label || '',
       d.separator?.value ? `${d.separator.basis} ${d.separator.agree}/${d.separator.total}` : '',
       d.predictedLead,

@@ -351,6 +351,8 @@ i.grade-A { background: #35a173; } i.grade-B { background: #22a595; } i.grade-C 
   padding: 2px 8px; border-radius: 999px; background: var(--red-soft); color: var(--red);
 }
 .muted-cell { color: var(--muted); }
+.stack-ok { color: var(--muted); }
+.stack-over { color: var(--red); font-weight: 700; }
 
 /* ---------------------------- DB 임포트 ---------------------------- */
 
